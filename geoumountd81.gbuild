@@ -1,0 +1,6 @@
+[build]
+Disk="GeoUMount.d81"
+Header="geoumountHdr.bin"
+
+[Sequential]
+Data="geoumount.bin"

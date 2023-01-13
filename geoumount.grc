@@ -1,0 +1,10 @@
+
+; this is the resource file for test.c, a GEOS application example
+
+HEADER APPLICATION "GeoUMount" "GeoUMount" "V0.1" {
+dostype SEQ
+author  "Xander Mol"
+info    "Disk mounter for the Ultimate II+ in GEOS."
+mode    any
+icon    "mounticon.bin"
+}
