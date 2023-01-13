@@ -1,0 +1,6 @@
+[build]
+Disk="GeoUTimeCfg.d81"
+Header="geoutimecfgHdr.bin"
+
+[Sequential]
+Data="geoutimecfg.bin"

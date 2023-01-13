@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "ultimate_dos_lib.h": "c",
+        "ultimate_common_lib.h": "c",
+        "ultimate_ltime_lib.h": "c",
+        "string.h": "c",
+        "stdlib.h": "c"
+    }
+}

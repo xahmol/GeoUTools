@@ -1,0 +1,10 @@
+
+; this is the resource file for test.c, a GEOS application example
+
+HEADER APPLICATION "GeoUTime" "GeoUTime" "V0.1" {
+dostype SEQ
+author  "Xander Mol"
+info    "Utility to synch GEOS system time with NTP server and UII+ RTC clock"
+mode    any
+icon    "timeicon.bin"
+}

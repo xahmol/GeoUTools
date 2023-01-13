@@ -1,0 +1,6 @@
+[build]
+Disk="GeoUTime.d81"
+Header="geoutimeHdr.bin"
+
+[Sequential]
+Data="geoutime.bin"
