@@ -8,8 +8,9 @@
 
 // Global variables
 extern long secondsfromutc; 
+extern unsigned char verbose;
 extern char host[81];
-extern char configbuffer[91];
+extern char configbuffer[93];
 extern char filename[13];
 extern struct fileheader configfileHdr;
 

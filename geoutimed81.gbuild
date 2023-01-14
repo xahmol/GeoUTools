@@ -1,5 +1,5 @@
 [build]
-Disk="GeoUTime.d81"
+Disk="GeoUTools.d81"
 Header="geoutimeHdr.bin"
 
 [Sequential]

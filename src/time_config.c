@@ -50,6 +50,7 @@ void geosSwitch4080(void);
 void geosExit (void);
 void settingHostname (void);
 void settingUTCOffset (void);
+void settingVerbose (void);
 void informationCredits (void);
 
 // Menu structures with pointers to the menu handlers above
@@ -65,11 +66,12 @@ static struct menu menuGEOS = {
 
 static struct menu menuSetting = {
     // Time
-        { 15, 15+2*15, 35, 135 },
-        2 | VERTICAL,
+        { 15, 15+3*15, 35, 135 },
+        3 | VERTICAL,
           {
             { "Hostname", MENU_ACTION, settingHostname },
             { "UTC offset", MENU_ACTION, settingUTCOffset },
+            { "Verbose", MENU_ACTION, settingVerbose },
           }
  };
 
@@ -147,6 +149,26 @@ void settingUTCOffset (void) {
     return;
 }
 
+void settingVerbose () {
+// Change verbosity setting
+
+    ReDoMenu();
+
+    sprintf(buffer,"Present value is: %s",(verbose)?"Yes":"No");
+
+    if(DlgBoxYesNo("Do you want to enable verbosity?",buffer) == YES) {
+        verbose = 1;
+    }
+    else
+    {
+        verbose = 0;
+    }
+
+   ConfigSave();
+
+    return;
+}
+
 void informationCredits (void) {
 // Show credits
     
@@ -194,8 +216,11 @@ void main (void)
     ConfigLoad();
 
     // Initialize the screen after program startup
+    mainicons = &noicons;
+    icons = mainicons;
     ReinitScreen(appname);
     DoMenu(&menuMain);
+    DoIcons(icons);
     
     // Never returns    
     MainLoop();

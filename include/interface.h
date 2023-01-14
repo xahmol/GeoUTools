@@ -30,6 +30,7 @@ extern struct window vdc_winRec;
 // Icons
 extern char IconOK[];
 extern struct icontab *icons;
+extern struct icontab *mainicons;
 extern struct icontab *winOK;
 extern struct icontab noicons;
 extern struct icontab vic_winOK;

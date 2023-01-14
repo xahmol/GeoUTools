@@ -95,36 +95,31 @@ ULTHOST2 = ftp://192.168.1.31/usb1/11/
 
 .SUFFIXES:
 .PHONY: all clean deploy vice
-all: $(MOUNT).bin $(MOUNT).d81 $(TIME).bin $(TIME).d81 $(CONF).bin $(CONF).d81
+all: $(MOUNT).bin $(SUITE).d81 $(TIME).bin $(CONF).bin
 
 # Building GeoUMount
 $(MOUNT).bin: $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
 	$(CL) $(CFLAGS) $(MOUNTFLG) -o $(MOUNT).bin $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
 
-$(MOUNT).d81:	$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d81.gbuild
-	$(DEL) $(MOUNT).d81 2>$(NULLDEV)
+# Creating suite disk image
+$(SUITE).d81:	$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d81.gbuild
+	$(DEL) $(SUITE).d81 2>$(NULLDEV)
 	$(GBUILD) $(MOUNT)d81.gbuild
 
 # Building GeoUTime
 $(TIME).bin: $(TIME).grc $(TIMESRC) $(TIMEHDR)
 	$(CL) $(CFLAGS) $(TIMEFLG) -o $(TIME).bin $(TIME).grc $(TIMESRC) $(TIMEHDR)
-
-$(TIME).d81:	$(TIME).bin $(TIME)Hdr.bin $(TIME)d81.gbuild
-	$(DEL) $(TIME).d81 2>$(NULLDEV)
 	$(GBUILD) $(TIME)d81.gbuild
 
 # Building GeoUTime Config
 $(CONF).bin: $(CONF).grc $(CONFSRC) $(CONFHDR)
 	$(CL) $(CFLAGS) $(CONFFLG) -o $(CONF).bin $(CONF).grc $(CONFSRC) $(CONFHDR)
-
-$(CONF).d81:	$(CONF).bin $(CONF)Hdr.bin $(CONF)d81.gbuild
-	$(DEL) $(CONF).d81 2>$(NULLDEV)
 	$(GBUILD) $(CONF)d81.gbuild
 
 clean:
 	$(DEL) $(MOUNT)*.bin $(MOUNT).map $(TIME)*.bin $(TIME).map $(CONF)*.bin $(CONF).map 2>$(NULLDEV)
 
 # To deploy software to UII+ enter make deploy. Obviously C128 needs to powered on with UII+ and USB drive connected.
-deploy: $(MOUNT).d81
-	wput -u $(MOUNT).d81 $(TIME).d81 $(CONF).d81 $(ULTHOST)
+deploy: $(SUITE).d81
+	wput -u $(SUITE).d81 $(ULTHOST)
 #	wput -u $(MOUNT).d81 $(ULTHOST2)

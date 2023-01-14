@@ -85,6 +85,7 @@ char IconOK[] = {
 };
 
 struct icontab *icons;
+struct icontab *mainicons;
 struct icontab *winOK;
 
 struct icontab noicons = {
@@ -205,7 +206,7 @@ void CloseWindow() {
     mouseOn = SET_MSE_ON + SET_MENUON + SET_ICONSON;
 
     // Clear OK icon
-    icons = &noicons;
+    icons = mainicons;
     DoIcons(icons);
 
     // Recover background

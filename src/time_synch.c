@@ -51,6 +51,17 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 unsigned char socket = 0;
 
 // Application routines
+unsigned char CheckStatus() {
+// Function to check UII+ status and print error box if applicable
+
+    if (!uii_success()) {
+        if(verbose) {
+            DlgBoxOk("Ultimate Command Interface error!",(const char *)uii_status);
+        }
+        return 1;
+    }
+    return 0;
+}
 
 void close_socket() {
 // Close the open websocket
@@ -80,16 +91,24 @@ void get_ntp_time() {
     socket = 0;
 
     // Connect to NTP host. Return on error
+    if(verbose) {
+        sprintf(buffer,"Connecting to: %s", host);
+        PutString(buffer,49,10);
+    }
     InitForIO();
 	socket = uii_udpconnect(host, 123); //https://github.com/markusC64/1541ultimate2/blob/master/software/io/network/network_target.cc
     DoneWithIO();
     
-    if(uii_success()) {
+    if(CheckStatus()) {
         close_socket();
         return;
     }
 
     // Sending data request. Return on error
+    if(verbose) {
+        PutString("Sending NTP request,",59,10);
+    }
+
 	fullcmd[2] = socket;
 
     InitForIO();
@@ -99,17 +118,20 @@ void get_ntp_time() {
 	uii_accept();
     DoneWithIO();
 
-    if(uii_success()) {
+    if(CheckStatus()) {
         close_socket();
         return;
     }
 
     // Recieving datat. Return on error
+    if(verbose) {
+        PutString("Reading result.",69,10);
+    }
     InitForIO();
     uii_socketread(socket, 50);// 2 + sizeof( ntp_packet ));
     DoneWithIO();
 
-    if(uii_success()) {
+    if(CheckStatus()) {
         close_socket();
         return;
     }
@@ -120,11 +142,26 @@ void get_ntp_time() {
     // Convert time received to UCI format and set UII+ RTC time
     t = uii_data[37] | (((unsigned long)uii_data[36])<<8)| (((unsigned long)uii_data[35])<<16)| (((unsigned long)uii_data[34])<<24);
     t -= NTP_TIMESTAMP_DELTA;
+
+    if(verbose) {
+        sprintf(buffer,"UNIX epoch: %lu", t);
+        PutString(buffer,79,10);
+    }
+
     _tz.timezone = secondsfromutc;
     datetime = localtime(&t);
     if (strftime(res, sizeof(res), "%F %H:%M:%S", datetime) == 0){
+        if(verbose) {
+            DlgBoxOk("Data error","Cannot parse date.");
+        }
         return;
     }
+
+    if(verbose) {
+        sprintf(buffer,"NTP datetime: %s", res);
+        PutString(buffer,89,10);
+    }
+
     settime[0]=datetime->tm_year;
     settime[1]=datetime->tm_mon + 1;
     settime[2]=datetime->tm_mday;
@@ -135,6 +172,10 @@ void get_ntp_time() {
     InitForIO();
     uii_set_time(settime);
     DoneWithIO();
+    if(verbose) {
+        sprintf(buffer,"Synched UII+ RTC. Status: %s", uii_status);
+        PutString(buffer,99,10);
+    }
 }
 
 void timeSynch () {
@@ -146,8 +187,13 @@ void timeSynch () {
     uii_get_time();
     DoneWithIO();
 
-    if(uii_success())
+    if(!CheckStatus())
     {
+        if(verbose) {
+            sprintf(buffer,"Get UII+ RTC. Time: %s", uii_data);
+            PutString(buffer,109,10);
+        }
+
         // Set GEOS system time
 
         // Copy year
@@ -155,7 +201,6 @@ void timeSynch () {
         buffer[1]=uii_data[3];
         buffer[2]=0;
         system_date.s_year = strtol(buffer,&ptrend,10);
-
 
         // Copy month
         buffer[0]=uii_data[5];
@@ -181,6 +226,14 @@ void timeSynch () {
         buffer[0]=uii_data[17];
         buffer[1]=uii_data[18];
         system_date.s_seconds = strtol(buffer,&ptrend,10);
+
+        if(verbose) {
+            sprintf(buffer,"New GEOS system time: %2d/%2d/%2d %2d:%2d:%2d",
+            system_date.s_day,system_date.s_month,system_date.s_year,
+            system_date.s_hour,system_date.s_minutes,system_date.s_seconds);
+            PutString(buffer,119,10);
+            DlgBoxOk("Time set!",buffer);
+        }
     }
 }
 
@@ -190,6 +243,19 @@ void main (void)
 {
     // Load config file
     ConfigLoad();
+
+    // If verbose, draw dialogue window
+    if(verbose)
+    {
+        SetPattern(0);
+        drawWindow.top = 20;
+        drawWindow.bot = 140;
+        drawWindow.left = 0;
+        drawWindow.right = 320;
+        Rectangle();  // Window
+        FrameRectangle(255);    // Frame
+        PutString(CBOLDON "GeoUTime - Verbose mode" CPLAINTEXT,29,10);
+    }
 
     // Get NTP time and set UII+ RTC
     get_ntp_time();

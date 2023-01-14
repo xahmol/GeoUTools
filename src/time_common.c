@@ -48,7 +48,8 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 char buffer[81];
 long secondsfromutc = 3600; 
 char host[81] = "pool.ntp.org";
-char configbuffer[91];
+unsigned char verbose = 0;
+char configbuffer[93];
 char filename[13] = "GeoUTimeDat";
 
 // Declare config file header
@@ -80,7 +81,7 @@ void ConfigSave() {
     unsigned char error;
 
     // Clear configbuffer'
-    memset(configbuffer,0,91);
+    memset(configbuffer,0,93);
 
     // Copy host to savebuffer
     CopyString(configbuffer, host);
@@ -88,10 +89,13 @@ void ConfigSave() {
     // Copy UTC offset to savebuffer
     sprintf(configbuffer+80,"%ld",secondsfromutc);
 
+    // Copy verbose flag to savebuffer
+    configbuffer[92] = verbose+48;
+
     // Set fileheader for save file
     POKEW((int)&configfileHdr.n_block,(int)&filename);
     configfileHdr.load_address = (int)configbuffer;
-    configfileHdr.end_address= (int)configbuffer + 90;
+    configfileHdr.end_address= (int)configbuffer + 93;
 
     // Delete old file
     DeleteFile(filename);
@@ -128,6 +132,9 @@ void ConfigLoad() {
         }
         return;
     }
+
+    // Reading verbose flag
+    verbose = configbuffer[92]-48;
 
     // Reading hostname
     CopyFString(80, host, configbuffer);

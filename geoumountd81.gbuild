@@ -1,5 +1,5 @@
 [build]
-Disk="GeoUMount.d81"
+Disk="GeoUTools.d81"
 Header="geoumountHdr.bin"
 
 [Sequential]

@@ -49,6 +49,13 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 // Global variables
 char buffer[81];
 
+// Interface icontab
+struct icontab interfaceicons = {
+    1,
+    { 0,0 },
+    { 0, 0, 0, 1, 1, 0 }
+};
+
 // Declare functions prototypes that are called when menu items are 
 // clicked on and are used in the structs that defines the menus below.
 void geosSwitch4080(void);
@@ -218,9 +225,11 @@ void main (void)
     osType = get_ostype();
 
     // Initialize the screen after program startup
+    mainicons = &noicons;
+    icons = mainicons;
     ReinitScreen(appname);
     DoMenu(&menuMain);
-
+    DoIcons(icons);
     DrawFilebrowser();
     
     // Never returns    
