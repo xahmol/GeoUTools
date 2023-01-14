@@ -1,7 +1,7 @@
 /*
 GeoUMount
 Disk mounter for the Ultimate II+ in GEOS
-Written in 2022 by Xander Mol
+Written in 2023 by Xander Mol
 
 https://github.com/xahmol/GeoUTools
 https://www.idreamtin8bits.com/
@@ -196,7 +196,7 @@ void informationCredits (void) {
     PutString("Disk mounter for the Ultimate II+ in GEOS",79,xcoord);
     sprintf(buffer,"Version: %s",version);
     PutString(buffer,99,xcoord);
-    PutString("Written by Xander Mol, 2022",109,xcoord);
+    PutString("Written by Xander Mol, 2023",109,xcoord);
     PutString("For documentation, source, license and credits, see",119,xcoord);
     PutString("https://github.com/xahmol/GeoUTools",129,xcoord);
     PutString("https://www.idreamtin8bits.com/",139,xcoord);

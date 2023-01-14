@@ -1,6 +1,6 @@
 ; GeoUTime - Synch program file header
 ; Utility to synch GEOS system time with NTP server and UII+ RTC clock.
-; Written in 2022 by Xander Mol
+; Written in 2023 by Xander Mol
 ; 
 ; https://github.com/xahmol/GeoUMount
 ; https://www.idreamtin8bits.com/
