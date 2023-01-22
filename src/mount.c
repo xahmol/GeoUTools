@@ -44,6 +44,7 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 #include <stdlib.h>
 #include <geos.h>
 #include <peekpoke.h>
+//#include <conio.h>
 #include "defines.h"
 #include "interface.h"
 #include "ultimate_common_lib.h"
@@ -281,7 +282,7 @@ void Readdir() {
 
     struct DirElement* previous = 0;
     struct DirElement* present = 0;
-    unsigned char presenttype = 0;
+    unsigned char presenttype;
     unsigned char datalength,maxlength;
 
     // Free memory of previous dir if any
@@ -300,6 +301,9 @@ void Readdir() {
     // Loop while dir data is available or memory is full
     while(uii_isdataavailable())
 	{
+        // Reset entry type
+        presenttype = 0;
+
         // Get next dir entry
 		uii_readdata();
 		uii_accept();
@@ -324,37 +328,53 @@ void Readdir() {
                 (uii_data[datalength-1] == '1')) { presenttype =4; }
 
             // Check of identified image type matches selected target drive
-            if( presenttype != drivetypeID[targetdrive]) { presenttype=0; }  
+            if( presenttype != drivetypeID[targetdrive-1]+1) { presenttype=0; }  
         }
+
+        //DoneWithIO();
+        //SetPattern(0);
+        //SetRectangleCoords(150,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
+        //Rectangle();
+        //gotoxy(1,20);
+        //cprintf("%d %d %d %s",presenttype,drivetypeID[targetdrive]+1,datalength,uii_data);
 
         if(presenttype) {
             // Get file or dir name to buffer
             maxlength = datalength;
-            if(presenttype>1) { maxlength-=4; }                 // Truncate for .d** extension
+            if(presenttype>1) { maxlength-=5; }                 // Truncate for .d** extension
             if(maxlength>20) {maxlength=20; presenttype=5; }    // Truncate for max 20
             memset(buffer,0,21);
             CopyFString(maxlength,buffer,uii_data+1);
 
             // Allocate memory for dir entry
-            present = calloc(1, sizeof(presentdirelenent));
+            present = calloc(1, 26);
 
             // Break loop if memory is full
             if(!present) { break; }
 
             // Set direntry data
+            presentdirelenent = present;
             CopyString(presentdirelenent->filename,buffer);
             presentdirelenent->type = presenttype;
 
+            //gotoxy(1,21);
+            //cprintf("%d %4x %s %s %d",maxlength,present,buffer,presentdirelenent->filename,presentdirelenent->type);
+//
             // Set direntry pointers
-            presentdirelenent = present;
-            if(!previous) { presentdir.firstelement = present; presentdir.firstprint = present; }
+            presentdir.lastelement = present;       // Update dir last element
+            if(!previous) { presentdir.firstelement = present; presentdir.firstprint = present; previous=present; }
             else {
-                presentdir.lastelement = present;       // Update dir last element
                 presentdirelenent->prev = previous;     // Set prev in new entry
                 presentdirelenent = previous;           // Load previous element
                 presentdirelenent->next = present;      // Set next in this prev element
+                previous=present;                       // Update previous pointer
             }
+            //gotoxy(1,22);
+            //cprintf("%4x %4x %4x %4x",previous,presentdirelenent->next,presentdir.firstelement,presentdir.lastelement);
         }
+
+        //cgetc();
+        //InitForIO();
 	}
 
     // Close IO
@@ -444,7 +464,7 @@ void DrawDir(refresh) {
     if(refresh)
     {
         SetPattern(0);
-        SetRectangleCoords(46,186,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
+        SetRectangleCoords(46,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
         Rectangle();
     }
 
@@ -469,8 +489,14 @@ void DrawDir(refresh) {
 
             // Print entry
             type = presentdirelenent->type;
-            sprintf(buffer,"%s <%s>",presentdirelenent->filename,entrytypes[type]);
+            sprintf(buffer,"%s <%s>",presentdirelenent->filename,entrytypes[type-1]);
             PutString(buffer,printpos,interfaceCoords->filelist_xstart+5);
+
+            //SetPattern(0);
+            //SetRectangleCoords(150,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
+            //Rectangle();
+            //gotoxy(1,20);
+            //cprintf("%4x %d",present,type);
 
             // Update lastprinted and printpos
             presentdir.lastprint = present;
@@ -479,6 +505,10 @@ void DrawDir(refresh) {
             // Check if next dir entry is present, if no: break. If yes: update present pointer
             if(!presentdirelenent->next) { break; }
             else { present = presentdirelenent->next; }
+
+            //gotoxy(1,21);
+            //cprintf("%4x %4x %4x %d",present,presentdir.firstprint,presentdir.lastprint,printpos);
+            //cgetc();
 
         } while (printpos<187);
     }
@@ -607,6 +637,7 @@ void geosExit (void) {
     // Ask confirnation
     if (DlgBoxOkCancel("Exit to desktop", "Are you sure?") == OK)
     {
+        if(presentdir.firstelement) { Freedir(); }
         EnterDeskTop();
     }
     else
