@@ -76,7 +76,7 @@ struct DirElement {
     struct DirElement* next;
     struct DirElement* prev;
 };
-struct DirElement *presentdirelenent;
+struct DirElement *presentdirelement;
 
 struct Directory {
     struct DirElement* firstelement;
@@ -268,12 +268,22 @@ void Freedir() {
 // Free memory of presently loaded dir
 
     struct DirElement* next = 0;
+    struct DirElement* present;
+
+    present = presentdir.firstelement;
     
     do
     {
-        presentdirelenent = presentdir.firstelement;
-        next = presentdirelenent->next;
-        free(presentdirelenent);
+        presentdirelement = present;
+        next = presentdirelement->next;
+        free(present);
+        present = next;
+
+        //SetPattern(0);
+        //SetRectangleCoords(150,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
+        //Rectangle();
+        //gotoxy(1,20);
+        //cprintf("%d %d",present,next);
     } while (next);
 }
 
@@ -296,7 +306,9 @@ void Readdir() {
 
     // Initialise reading dir
     InitForIO();
+    uii_open_dir();
     uii_get_dir();
+    DoneWithIO();
 
     // Loop while dir data is available or memory is full
     while(uii_isdataavailable())
@@ -305,8 +317,10 @@ void Readdir() {
         presenttype = 0;
 
         // Get next dir entry
+        InitForIO();
 		uii_readdata();
 		uii_accept();
+        DoneWithIO();
 
         datalength = strlen(uii_data);
 
@@ -353,32 +367,29 @@ void Readdir() {
             if(!present) { break; }
 
             // Set direntry data
-            presentdirelenent = present;
-            CopyString(presentdirelenent->filename,buffer);
-            presentdirelenent->type = presenttype;
+            presentdirelement = present;
+            CopyString(presentdirelement->filename,buffer);
+            presentdirelement->type = presenttype;
 
             //gotoxy(1,21);
-            //cprintf("%d %4x %s %s %d",maxlength,present,buffer,presentdirelenent->filename,presentdirelenent->type);
+            //cprintf("%d %4x %s %s %d",maxlength,present,buffer,presentdirelement->filename,presentdirelement->type);
 //
             // Set direntry pointers
             presentdir.lastelement = present;       // Update dir last element
             if(!previous) { presentdir.firstelement = present; presentdir.firstprint = present; previous=present; }
             else {
-                presentdirelenent->prev = previous;     // Set prev in new entry
-                presentdirelenent = previous;           // Load previous element
-                presentdirelenent->next = present;      // Set next in this prev element
+                presentdirelement->prev = previous;     // Set prev in new entry
+                presentdirelement = previous;           // Load previous element
+                presentdirelement->next = present;      // Set next in this prev element
                 previous=present;                       // Update previous pointer
             }
             //gotoxy(1,22);
-            //cprintf("%4x %4x %4x %4x",previous,presentdirelenent->next,presentdir.firstelement,presentdir.lastelement);
+            //cprintf("%4x %4x %4x %4x",previous,presentdirelement->next,presentdir.firstelement,presentdir.lastelement);
         }
 
         //cgetc();
         //InitForIO();
 	}
-
-    // Close IO
-    DoneWithIO();
 }
 
 // Screen functions
@@ -400,7 +411,7 @@ void DrawIDandPath(unsigned char refresh) {
     if(refresh)
     {
         SetPattern(0);
-        SetRectangleCoords(20,40,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
+        SetRectangleCoords(21,39,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
         Rectangle();
     }
 
@@ -485,12 +496,12 @@ void DrawDir(refresh) {
         do
         {
             // Get new element
-            presentdirelenent = present;
+            presentdirelement = present;
 
             // Print entry
-            type = presentdirelenent->type;
-            sprintf(buffer,"%s <%s>",presentdirelenent->filename,entrytypes[type-1]);
-            PutString(buffer,printpos,interfaceCoords->filelist_xstart+5);
+            type = presentdirelement->type;
+            PutString(presentdirelement->filename,printpos,interfaceCoords->filelist_xstart+5);
+            PutString(entrytypes[type-1],printpos,interfaceCoords->filelist_xstart+165);
 
             //SetPattern(0);
             //SetRectangleCoords(150,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
@@ -503,8 +514,8 @@ void DrawDir(refresh) {
             printpos += 10;
 
             // Check if next dir entry is present, if no: break. If yes: update present pointer
-            if(!presentdirelenent->next) { break; }
-            else { present = presentdirelenent->next; }
+            if(!presentdirelement->next) { break; }
+            else { present = presentdirelement->next; }
 
             //gotoxy(1,21);
             //cprintf("%4x %4x %4x %d",present,presentdir.firstprint,presentdir.lastprint,printpos);
@@ -592,11 +603,23 @@ void DriveselectD() {
 }
 
 void DirBack() {
+// Go back to parent dir
 
+    InitForIO();
+    uii_change_dir("..");
+	DoneWithIO();
+    DrawIDandPath(1);
+    DrawDir(1);
 }
 
 void DirRoot() {
+// Go back to root dir
 
+    InitForIO();
+    uii_change_dir_home();
+	DoneWithIO();
+    DrawIDandPath(1);
+    DrawDir(1);
 }
 
 void DirTop() {
