@@ -95,25 +95,25 @@ ULTHOST2 = ftp://192.168.1.31/usb1/11/
 
 .SUFFIXES:
 .PHONY: all clean deploy vice
-all: $(MOUNT).bin $(SUITE).d81 $(TIME).bin $(CONF).bin
+all: $(MOUNT).bin $(TIME).bin $(CONF).bin $(SUITE).d81
 
 # Building GeoUMount
 $(MOUNT).bin: $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
 	$(CL) $(CFLAGS) $(MOUNTFLG) -o $(MOUNT).bin $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
 
-# Creating suite disk image
-$(SUITE).d81:	$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d81.gbuild
-	$(DEL) $(SUITE).d81 2>$(NULLDEV)
-	$(GBUILD) $(MOUNT)d81.gbuild
-
 # Building GeoUTime
 $(TIME).bin: $(TIME).grc $(TIMESRC) $(TIMEHDR)
 	$(CL) $(CFLAGS) $(TIMEFLG) -o $(TIME).bin $(TIME).grc $(TIMESRC) $(TIMEHDR)
-	$(GBUILD) $(TIME)d81.gbuild
 
 # Building GeoUTime Config
 $(CONF).bin: $(CONF).grc $(CONFSRC) $(CONFHDR)
 	$(CL) $(CFLAGS) $(CONFFLG) -o $(CONF).bin $(CONF).grc $(CONFSRC) $(CONFHDR)
+
+# Creating suite disk image
+$(SUITE).d81:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d81.gbuild $(TIME).bin $(TIME)Hdr.bin $(TIME)d81.gbuild $(CONF).bin $(CONF)Hdr.bin $(CONF)d81.gbuild
+	$(DEL) $(SUITE).d81 2>$(NULLDEV)
+	$(GBUILD) $(MOUNT)d81.gbuild
+	$(GBUILD) $(TIME)d81.gbuild
 	$(GBUILD) $(CONF)d81.gbuild
 
 clean:

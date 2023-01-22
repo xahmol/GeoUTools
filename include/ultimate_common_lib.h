@@ -58,6 +58,7 @@ Patches and pull requests are welcome
 #define DOS_CMD_SWAP_DISK		0x25
 #define DOS_CMD_GET_TIME		0x26
 #define DOS_CMD_SET_TIME		0x27
+#define CTRL_CMD_DEVICE_INFO	0x29
 #define CTRL_CMD_ENABLE_DISK_A	0x30
 #define CTRL_CMD_DISABLE_DISK_A	0x31
 #define CTRL_CMD_ENABLE_DISK_B	0x32

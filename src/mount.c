@@ -24,6 +24,9 @@ Code and resources from others used:
 
 -   Scott Hutter - Ultimate II+ libraru:
     https://github.com/xlar54/ultimateii-dos-lib/tree/master/src/samples
+
+-   ntp2ultimate by MaxPlap: code for obtaining time via NTP
+    https://github.com/MaxPlap/ntp2ultimate
    
 -   Tested using real hardware (C128D and C128DCR) using GEOS128 2.0
 
@@ -48,13 +51,159 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 
 // Global variables
 char buffer[81];
+unsigned char validdrive[4] = {0,0,0,0};
+char drivetypes[4][14] = {
+    "No target",
+    "Emulated 1541",
+    "Emulated 1571",
+    "Emulated 1581"
+};
+char entrytypes[5][4] = {
+    "DIR",
+    "D64",
+    "D71",
+    "D81",
+    "!TL"
+};
+char drivetypeID[4];
+unsigned char targetdrive;
+
+// Directory entry struct
+struct DirElement {
+    unsigned char type; // Type: 1=dir, 2=D64, 3=D71, 4=D81
+	char filename[21];
+    struct DirElement* next;
+    struct DirElement* prev;
+};
+struct DirElement *presentdirelenent;
+
+struct Directory {
+    struct DirElement* firstelement;
+    struct DirElement* lastelement;
+    struct DirElement* firstprint;
+    struct DirElement* lastprint;
+};
+struct Directory presentdir;
+
+// Icons
+// Select drive icons: two cards wide (16 pxiels) amd 16 lines
+char iconA[] = {
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x81,0x83,0x81,0x83,0x83,0xC3,0x83,0xC3,0x86,
+    0x63,0x86,0x63,0x8F,0xF3,0x8C,0x33,0x8C,0x33,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
+    0xFF
+};
+
+char iconB[] = {
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x8F,0xC3,0x8C,0x63,0x8C,0x63,0x8F,0xC3,0x8C,
+    0x63,0x8C,0x63,0x8C,0x63,0x8C,0x63,0x8F,0xC3,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
+    0xFF
+};
+
+char iconC[] = {
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x87,0xC3,0x8C,0x63,0x8C,0x03,0x8C,0x03,0x8C,
+    0x03,0x8C,0x03,0x8C,0x03,0x8C,0x63,0x87,0xC3,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
+    0xFF
+};
+
+char iconD[] = {
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x8F,0x83,0x8C,0xC3,0x8C,0x63,0x8C,0x63,0x8C,
+    0x63,0x8C,0x63,0x8C,0x63,0x8C,0xC3,0x8F,0x83,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
+    0xFF
+};
+
+// Scroll arrow icons of 1 card by 8 lines
+char iconArrowUp[] = {
+    0x88,0xFF,0x88,0x9C,0xBE,0x80,0xBE,0x80,0xFF
+};
+
+char iconArrowDown[] = {
+    0x88,0xFF,0x80,0xBE,0x80,0xBE,0x9C,0x88,0xFF
+};
+
+// Dir travel icons of 4 cards and 9 lines
+char iconBack[] = {
+    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xB8,0xC6,0x48,0x01,0xA5,0x29,0x50,0x01,0xB9,
+    0xE8,0x60,0x01,0xA5,0x29,0x50,0x01,0xB9,0x26,0x48,0x01,0x80,0x00,0x00,0x01,0x04,
+    0xFF
+};
+
+char iconRoot[] = {
+    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xB8,0xC6,0x7C,0x01,0xA5,0x29,0x10,0x01,0xB9,
+    0x29,0x10,0x01,0xA5,0x29,0x10,0x01,0xA4,0xC6,0x10,0x01,0x80,0x00,0x00,0x01,0x04,
+    0xFF
+};
+
+char iconTop[] = {
+    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xBE,0x67,0x00,0x01,0x88,0x94,0x80,0x01,0x88,
+    0x97,0x00,0x01,0x88,0x94,0x00,0x01,0x88,0x64,0x00,0x01,0x80,0x00,0x00,0x01,0x04,
+    0xFF
+};
+
+char iconBottom[] = {
+    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xB8,0xCE,0xE6,0x45,0xA5,0x24,0x49,0x6D,0xB9,
+    0x24,0x49,0x55,0xA5,0x24,0x49,0x45,0xB8,0xC4,0x46,0x45,0x80,0x00,0x00,0x01,0x04,
+    0xFF
+};
+
+// Declare interface functions
+void DriveselectA (void);
+void DriveselectB (void);
+void DriveselectC (void);
+void DriveselectD (void);
+void DirBack (void);
+void DirRoot (void);
+void DirTop (void);
+void DirBottom (void);
+void ScrollUp (void);
+void ScrollDown (void);
 
 // Interface icontab
-struct icontab interfaceicons = {
-    1,
+struct icontab vic_mainicons = {
+    10,
     { 0,0 },
-    { 0, 0, 0, 1, 1, 0 }
+    {
+        { iconA, 28, 50, 2, 16, (int)DriveselectA },
+        { iconB, 28, 70, 2, 16, (int)DriveselectB },
+        { iconC, 28, 90, 2, 16, (int)DriveselectC },
+        { iconD, 28, 110, 2, 16, (int)DriveselectD },
+        { iconBack, 28, 130, 4, 9, (int)DirBack },
+        { iconRoot, 28, 140, 4, 9, (int)DirRoot },
+        { iconTop, 28, 150, 4, 9, (int)DirTop },
+        { iconBottom, 28, 160, 4, 9, (int)DirBottom },
+        { iconArrowUp, 25, 45, 1, 8, (int)ScrollUp },
+        { iconArrowDown, 25, 180, 1, 8, (int)ScrollDown },
+    }
 };
+
+struct icontab vdc_mainicons = {
+    10,
+    { 0,0 },
+    {
+        { iconA, 56, 50, 2, 16, (int)DriveselectA },
+        { iconB, 56, 70, 2, 16, (int)DriveselectB },
+        { iconC, 56, 90, 2, 16, (int)DriveselectC },
+        { iconD, 56, 110, 2, 16, (int)DriveselectD },
+        { iconBack, 56, 130, 4, 9, (int)DirBack },
+        { iconRoot, 56, 140, 4, 9, (int)DirRoot },
+        { iconTop, 56, 150, 4, 9, (int)DirTop },
+        { iconBottom, 56, 160, 4, 9, (int)DirBottom },
+        { iconArrowUp, 50, 45, 1, 8, (int)ScrollUp },
+        { iconArrowDown, 50, 180, 1, 8, (int)ScrollDown },
+    }
+};
+
+// Interface coords for handling 40 and 80 column
+struct intCoords {
+    unsigned int filelist_xstart;
+    unsigned int filelist_xend;
+    unsigned int scroll_xend;
+    unsigned int righttab_xstart;
+};
+
+struct intCoords *interfaceCoords;
+
+struct intCoords vic_intCoords = { 5,200,208,224 };
+struct intCoords vdc_intCoords = { 5,400,408,448 };
 
 // Declare functions prototypes that are called when menu items are 
 // clicked on and are used in the structs that defines the menus below.
@@ -83,6 +232,135 @@ static struct menu menuMain = {
           }
  };
 
+// Application routines
+void SetValidDrives() {
+// Initialise variables to defines which drive IDs are valid targets
+
+    unsigned char drive;
+
+    targetdrive = 0;
+
+    // Get GEOS drive types
+    CopyString(drivetypeID,(char *) (DRIVETYPES));
+
+    // Get device info from UCI
+    InitForIO();
+    uii_get_deviceinfo();
+	DoneWithIO(); 
+
+    for(drive=0;drive<4;drive++)
+    {
+        validdrive[drive]=0;
+
+        // Check if drive ID is an Ulimate emulated drive
+        if(uii_data[2] == (drive + 8) || uii_data[5] == (drive+8) )
+        {
+            if(drivetypeID[drive]<4) {
+                validdrive[drive] = drivetypeID[drive];
+                if(!targetdrive) { targetdrive = drive+1; }
+            }
+        }
+    }
+}
+
+void Freedir() {
+// Free memory of presently loaded dir
+
+    struct DirElement* next = 0;
+    
+    do
+    {
+        presentdirelenent = presentdir.firstelement;
+        next = presentdirelenent->next;
+        free(presentdirelenent);
+    } while (next);
+}
+
+void Readdir() {
+// Read present dir of UCI DOS target
+
+    struct DirElement* previous = 0;
+    struct DirElement* present = 0;
+    unsigned char presenttype = 0;
+    unsigned char datalength,maxlength;
+
+    // Free memory of previous dir if any
+    if(presentdir.firstelement) { Freedir(); }
+
+    // Clear directory values
+    presentdir.firstelement = 0;
+    presentdir.firstprint = 0;
+    presentdir.firstprint = 0;
+    presentdir.lastprint = 0;
+
+    // Initialise reading dir
+    InitForIO();
+    uii_get_dir();
+
+    // Loop while dir data is available or memory is full
+    while(uii_isdataavailable())
+	{
+        // Get next dir entry
+		uii_readdata();
+		uii_accept();
+
+        datalength = strlen(uii_data);
+
+        // Check if entry is a dir by checking if bit 4 of first byte is set
+        if(uii_data[0]&0x10) { presenttype=1; }
+
+        // Check if file is a matching image type
+        if(!presenttype) {
+
+            // Check for filename extension of a disk image (D64, D71 or D81)
+            if( (uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D') &&
+                (uii_data[datalength-2] == '6') &&
+                (uii_data[datalength-1] == '4')) { presenttype =2; }
+            if( (uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D') &&
+                (uii_data[datalength-2] == '7') &&
+                (uii_data[datalength-1] == '1')) { presenttype =3; }
+            if( (uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D') &&
+                (uii_data[datalength-2] == '8') &&
+                (uii_data[datalength-1] == '1')) { presenttype =4; }
+
+            // Check of identified image type matches selected target drive
+            if( presenttype != drivetypeID[targetdrive]) { presenttype=0; }  
+        }
+
+        if(presenttype) {
+            // Get file or dir name to buffer
+            maxlength = datalength;
+            if(presenttype>1) { maxlength-=4; }                 // Truncate for .d** extension
+            if(maxlength>20) {maxlength=20; presenttype=5; }    // Truncate for max 20
+            memset(buffer,0,21);
+            CopyFString(maxlength,buffer,uii_data+1);
+
+            // Allocate memory for dir entry
+            present = calloc(1, sizeof(presentdirelenent));
+
+            // Break loop if memory is full
+            if(!present) { break; }
+
+            // Set direntry data
+            CopyString(presentdirelenent->filename,buffer);
+            presentdirelenent->type = presenttype;
+
+            // Set direntry pointers
+            presentdirelenent = present;
+            if(!previous) { presentdir.firstelement = present; presentdir.firstprint = present; }
+            else {
+                presentdir.lastelement = present;       // Update dir last element
+                presentdirelenent->prev = previous;     // Set prev in new entry
+                presentdirelenent = previous;           // Load previous element
+                presentdirelenent->next = present;      // Set next in this prev element
+            }
+        }
+	}
+
+    // Close IO
+    DoneWithIO();
+}
+
 // Screen functions
 
 unsigned char CheckStatus() {
@@ -102,17 +380,17 @@ void DrawIDandPath(unsigned char refresh) {
     if(refresh)
     {
         SetPattern(0);
-        SetRectangleCoords(20,40,5,screen_pixel_width-5);
+        SetRectangleCoords(20,40,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
         Rectangle();
     }
-    
+
     // Get ID from UCI and print
     InitForIO();
     uii_identify();
 	DoneWithIO();
 
     sprintf(buffer,"ID: %s",uii_data);
-    PutString(buffer,29,5);
+    PutString(buffer,29,interfaceCoords->filelist_xstart+5);
 
     // Get present path from UCI and print
     InitForIO();
@@ -120,23 +398,110 @@ void DrawIDandPath(unsigned char refresh) {
 	DoneWithIO();
 
     sprintf(buffer,"Path: %s",uii_data);
-    PutString(buffer,39,5);
+    PutString(buffer,39,interfaceCoords->filelist_xstart+5);
 }
 
-void DrawDir() {
+void DrawDrivetypes() {
+// Draw the drive types of the targets
+
+    unsigned char drive;
+
+    for(drive=0;drive<4;drive++)
+    {
+        PutString(drivetypes[validdrive[drive]],58+(20*drive),interfaceCoords->righttab_xstart+20);
+    }    
+}
+
+void DrawTargetdrive(unsigned char refresh) {
+// Draw presently selected target. Clear area first on refresh flag.
+
+    if(refresh)
+    {
+        SetPattern(0);
+        SetRectangleCoords(20,30,interfaceCoords->righttab_xstart+1,screen_pixel_width-1);
+        Rectangle();
+    }
+
+    if(targetdrive)
+    {
+        sprintf(buffer,"Target is drive %c",targetdrive-1+'A');
+    }
+    else
+    {
+        sprintf(buffer,"No valid target");
+    }
+    PutString(buffer,29,interfaceCoords->righttab_xstart);
+}
+
+void DrawDir(refresh) {
 // Draw the dirlisting
 
-    InitForIO();
-    uii_open_dir();
+    unsigned char printpos = 59;
+    unsigned char type;
+    struct DirElement* present;
 
-    if(uii_success()) {
-        
+    // Clear area on request
+    if(refresh)
+    {
+        SetPattern(0);
+        SetRectangleCoords(46,186,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
+        Rectangle();
+    }
+
+    // Read directory contents
+    Readdir();
+
+    // Print no data if no valid entries in dir are found
+    if(!presentdir.firstprint) {
+        PutString("No data.",59,interfaceCoords->filelist_xstart+5);
+    }
+    // Print entries until area is filled or last item is reached
+    else
+    {
+        // Get direlement
+        present = presentdir.firstprint;
+
+        // Loop while area is not full and further direntries are still present
+        do
+        {
+            // Get new element
+            presentdirelenent = present;
+
+            // Print entry
+            type = presentdirelenent->type;
+            sprintf(buffer,"%s <%s>",presentdirelenent->filename,entrytypes[type]);
+            PutString(buffer,printpos,interfaceCoords->filelist_xstart+5);
+
+            // Update lastprinted and printpos
+            presentdir.lastprint = present;
+            printpos += 10;
+
+            // Check if next dir entry is present, if no: break. If yes: update present pointer
+            if(!presentdirelenent->next) { break; }
+            else { present = presentdirelenent->next; }
+
+        } while (printpos<187);
     }
 }
 
 void DrawFilebrowser() {
 // Draw file browser interface
-    
+
+    // Set x coords based on 40 or 80
+    if(vdc) {
+        interfaceCoords = &vdc_intCoords;
+    }
+    else {
+        interfaceCoords = &vic_intCoords;
+    }
+
+    // Draw interface
+    SetRectangleCoords(20,187,interfaceCoords->filelist_xstart,interfaceCoords->scroll_xend);
+    FrameRectangle(255);
+    HorizontalLine(255,45,interfaceCoords->filelist_xstart,interfaceCoords->filelist_xend);
+    HorizontalLine(255,116,interfaceCoords->filelist_xend,interfaceCoords->scroll_xend);
+    VerticalLine(255,45,187,interfaceCoords->filelist_xend);
+
     // Initialize DOS target of Ultimate Command Interface
     InitForIO();
 	uii_settarget(TARGET_DOS1);
@@ -148,9 +513,77 @@ void DrawFilebrowser() {
 
     // Print ID and present path
     DrawIDandPath(0);
+
+    // Draw target section
+    DrawTargetdrive(0);
+    DrawDrivetypes();
+    DrawDir(0);
 }
 
-// Application routines
+// Icon handlers
+void DriveselectA() {
+// Select drive A as target if valid as target
+
+    if(validdrive[0])
+    {
+        targetdrive=1;
+        DrawTargetdrive(1);
+    }
+}
+
+void DriveselectB() {
+// Select drive B as target if valid as target
+
+    if(validdrive[1])
+    {
+        targetdrive=2;
+        DrawTargetdrive(1);
+    }
+}
+
+void DriveselectC() {
+// Select drive C as target if valid as target
+
+    if(validdrive[2])
+    {
+        targetdrive=3;
+        DrawTargetdrive(1);
+    }
+}
+
+void DriveselectD() {
+// Select drive A as target if valid as target
+
+    if(validdrive[3])
+    {
+        targetdrive=4;
+        DrawTargetdrive(1);
+    }
+}
+
+void DirBack() {
+
+}
+
+void DirRoot() {
+
+}
+
+void DirTop() {
+
+}
+
+void DirBottom() {
+
+}
+
+void ScrollUp() {
+
+}
+
+void ScrollDown() {
+
+}
 
 
 // Menu functions
@@ -163,6 +596,7 @@ void geosSwitch4080 (void) {
     DrawFilebrowser();
     GotoFirstMenu();
     DoMenu(&menuMain);
+    DoIcons(icons);
     return;
 }
 
@@ -224,9 +658,13 @@ void main (void)
     // Get host OS type
     osType = get_ostype();
 
+    // Set presentdir pointer at zero
+    presentdir.firstelement = 0;
+
+    // Get valid UII+ drives
+    SetValidDrives();
+
     // Initialize the screen after program startup
-    mainicons = &noicons;
-    icons = mainicons;
     ReinitScreen(appname);
     DoMenu(&menuMain);
     DoIcons(icons);

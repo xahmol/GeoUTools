@@ -21,7 +21,7 @@
       <start x="246" y="88" doubleW="0" add1W="0"/>
       <items count="3">
         <item index="0" instrtype="1" instrcmd="24" doublew="0" add1w="0" datasize="0"></item>
-        <item index="1" instrtype="1" instrcmd="255" doublew="0" add1w="0" datasize="9">71 101 111 85 77 111 117 110 116 </item>
+        <item index="1" instrtype="1" instrcmd="255" doublew="0" add1w="0" datasize="9">71 101 111 85 84 111 111 108 115 </item>
         <item index="2" instrtype="1" instrcmd="27" doublew="0" add1w="0" datasize="0"></item>
       </items>
     </element>

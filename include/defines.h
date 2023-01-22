@@ -1,6 +1,9 @@
 #ifndef __DEFINES_H_
 #define __DEFINES_H_
 
+// Defines
+#define DRIVETYPES  0x848e
+
 // Global variables
 extern char buffer[81];
 

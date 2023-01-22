@@ -359,6 +359,18 @@ void uii_get_drive_b_power(void)
 	uii_accept();
 }
 
+void uii_get_deviceinfo(void)
+{
+	unsigned char cmd[] = {0x00,CTRL_CMD_DEVICE_INFO};
+	
+	uii_settarget(TARGET_CONTROL);
+	uii_sendcommand(cmd, 2);
+
+	uii_readdata();
+	uii_readstatus();
+	uii_accept();
+}
+
 void uii_load_reu(unsigned char size)
 {
 	// REU sizes on UII+:

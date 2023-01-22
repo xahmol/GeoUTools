@@ -44,6 +44,19 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 #include "time_common.h"
 #include "interface.h"
 
+// Interface icontab
+struct icontab vic_mainicons = {
+    1,
+    { 0,0 },
+    { 0, 0, 0, 1, 1, 0 }
+};
+
+struct icontab vdc_mainicons = {
+    1,
+    { 0,0 },
+    { 0, 0, 0, 1, 1, 0 }
+};
+
 // Declare functions prototypes that are called when menu items are 
 // clicked on and are used in the structs that defines the menus below.
 void geosSwitch4080(void);
@@ -216,8 +229,6 @@ void main (void)
     ConfigLoad();
 
     // Initialize the screen after program startup
-    mainicons = &noicons;
-    icons = mainicons;
     ReinitScreen(appname);
     DoMenu(&menuMain);
     DoIcons(icons);

@@ -38,6 +38,7 @@ void uii_enable_drive_b(void);
 void uii_disable_drive_b(void);
 void uii_get_drive_a_power(void);
 void uii_get_drive_b_power(void);
+void uii_get_deviceinfo(void);
 void uii_load_reu(unsigned char size);
 
 #endif

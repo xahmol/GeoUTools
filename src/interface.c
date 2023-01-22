@@ -217,7 +217,7 @@ void CloseWindow() {
 
 void ReinitScreen(char *s) {
 // Initialise main screen
-
+// Input:   App name as string s
 	
 	unsigned short hdrY = 0;
 
@@ -229,6 +229,7 @@ void ReinitScreen(char *s) {
 		winMain = &vic_winMain;
 		hdrY = 200;
 		vdc = 0;
+        mainicons = &vic_mainicons;
 	}
 	
 	if ((osType & GEOS128) == GEOS128) // c128
@@ -241,6 +242,7 @@ void ReinitScreen(char *s) {
 			winMain = &vic_winMain;
 			hdrY = 200;
 			vdc = 0;
+            mainicons = &vic_mainicons;
 		}
 		else if((graphMode & 0x80) == 0x80)
 		{
@@ -250,10 +252,17 @@ void ReinitScreen(char *s) {
 			winMain = &vdc_winMain;
 			hdrY = 400;
 			vdc = 1;
+            mainicons = &vdc_mainicons;
 		}
 	}
+
+    // Set icons
+    icons = mainicons;
 	
     // Clear main screen
+    SetPattern(2);
+    SetRectangleCoords(0,SC_PIX_HEIGHT,0,screen_pixel_width);
+    Rectangle();
 	SetPattern(0);
 	InitDrawWindow (winMain);
 	Rectangle();

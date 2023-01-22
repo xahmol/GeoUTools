@@ -35,6 +35,8 @@ extern struct icontab *winOK;
 extern struct icontab noicons;
 extern struct icontab vic_winOK;
 extern struct icontab vdc_winOK;
+extern struct icontab vic_mainicons;
+extern struct icontab vdc_mainicons;
 
 // Function prototypes
 void SetRectangleCoords(unsigned char top, unsigned char bottom, unsigned int left, unsigned int right);

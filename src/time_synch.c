@@ -251,7 +251,7 @@ void main (void)
         drawWindow.top = 20;
         drawWindow.bot = 140;
         drawWindow.left = 0;
-        drawWindow.right = 320;
+        drawWindow.right = 319 + DOUBLE_W;
         Rectangle();  // Window
         FrameRectangle(255);    // Frame
         PutString(CBOLDON "GeoUTime - Verbose mode" CPLAINTEXT,29,10);
