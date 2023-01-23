@@ -244,8 +244,18 @@ void SetValidDrives() {
     // Get GEOS drive types
     CopyString(drivetypeID,(char *) (DRIVETYPES));
 
-    // Get device info from UCI
+    // Initialize DOS target of Ultimate Command Interface
     InitForIO();
+	uii_settarget(TARGET_DOS1);
+    if(uii_isdataavailable())
+	{
+		uii_abort();
+	}
+
+    // Set dir at home dir
+    uii_change_dir_home();
+
+    // Get device info from UCI
     uii_get_deviceinfo();
 	DoneWithIO(); 
 
@@ -355,7 +365,6 @@ void Readdir() {
         if(presenttype) {
             // Get file or dir name to buffer
             maxlength = datalength;
-            if(presenttype>1) { maxlength-=5; }                 // Truncate for .d** extension
             if(maxlength>20) {maxlength=20; presenttype=5; }    // Truncate for max 20
             memset(buffer,0,21);
             CopyFString(maxlength,buffer,uii_data+1);
@@ -411,7 +420,7 @@ void DrawIDandPath(unsigned char refresh) {
     if(refresh)
     {
         SetPattern(0);
-        SetRectangleCoords(21,39,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
+        SetRectangleCoords(21,44,interfaceCoords->filelist_xstart+1,interfaceCoords->scroll_xend-1);
         Rectangle();
     }
 
@@ -543,15 +552,6 @@ void DrawFilebrowser() {
     HorizontalLine(255,116,interfaceCoords->filelist_xend,interfaceCoords->scroll_xend);
     VerticalLine(255,45,187,interfaceCoords->filelist_xend);
 
-    // Initialize DOS target of Ultimate Command Interface
-    InitForIO();
-	uii_settarget(TARGET_DOS1);
-    if(uii_isdataavailable())
-	{
-		uii_abort();
-	}
-	DoneWithIO();
-
     // Print ID and present path
     DrawIDandPath(0);
 
@@ -616,7 +616,7 @@ void DirRoot() {
 // Go back to root dir
 
     InitForIO();
-    uii_change_dir_home();
+    uii_change_dir("/");
 	DoneWithIO();
     DrawIDandPath(1);
     DrawDir(1);
@@ -638,6 +638,99 @@ void ScrollDown() {
 
 }
 
+// Mouse handler functions
+
+void MountSelected(unsigned char filepos) {
+// Check if there is a file at the click location and if yes, mount the file
+
+    unsigned char count;
+    struct DirElement* present;
+
+    // Don't act on mouse button release
+    if ((mouseData & MOUSE_BTN_DOWN) != 0) return;
+
+    present = presentdir.firstprint;
+
+    // Return on empty dir
+    if(!present) { return; }
+
+    // Move to selected direlement
+    presentdirelement = present;
+    // If position is higher than first item printed, loop till selected item
+    if(filepos>0) {
+        for(count=0;count<filepos;count++) {
+            // Get next element
+            present = presentdirelement->next;
+            // Return if filepos is larger than last printed
+            if(!present) { return; }
+            // Set next element
+            presentdirelement = present;
+        }
+    }
+
+    // Give visual clue of clicking and wait to button is released
+    SetRectangleCoords(50+filepos*10,59+filepos*10,5,interfaceCoords->filelist_xend);
+    InvertRectangle();
+    InvertRectangle();
+
+    // If type is dir, change dir
+    if(presentdirelement->type == 1) {
+        // Change dir
+        InitForIO();
+        uii_change_dir(presentdirelement->filename);
+        DoneWithIO();
+
+        // Redraw filebrowser
+        DrawIDandPath(1);
+        DrawDir(1);
+        return;
+    }
+
+    // Mount disk
+    InitForIO();
+    uii_mount_disk(targetdrive+7,presentdirelement->filename);
+    DoneWithIO();
+
+    // Error handling
+    if(CheckStatus()) { return; }
+
+    // Confirm and ask if program should be exited
+    sprintf(buffer,"%s mounted on ID %d",presentdirelement->filename,targetdrive+7);
+    if(DlgBoxOkCancel(buffer,"Exit program?") == OK)
+    {
+        Freedir();
+        EnterDeskTop();
+    }
+}
+
+void OtherMousePress() {
+// Handler for mouse clicks on other areas than the icons
+
+    unsigned int xpos = mouseXPos;
+    unsigned int ypos = mouseYPos;
+    unsigned char filepos;
+
+    // Check if mouse was pressed in filebrowser area
+    if(xpos>5 && xpos<interfaceCoords->filelist_xend && ypos>50 && ypos<186)
+    {
+        filepos = (ypos-50)/10;
+        MountSelected(filepos);
+        return;
+    }
+
+    // Check if mouse was pressed in scroll up area
+    if(xpos>interfaceCoords->filelist_xend && xpos<interfaceCoords->scroll_xend && ypos>52 && ypos<116)
+    {
+        ScrollUp();
+        return;
+    }
+
+    // Check if mouse was pressed in scroll down area
+    if(xpos>interfaceCoords->filelist_xend && xpos<interfaceCoords->scroll_xend && ypos>116 && ypos<186)
+    {
+        ScrollDown();
+    }
+}
 
 // Menu functions
 
@@ -723,6 +816,9 @@ void main (void)
     DoMenu(&menuMain);
     DoIcons(icons);
     DrawFilebrowser();
+
+    // Set mouse handler vector
+    otherPressVec = OtherMousePress;
     
     // Never returns    
     MainLoop();
