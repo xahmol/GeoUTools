@@ -69,6 +69,7 @@ char entrytypes[5][4] = {
 };
 char drivetypeID[4];
 unsigned char targetdrive;
+unsigned char clickflag;
 
 // Directory entry struct
 struct DirElement {
@@ -122,29 +123,33 @@ char iconArrowDown[] = {
     0x88,0xFF,0x80,0xBE,0x80,0xBE,0x9C,0x88,0xFF
 };
 
-// Dir travel icons of 4 cards and 9 lines
+// Dir travel icons of 2 cards by 16 lines
 char iconBack[] = {
-    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xB8,0xC6,0x48,0x01,0xA5,0x29,0x50,0x01,0xB9,
-    0xE8,0x60,0x01,0xA5,0x29,0x50,0x01,0xB9,0x26,0x48,0x01,0x80,0x00,0x00,0x01,0x04,
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x81,0x03,0x83,0x03,0x87,0x03,0x8F,0xF3,0x9F,
+    0xF3,0x8F,0xF3,0x87,0x03,0x83,0x03,0x81,0x03,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
     0xFF
 };
 
 char iconRoot[] = {
-    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xB8,0xC6,0x7C,0x01,0xA5,0x29,0x10,0x01,0xB9,
-    0x29,0x10,0x01,0xA5,0x29,0x10,0x01,0xA4,0xC6,0x10,0x01,0x80,0x00,0x00,0x01,0x04,
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x80,0x33,0x80,0x73,0x80,0xE3,0x81,0xC3,0x83,
+    0x83,0x87,0x03,0x8E,0x03,0x9C,0x03,0x98,0x03,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
+    0xFF
+};
+
+char iconHome[] = {
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x81,0x03,0x82,0x83,0x84,0x43,0x88,0x23,0x90,
+    0x13,0x97,0x53,0x95,0x53,0x95,0x13,0x9F,0xF3,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
     0xFF
 };
 
 char iconTop[] = {
-    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xBE,0x67,0x00,0x01,0x88,0x94,0x80,0x01,0x88,
-    0x97,0x00,0x01,0x88,0x94,0x00,0x01,0x88,0x64,0x00,0x01,0x80,0x00,0x00,0x01,0x04,
-    0xFF
+    0x94,0xFF,0xFE,0x80,0x03,0x80,0x03,0x9F,0xF3,0x9F,0xF3,0x80,0x03,0x81,0x03,0x83,
+    0x83,0x87,0xC3,0x8F,0xE3,0x04,0x83,0x88,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,0xFF
 };
 
 char iconBottom[] = {
-    0x04,0xFF,0x9C,0x80,0x00,0x00,0x01,0xB8,0xCE,0xE6,0x45,0xA5,0x24,0x49,0x6D,0xB9,
-    0x24,0x49,0x55,0xA5,0x24,0x49,0x45,0xB8,0xC4,0x46,0x45,0x80,0x00,0x00,0x01,0x04,
-    0xFF
+    0x86,0xFF,0xFE,0x80,0x03,0x80,0x03,0x04,0x83,0x96,0x8F,0xE3,0x87,0xC3,0x83,0x83,
+    0x81,0x03,0x80,0x03,0x9F,0xF3,0x9F,0xF3,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,0xFF
 };
 
 // Declare interface functions
@@ -154,6 +159,7 @@ void DriveselectC (void);
 void DriveselectD (void);
 void DirBack (void);
 void DirRoot (void);
+void DirHome (void);
 void DirTop (void);
 void DirBottom (void);
 void ScrollUp (void);
@@ -161,34 +167,36 @@ void ScrollDown (void);
 
 // Interface icontab
 struct icontab vic_mainicons = {
-    10,
+    11,
     { 0,0 },
     {
         { iconA, 28, 50, 2, 16, (int)DriveselectA },
         { iconB, 28, 70, 2, 16, (int)DriveselectB },
         { iconC, 28, 90, 2, 16, (int)DriveselectC },
         { iconD, 28, 110, 2, 16, (int)DriveselectD },
-        { iconBack, 28, 130, 4, 9, (int)DirBack },
-        { iconRoot, 28, 140, 4, 9, (int)DirRoot },
-        { iconTop, 28, 150, 4, 9, (int)DirTop },
-        { iconBottom, 28, 160, 4, 9, (int)DirBottom },
+        { iconBack, 28, 130, 2, 16, (int)DirBack },
+        { iconRoot, 28, 150, 2, 16, (int)DirRoot },
+        { iconHome, 28, 170, 2, 16, (int)DirHome },
+        { iconTop, 31, 130, 2, 16, (int)DirTop },
+        { iconBottom, 31, 150, 2, 16, (int)DirBottom },
         { iconArrowUp, 25, 45, 1, 8, (int)ScrollUp },
         { iconArrowDown, 25, 180, 1, 8, (int)ScrollDown },
     }
 };
 
 struct icontab vdc_mainicons = {
-    10,
+    11,
     { 0,0 },
     {
-        { iconA, 56, 50, 2, 16, (int)DriveselectA },
-        { iconB, 56, 70, 2, 16, (int)DriveselectB },
-        { iconC, 56, 90, 2, 16, (int)DriveselectC },
-        { iconD, 56, 110, 2, 16, (int)DriveselectD },
-        { iconBack, 56, 130, 4, 9, (int)DirBack },
-        { iconRoot, 56, 140, 4, 9, (int)DirRoot },
-        { iconTop, 56, 150, 4, 9, (int)DirTop },
-        { iconBottom, 56, 160, 4, 9, (int)DirBottom },
+        { iconA, 56, 50, 2 | DOUBLE_B, 16, (int)DriveselectA },
+        { iconB, 56, 70, 2 | DOUBLE_B, 16, (int)DriveselectB },
+        { iconC, 56, 90, 2 | DOUBLE_B, 16, (int)DriveselectC },
+        { iconD, 56, 110, 2 | DOUBLE_B, 16, (int)DriveselectD },
+        { iconBack, 56, 130, 2 | DOUBLE_B, 16, (int)DirBack },
+        { iconRoot, 56, 150, 2 | DOUBLE_B, 16, (int)DirRoot },
+        { iconHome, 56, 170, 2 | DOUBLE_B, 16, (int)DirHome },
+        { iconTop, 61, 130, 2 | DOUBLE_B, 16, (int)DirTop },
+        { iconBottom, 61, 150, 2 | DOUBLE_B, 16, (int)DirBottom },
         { iconArrowUp, 50, 45, 1, 8, (int)ScrollUp },
         { iconArrowDown, 50, 180, 1, 8, (int)ScrollDown },
     }
@@ -205,7 +213,7 @@ struct intCoords {
 struct intCoords *interfaceCoords;
 
 struct intCoords vic_intCoords = { 5,200,208,224 };
-struct intCoords vdc_intCoords = { 5,400,408,448 };
+struct intCoords vdc_intCoords = { 5,400,408,464 };
 
 // Declare functions prototypes that are called when menu items are 
 // clicked on and are used in the structs that defines the menus below.
@@ -421,6 +429,9 @@ unsigned char CheckStatus() {
 void DrawIDandPath(unsigned char refresh) {
 // Draw UCI ID and pathname. Clear previous if refresh flag set
 
+    unsigned int maxlength = interfaceCoords->scroll_xend-11;
+    unsigned char maxchar, nowchar;
+
     // Clear previous text if refresh flag is set
     if(refresh)
     {
@@ -442,7 +453,18 @@ void DrawIDandPath(unsigned char refresh) {
     uii_get_path();
 	DoneWithIO();
 
-    sprintf(buffer,"Path: %s",uii_data);
+    // Get width of pathname
+    CopyString(buffer,uii_data);
+
+    // Check if it fits and continue to shorten till it fits
+    nowchar = strlen(buffer);
+    maxchar = nowchar-1;
+
+    while (StringLength(buffer) > maxlength)
+    {
+        CopyString(buffer,uii_data+(nowchar-maxchar--));
+    }
+
     PutString(buffer,39,interfaceCoords->filelist_xstart+5);
 }
 
@@ -501,7 +523,7 @@ void DrawDir(refresh) {
     }
 
     // Read directory contents
-    Readdir();
+    if(refresh!=2) { Readdir(); }
 
     // Print no data if no valid entries in dir are found
     if(!presentdir.firstprint) {
@@ -571,22 +593,30 @@ void DrawFilebrowser() {
     DrawDir(0);
 }
 
-void scroll_down(void)
-{
+void scroll_down() {
+// Scroll one position down
+
 	unsigned char t = 0;
     struct DirElement* present;
+
+    // Get next element
+    present = presentdir.lastprint;
+    presentdirelement = present;
+    present = presentdirelement->next;
+    if(!present) { return; }
+    presentdirelement = present;
+
+    // Update printed pointers
+    presentdir.lastprint = present;
+    present = presentdir.firstprint;
+    presentdirelement = present;
+    presentdir.firstprint = presentdirelement->next;
 	
     // Check for VDC
 	if(vdc == 0)
 	{
-        // Do scroll for VIC fore screen
-		for(t=6;t<22;t++)
-		{
-            // Move line row up				
-			MoveData(   BACK_SCR_BASE + (screen_pixel_width *t)+8,
-                        BACK_SCR_BASE + (screen_pixel_width * (t+1))+8 ,
-                        192);
-		}
+        // Redraw dir
+        DrawDir(2);
 	}
 	else
 	{
@@ -614,38 +644,141 @@ void scroll_down(void)
                         SCREEN_BASE + (t*80) + 65,
                         49);
         }
-	}
+
+        // Copy from back screen
+        SetRectangleCoords(50,180,8,interfaceCoords->filelist_xend-1);
+        RecoverRectangle();
+
+        // Clear upper area to avoid leftovers
+        SetPattern(0);
+        SetRectangleCoords(46,49,8,interfaceCoords->filelist_xend-1);
+        Rectangle();
     
-    // Copy from back screen
-    SetRectangleCoords(50,180,8,interfaceCoords->filelist_xend-1);
-    RecoverRectangle();
+        // Clear lower area to avoid leftovers
+        SetRectangleCoords(172,186,8,interfaceCoords->filelist_xend-1);
+        Rectangle();
 
-    // Clear upper area to avoid leftovers
-    SetPattern(0);
-    SetRectangleCoords(46,49,8,interfaceCoords->filelist_xend-1);
-    Rectangle();
+        // Print last element afgain
+        present = presentdir.lastprint;
+        presentdirelement = present;
+        PrintDirEntry(179);
+	}
+}
+
+void scroll_up() {
+// Scroll one position up
+
+	signed char t = 0;
+    struct DirElement* present;
+
+    // Get previous element
+    present = presentdir.firstprint;
+    presentdirelement = present;
+    present = presentdirelement->prev;
+    if(!present) { return; }
+    presentdirelement = present;
+
+    // Update printed pointers
+    presentdir.firstprint = present;
+    present = presentdir.lastprint;
+    presentdirelement = present;
+    presentdir.lastprint = presentdirelement->prev;
 	
-    // Clear lower area to avoid leftovers
-    SetRectangleCoords(172,186,8,interfaceCoords->filelist_xend-1);
-    Rectangle();
+    // Check for VDC
+	if(vdc == 0)
+	{
+        // Redraw dir
+        DrawDir(2);
+	}
+	else
+	{
+        // Do scroll for VDC backscreen for the lower 90 scanlines
+        for(t=69;t>-1;t--)
+        {
+            // Move line row up	
+            MoveData(   SCREEN_BASE + ((t+10)*80) + 65,
+                        SCREEN_BASE + (t*80) + 65,
+                        49);
+        }
+        // Do scroll for VDC backscreen for the lines 100-110
+        for(t=9;t>-1;t--)
+        {
+            // Move line row up	
+            MoveData(   SCREEN_BASE + (t*80) + 65,
+                        BACK_SCR_BASE + ((t+90)*80) + 1,
+                        49);
+        }
+        // Do scroll for VDC backscreen for the upper 100 scanlines
+        for(t=89;t>47;t--)
+        {
+            // Move line row up	
+            MoveData(   BACK_SCR_BASE + ((t+10)*80) + 1,
+                        BACK_SCR_BASE + (t*80) + 1,
+                        49);
+        }
 
-    // Get next element and print
+        // Copy from back screen
+        SetRectangleCoords(50,180,8,interfaceCoords->filelist_xend-1);
+        RecoverRectangle();
+
+        // Clear upper area to avoid leftovers
+        SetPattern(0);
+        SetRectangleCoords(46,59,8,interfaceCoords->filelist_xend-1);
+        Rectangle();
+    
+        // Clear lower area to avoid leftovers
+        SetRectangleCoords(182,186,8,interfaceCoords->filelist_xend-1);
+        Rectangle();
+
+        // Print last element afgain
+        present = presentdir.firstprint;
+        presentdirelement = present;
+        PrintDirEntry(59);
+	}
+}
+
+void page_down() {
+// Perform a page down
+
+    struct DirElement* present;
+
+    // Get next element
     present = presentdir.lastprint;
     presentdirelement = present;
     present = presentdirelement->next;
     if(!present) { return; }
     presentdirelement = present;
-    PrintDirEntry(179);
-
-    // Update last printed pointers
-    presentdir.lastprint = present;
-
-    // Find correct first print pointer
-    for(t=0;t<12;t++) {
-        present = presentdirelement->prev;
-        presentdirelement = present;
-    }
+    
+    // Update first print pointer
     presentdir.firstprint = present;
+
+    // Redraw dir
+    DrawDir(2);
+}
+
+void page_up() {
+// Perform a page up
+
+    struct DirElement* present;
+    unsigned char count;
+
+    // Set first printed as start point
+    present = presentdir.firstprint;
+    presentdirelement = present;
+    
+    // Go to begin of previous page
+    for(count=0;count<13;count++)
+    {
+        present = presentdirelement->prev;
+        if(!present) { break; }
+        presentdirelement = present;
+
+        // Update first print pointer
+        presentdir.firstprint = present;
+    }
+
+    // Redraw dir
+    DrawDir(2);
 }
 
 // Icon handlers
@@ -709,21 +842,69 @@ void DirRoot() {
     DrawDir(1);
 }
 
-void DirTop() {
+void DirHome() {
+// Go to default home dir
 
+    InitForIO();
+    uii_change_dir_home();
+	DoneWithIO();
+    DrawIDandPath(1);
+    DrawDir(1);
+}
+
+void DirTop() {
+// Go to top of filelist
+
+    // Check if first printed is also the first item available. If yes, return
+    if(presentdir.firstprint == presentdir.firstelement) { return; }
+
+    // Set first printed at first element
+    presentdir.firstprint = presentdir.firstelement;
+
+    // Redraw dir
+    DrawDir(2);
 }
 
 void DirBottom() {
+// Go to bottom of filelist
 
+    struct DirElement* present;
+    unsigned char count;
+
+    // Check if last printed is also the last item available. If yes, return
+    if(presentdir.lastprint == presentdir.lastelement) { return; }
+
+    // Set first printed as start point
+    present = presentdir.lastelement;
+    presentdirelement = present;
+
+    // Get first print element
+    for(count=0;count<12;count++)
+    {
+        present = presentdirelement->prev;
+        if(!present) { break; }
+        presentdirelement = present;
+    }
+
+    // Update first print pointer
+    presentdir.firstprint = present;
+
+    // Redraw dir
+    DrawDir(2);
 }
 
 void ScrollUp() {
-// Handler for clicking arrow up or upper scroll bar    
+// Handler for clicking arrow up  
 
+    // Check if first printed is also the first item available. If yes, return
+    if(presentdir.firstprint == presentdir.firstelement) { return; }
+
+    // Do scroll
+    scroll_up();
 }
 
 void ScrollDown() {
-// Handler for clicking arrow down or lower scroll bar    
+// Handler for clicking arrow down  
 
     // Check if last printed is also the last item available. If yes, return
     if(presentdir.lastprint == presentdir.lastelement) { return; }
@@ -739,9 +920,6 @@ void MountSelected(unsigned char filepos) {
 
     unsigned char count;
     struct DirElement* present;
-
-    // Don't act on mouse button release
-    if ((mouseData & MOUSE_BTN_DOWN) != 0) return;
 
     present = presentdir.firstprint;
 
@@ -804,6 +982,9 @@ void OtherMousePress() {
     unsigned int ypos = mouseYPos;
     unsigned char filepos;
 
+    // Don't act on mouse button release
+    if ((mouseData & MOUSE_BTN_DOWN) != 0) return;
+
     // Check if mouse was pressed in filebrowser area
     if(xpos>5 && xpos<interfaceCoords->filelist_xend && ypos>50 && ypos<186)
     {
@@ -812,17 +993,25 @@ void OtherMousePress() {
         return;
     }
 
-    // Check if mouse was pressed in scroll up area
+    // Check if mouse was pressed in upper scroll bar
     if(xpos>interfaceCoords->filelist_xend && xpos<interfaceCoords->scroll_xend && ypos>52 && ypos<116)
     {
-        ScrollUp();
+        // Check if first printed is also the first item available. If yes, return
+        if(presentdir.firstprint == presentdir.firstelement) { return; }
+
+        // Perform page up
+        page_up();
         return;
     }
 
-    // Check if mouse was pressed in scroll down area
+    // Check if mouse was pressed in lower scroll bar
     if(xpos>interfaceCoords->filelist_xend && xpos<interfaceCoords->scroll_xend && ypos>116 && ypos<180)
     {
-        ScrollDown();
+        // Check if last printed is also the last item available. If yes, return
+        if(presentdir.lastprint == presentdir.lastelement) { return; }
+
+        // Perform page down
+        page_down();
     }
 }
 
