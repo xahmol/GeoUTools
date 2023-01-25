@@ -47,6 +47,7 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 //#include <conio.h>
 #include "defines.h"
 #include "interface.h"
+//#include "vdcscroll.h"
 #include "ultimate_common_lib.h"
 #include "ultimate_dos_lib.h"
 
@@ -232,6 +233,10 @@ static struct menu menuMain = {
             { "Credits", MENU_ACTION, informationCredits }
           }
  };
+
+// Declare scroll routines
+void vdc_write_reg(void);
+void vdc_copyline(unsigned char srchi, unsigned char srclo, unsigned char desthi, unsigned char destlo);
 
 // Application routines
 void SetValidDrives() {
@@ -473,11 +478,18 @@ void DrawTargetdrive(unsigned char refresh) {
     PutString(buffer,29,interfaceCoords->righttab_xstart);
 }
 
+void PrintDirEntry(unsigned char printpos) {
+// Print entry
+
+    unsigned char type = presentdirelement->type;
+    PutString(presentdirelement->filename,printpos,interfaceCoords->filelist_xstart+5);
+    PutString(entrytypes[type-1],printpos,interfaceCoords->filelist_xstart+165);
+}
+
 void DrawDir(refresh) {
 // Draw the dirlisting
 
     unsigned char printpos = 59;
-    unsigned char type;
     struct DirElement* present;
 
     // Clear area on request
@@ -508,9 +520,7 @@ void DrawDir(refresh) {
             presentdirelement = present;
 
             // Print entry
-            type = presentdirelement->type;
-            PutString(presentdirelement->filename,printpos,interfaceCoords->filelist_xstart+5);
-            PutString(entrytypes[type-1],printpos,interfaceCoords->filelist_xstart+165);
+            PrintDirEntry(printpos);
 
             //SetPattern(0);
             //SetRectangleCoords(150,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
@@ -559,6 +569,83 @@ void DrawFilebrowser() {
     DrawTargetdrive(0);
     DrawDrivetypes();
     DrawDir(0);
+}
+
+void scroll_down(void)
+{
+	unsigned char t = 0;
+    struct DirElement* present;
+	
+    // Check for VDC
+	if(vdc == 0)
+	{
+        // Do scroll for VIC fore screen
+		for(t=6;t<22;t++)
+		{
+            // Move line row up				
+			MoveData(   BACK_SCR_BASE + (screen_pixel_width *t)+8,
+                        BACK_SCR_BASE + (screen_pixel_width * (t+1))+8 ,
+                        192);
+		}
+	}
+	else
+	{
+        // Do scroll for VDC backscreen for the upper 100 scanlines
+        for(t=60;t<100;t++)
+        {
+            // Move line row up	
+            MoveData(   BACK_SCR_BASE + ((t-10)*80) + 1,
+                        BACK_SCR_BASE + (t*80) + 1,
+                        49);
+        }
+        // Do scroll for VDC backscreen for the lines 100-110
+        for(t=0;t<10;t++)
+        {
+            // Move line row up	
+            MoveData(   BACK_SCR_BASE + ((t+90)*80) + 1,
+                        SCREEN_BASE + (t*80) + 65,
+                        49);
+        }
+        // Do scroll for VDC backscreen for the lower 90 scanlines
+        for(t=10;t<82;t++)
+        {
+            // Move line row up	
+            MoveData(   SCREEN_BASE + ((t-10)*80) + 65,
+                        SCREEN_BASE + (t*80) + 65,
+                        49);
+        }
+	}
+    
+    // Copy from back screen
+    SetRectangleCoords(50,180,8,interfaceCoords->filelist_xend-1);
+    RecoverRectangle();
+
+    // Clear upper area to avoid leftovers
+    SetPattern(0);
+    SetRectangleCoords(46,49,8,interfaceCoords->filelist_xend-1);
+    Rectangle();
+	
+    // Clear lower area to avoid leftovers
+    SetRectangleCoords(172,186,8,interfaceCoords->filelist_xend-1);
+    Rectangle();
+
+    // Get next element and print
+    present = presentdir.lastprint;
+    presentdirelement = present;
+    present = presentdirelement->next;
+    if(!present) { return; }
+    presentdirelement = present;
+    PrintDirEntry(179);
+
+    // Update last printed pointers
+    presentdir.lastprint = present;
+
+    // Find correct first print pointer
+    for(t=0;t<12;t++) {
+        present = presentdirelement->prev;
+        presentdirelement = present;
+    }
+    presentdir.firstprint = present;
 }
 
 // Icon handlers
@@ -631,11 +718,18 @@ void DirBottom() {
 }
 
 void ScrollUp() {
+// Handler for clicking arrow up or upper scroll bar    
 
 }
 
 void ScrollDown() {
+// Handler for clicking arrow down or lower scroll bar    
 
+    // Check if last printed is also the last item available. If yes, return
+    if(presentdir.lastprint == presentdir.lastelement) { return; }
+
+    // Do scroll
+    scroll_down();
 }
 
 // Mouse handler functions
@@ -726,7 +820,7 @@ void OtherMousePress() {
     }
 
     // Check if mouse was pressed in scroll down area
-    if(xpos>interfaceCoords->filelist_xend && xpos<interfaceCoords->scroll_xend && ypos>116 && ypos<186)
+    if(xpos>interfaceCoords->filelist_xend && xpos<interfaceCoords->scroll_xend && ypos>116 && ypos<180)
     {
         ScrollDown();
     }

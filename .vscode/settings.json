@@ -4,6 +4,7 @@
         "ultimate_common_lib.h": "c",
         "ultimate_ltime_lib.h": "c",
         "string.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "defines.h": "c"
     }
 }
