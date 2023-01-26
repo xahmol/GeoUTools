@@ -122,4 +122,4 @@ clean:
 # To deploy software to UII+ enter make deploy. Obviously C128 needs to powered on with UII+ and USB drive connected.
 deploy: $(SUITE).d81
 	wput -u $(SUITE).d81 $(ULTHOST)
-#	wput -u $(MOUNT).d81 $(ULTHOST2)
+	wput -u $(SUITE).d81 $(ULTHOST2)
