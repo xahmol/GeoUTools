@@ -3,11 +3,12 @@
 
 // Defines
 // Memory locations not present in geos.h
-#define DRIVETYPES        0x848e
-#define mouseXPos         (*(unsigned*)0x003a)
-#define mouseYPos         (*(char*)0x003c)
+#define DRIVETYPES          0x848e
+#define mouseXPos           (*(unsigned*)0x003a)
+#define mouseYPos           (*(char*)0x003c)
 
-#define MOUSE_BTN_DOWN    128
+#define MOUSE_BTN_DOWN      128
+#define MIN_HEAP_SIZE       100
 
 // Global variables
 extern char buffer[81];

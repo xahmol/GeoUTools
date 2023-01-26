@@ -386,7 +386,13 @@ void Readdir() {
             present = calloc(1, 26);
 
             // Break loop if memory is full
-            if(!present) { break; }
+            if(!present ||  _heapmemavail()<MIN_HEAP_SIZE) {
+                // Abort UCI dir reading
+                InitForIO();
+                uii_abort();
+                DoneWithIO();
+                return;
+            }
 
             // Set direntry data
             presentdirelement = present;
@@ -944,6 +950,9 @@ void MountSelected(unsigned char filepos) {
     SetRectangleCoords(50+filepos*10,59+filepos*10,5,interfaceCoords->filelist_xend);
     InvertRectangle();
     InvertRectangle();
+
+    // If type is 'too long', return
+    if(presentdirelement->type == 5) { return; }
 
     // If type is dir, change dir
     if(presentdirelement->type == 1) {
