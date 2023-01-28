@@ -78,5 +78,19 @@ This program is driven by the options stored in the configuration file and does 
 
 If verbosity is set to no in the configuration file options, nothing will be shown on the screen apart from the screen blanking during execution and the system time being updated after returning to the desktop.
 
-If verbosity mode is 'On', this will be shown on the screen:
-![GeoUTime verbosity output](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20verbosity.png)
+If verbosity mode is 'On', something like this will be shown on the screen:
+
+![GeoUTime verbosity output](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20geoutime%20verbose%20output.png)
+
+This mode is meant to either debug your configuration settings, or if you are just curious what happens:
+- Connecting to the selected hostname of the desired NTP server
+- Sending the data request to that server
+- Reiving the data and interpreting result
+- Showing UNIX epoch received
+- Cobverting that output to time in selected time zone using the UTC offset
+- Setting the UII+ Real Time Clock with that time
+- Synching GEOS system time with the UII+ RTC clock.
+- Confirming succes
+Click OK in dialogue box to exit.
+
+Note that on any NTP connection error, the GEOS clock will be synched to the unchanged UII+ RTC clock as fallback.
