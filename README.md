@@ -67,3 +67,4 @@ Note that on first use, both GeoUTime and GeoUTimeCfg create a configuration fil
 
 A new file called GeoUTimeDat is added to store configuration data.
 
+Obviously you are free (even encouraged) tp copy these files to another disk target, such as your main RAM drive.
