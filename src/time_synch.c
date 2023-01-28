@@ -257,8 +257,18 @@ void main (void)
         PutString(CBOLDON "GeoUTime - Verbose mode" CPLAINTEXT,29,10);
     }
 
-    // Get NTP time and set UII+ RTC
-    get_ntp_time();
+    // Get NTP time and set UII+ RTC if enabled
+    if(ntpon)
+    {
+        get_ntp_time();
+    }
+    else
+    {
+        if(verbose) {
+            PutString("NTP query disabled.",49,10);
+            PutString("Synch with present UII+ RTC time.",59,10);
+        }
+    }
 
     // Synch GEOS system time with UII+ RTC
     timeSynch();

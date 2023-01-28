@@ -61,6 +61,7 @@ struct icontab vdc_mainicons = {
 // clicked on and are used in the structs that defines the menus below.
 void geosSwitch4080(void);
 void geosExit (void);
+void settingNTPOn (void);
 void settingHostname (void);
 void settingUTCOffset (void);
 void settingVerbose (void);
@@ -79,9 +80,10 @@ static struct menu menuGEOS = {
 
 static struct menu menuSetting = {
     // Time
-        { 15, 15+3*15, 35, 135 },
-        3 | VERTICAL,
+        { 15, 15+4*15, 35, 135 },
+        4 | VERTICAL,
           {
+            { "Enable NTP", MENU_ACTION, settingNTPOn },
             { "Hostname", MENU_ACTION, settingHostname },
             { "UTC offset", MENU_ACTION, settingUTCOffset },
             { "Verbose", MENU_ACTION, settingVerbose },
@@ -133,6 +135,26 @@ void geosExit (void) {
     {
         return;
     }  
+}
+
+void settingNTPOn() {
+// Set flag for enabling NYP query
+
+    ReDoMenu();
+
+    sprintf(buffer,"Present value is: %s",(ntpon)?"Yes":"No");
+
+    if(DlgBoxYesNo("Do you want to enable NTP query?",buffer) == YES) {
+        ntpon = 1;
+    }
+    else
+    {
+        ntpon = 0;
+    }
+
+   ConfigSave();
+
+return;
 }
 
 void settingHostname (void) {

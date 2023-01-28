@@ -49,7 +49,8 @@ char buffer[81];
 long secondsfromutc = 3600; 
 char host[81] = "pool.ntp.org";
 unsigned char verbose = 0;
-char configbuffer[93];
+unsigned char ntpon = 1;
+char configbuffer[95];
 char filename[13] = "GeoUTimeDat";
 
 // Declare config file header
@@ -81,7 +82,7 @@ void ConfigSave() {
     unsigned char error;
 
     // Clear configbuffer'
-    memset(configbuffer,0,93);
+    memset(configbuffer,0,95);
 
     // Copy host to savebuffer
     CopyString(configbuffer, host);
@@ -92,10 +93,16 @@ void ConfigSave() {
     // Copy verbose flag to savebuffer
     configbuffer[92] = verbose+48;
 
+    // Copy NTP on flag to savebuffer
+    configbuffer[93] = ntpon+48;
+
+    // Copy config file version
+    configbuffer[94] = configfileversion + 48;
+
     // Set fileheader for save file
     POKEW((int)&configfileHdr.n_block,(int)&filename);
     configfileHdr.load_address = (int)configbuffer;
-    configfileHdr.end_address= (int)configbuffer + 93;
+    configfileHdr.end_address= (int)configbuffer + 95;
 
     // Delete old file
     DeleteFile(filename);
@@ -135,6 +142,9 @@ void ConfigLoad() {
 
     // Reading verbose flag
     verbose = configbuffer[92]-48;
+
+    // Reading ntp on flag
+    ntpon = configbuffer[93]-48;
 
     // Reading hostname
     CopyFString(80, host, configbuffer);
