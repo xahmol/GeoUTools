@@ -88,7 +88,7 @@ CF_128          = $C0
     .incbin "timeicon.bin", 0, 63
 
 	.byte	$80 | SEQ			        ;Commodore file type, with bit 7 set.
-	.byte	AUTO_EXEC		    	    ;Geos file type
+	.byte	APPLICATION		    	    ;Geos file type
 	.byte	SEQUENTIAL		    	    ;Geos file structure type
 
 	.word	__VLIR0_START__	    	    ;start address of program (where to load to)

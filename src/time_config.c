@@ -199,7 +199,7 @@ void informationCredits (void) {
     PutString(buffer,99,xcoord);
     PutString("Written by Xander Mol, 2023",109,xcoord);
     PutString("For documentation, source, license and credits, see",119,xcoord);
-    PutString("https://github.com/xahmol/GeoUMount",129,xcoord);
+    PutString("https://github.com/xahmol/GeoUTools",129,xcoord);
     PutString("https://www.idreamtin8bits.com/",139,xcoord);
 
     // Show OK icon

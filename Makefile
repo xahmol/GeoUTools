@@ -90,6 +90,7 @@ CONFFLG = -C $(CONF)_cc65config.cfg -m $(CONF).map
 # Hostname of Ultimate II+ target for deployment. Edit for proper IP and usb number
 ULTHOST = ftp://192.168.1.19/usb1/11/
 ULTHOST2 = ftp://192.168.1.31/usb1/11/
+ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
 
 ########################################
 
@@ -123,3 +124,4 @@ clean:
 deploy: $(SUITE).d81
 	wput -u $(SUITE).d81 $(ULTHOST)
 	wput -u $(SUITE).d81 $(ULTHOST2)
+#	wput -u $(SUITE).d81 $(ULTHOST3)

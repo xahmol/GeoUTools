@@ -47,7 +47,6 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 //#include <conio.h>
 #include "defines.h"
 #include "interface.h"
-//#include "vdcscroll.h"
 #include "ultimate_common_lib.h"
 #include "ultimate_dos_lib.h"
 
@@ -343,6 +342,18 @@ void Readdir() {
         InitForIO();
 		uii_readdata();
 		uii_accept();
+
+        // Quick fix for when uii_isdataavailable() does not work correctly
+        // (works for me on GEOS128, not on GEOS64)
+        // Check on second byte of data that is set 0 in last iteration
+        // If still zero and not overwritten, no new data is received
+        // Abort on receiving empty data
+        if(!uii_data[1]) {
+                uii_abort();
+                DoneWithIO();
+                return;
+        }
+
         DoneWithIO();
 
         datalength = strlen(uii_data);
@@ -368,12 +379,13 @@ void Readdir() {
             if( presenttype != drivetypeID[targetdrive-1]+1) { presenttype=0; }  
         }
 
-        //DoneWithIO();
         //SetPattern(0);
         //SetRectangleCoords(150,186,interfaceCoords->filelist_xstart+1,interfaceCoords->filelist_xend-1);
         //Rectangle();
         //gotoxy(1,20);
-        //cprintf("%d %d %d %s",presenttype,drivetypeID[targetdrive]+1,datalength,uii_data);
+        //cprintf("%d %d %d %d %d",presenttype,uii_data[0],uii_data[1],uii_data[2],uii_isdataavailable());
+        //gotoxy(1,21);
+        //cprintf("%s",uii_data+1);
 
         if(presenttype) {
             // Get file or dir name to buffer
@@ -401,7 +413,7 @@ void Readdir() {
 
             //gotoxy(1,21);
             //cprintf("%d %4x %s %s %d",maxlength,present,buffer,presentdirelement->filename,presentdirelement->type);
-//
+
             // Set direntry pointers
             presentdir.lastelement = present;       // Update dir last element
             if(!previous) { presentdir.firstelement = present; presentdir.firstprint = present; previous=present; }
@@ -415,9 +427,11 @@ void Readdir() {
             //cprintf("%4x %4x %4x %4x",previous,presentdirelement->next,presentdir.firstelement,presentdir.lastelement);
         }
 
+        // Clear second byte for quick fix on data available test
+        uii_data[1]=0;
         //cgetc();
-        //InitForIO();
 	}
+
 }
 
 // Screen functions
@@ -491,7 +505,7 @@ void DrawTargetdrive(unsigned char refresh) {
     if(refresh)
     {
         SetPattern(0);
-        SetRectangleCoords(20,30,interfaceCoords->righttab_xstart+1,screen_pixel_width-1);
+        SetRectangleCoords(20,30,interfaceCoords->righttab_xstart+1,screen_pixel_width-2);
         Rectangle();
     }
 
@@ -788,13 +802,21 @@ void page_up() {
 }
 
 // Icon handlers
+void TargetChange(unsigned char newdrive) {
+// Change target drive
+
+    unsigned char oldtype = validdrive[targetdrive-1];
+    targetdrive = newdrive;
+    DrawTargetdrive(1);
+    if(oldtype != validdrive[newdrive-1]) { DrawDir(1); }
+}
+
 void DriveselectA() {
 // Select drive A as target if valid as target
 
     if(validdrive[0])
     {
-        targetdrive=1;
-        DrawTargetdrive(1);
+        TargetChange(1);
     }
 }
 
@@ -803,8 +825,7 @@ void DriveselectB() {
 
     if(validdrive[1])
     {
-        targetdrive=2;
-        DrawTargetdrive(1);
+        TargetChange(2);
     }
 }
 
@@ -813,8 +834,7 @@ void DriveselectC() {
 
     if(validdrive[2])
     {
-        targetdrive=3;
-        DrawTargetdrive(1);
+        TargetChange(3);
     }
 }
 
@@ -823,8 +843,7 @@ void DriveselectD() {
 
     if(validdrive[3])
     {
-        targetdrive=4;
-        DrawTargetdrive(1);
+        TargetChange(4);
     }
 }
 
