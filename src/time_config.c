@@ -4,9 +4,14 @@ Utility to synch GEOS system time with NTP server and UII+ RTC clock
 Written in 2023 by Xander Mol
 
 https://github.com/xahmol/GeoUTools
+
 https://www.idreamtin8bits.com/
 
 Code and resources from others used:
+
+-   Scott Hutter - Ultimate II+ library and GeoUTerm:
+    https://github.com/xlar54/ultimateii-dos-lib/
+    (library for the UII+ UCI functions. And GeoUTerm as GEOS sample application using this)
 
 -   CC65 cross compiler:
     https://cc65.github.io/
@@ -15,17 +20,45 @@ Code and resources from others used:
     https://github.com/M3wP/GEOSBuild
     (buildtool for GEOS disks)
 
+-   David Lee - GEOS Image Editor
+    https://www.facebook.com/groups/704637082964003/permalink/5839146806179646
+    (editor for GEOS icons)
+
+-   Subchrist Software - SpritePad Pro
+    https://subchristsoftware.itch.io/spritepad-c64-pro
+    (editor used for the file icons)
+
 -   Hitchhikers Guide to GEOS v2020
     Berkeley Softworks / Paul B Murdaugh
     https://github.com/geos64128/HG2G2020
 
--   Samole sequential application header of GeoProgrammer
+-   Sample sequential application header of GeoProgrammer
     Berkeley Softworks
 
--   Scott Hutter - Ultimate II+ libraru:
-    https://github.com/xlar54/ultimateii-dos-lib/tree/master/src/samples
+-   ntp2ultimate by MaxPlap: code for obtaining time via NTP
+    https://github.com/MaxPlap/ntp2ultimate
+
+-   Heureks: GEOS64 Programming Examples
+    https://codeberg.org/heurekus/C64-Geos-Programming
+    (sample code using C in CC65 for writing applications in GEOS)
+
+-   Lyonlabs / Cenbe GEOS resources page:
+    https://www.lyonlabs.org/commodore/onrequest/geos/index.html
+
+-   Bo Zimmerman GEOS resources page:
+    http://www.zimmers.net/geos/
+
+-   CVM Files GEOS disk images
+    https://cbmfiles.com/geos/geos-13.php
+
+-   GEOS - Wheels - GeoWorks - MegaPatch - gateWay - BreadBox Facebook Group
+    https://www.facebook.com/groups/704637082964003/permalink/5839146806179646
+
+-   Bart van Leeuwen for testing and providing the Device Manager ROM and GEOS RAM Boot
+
+-   Gideon Zweijtzer for creating the Ultimate II+ cartridge and the Ultimate64, and the Ultimate Command Interface enabling this software.
    
--   Tested using real hardware (C128D and C128DCR) using GEOS128 2.0
+-   Tested using real hardware (C128D, C128DCR, Ultimate 64) using GEOS128 2.0, GEOS64 2.0 and Megapatch3 128.
 
 Licensed under the GNU General Public License v3.0
 
