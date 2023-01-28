@@ -11,6 +11,8 @@ Tools for using the UII+ cartridge with GEOS
 
 [What is on the disk](#what-is-on-the-disk)
 
+[GeoUTime instructions](#geoutime-instructions)
+
 ![GeoUMount main interface](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20mainscreen.png)
 
 ## Version history and download
@@ -68,3 +70,13 @@ Note that on first use, both GeoUTime and GeoUTimeCfg create a configuration fil
 A new file called GeoUTimeDat is added to store configuration data.
 
 Obviously you are free (even encouraged) tp copy these files to another disk target, such as your main RAM drive.
+
+## GeoUTime instructions
+([Back to contents](#contents))
+
+This program is driven by the options stored in the configuration file and does not need further user interaction.
+
+If verbosity is set to no in the configuration file options, nothing will be shown on the screen apart from the screen blanking during execution and the system time being updated after returning to the desktop.
+
+If verbosity mode is 'On', this will be shown on the screen:
+![GeoUTime verbosity output](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20verbosity.png)
