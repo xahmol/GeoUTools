@@ -1,0 +1,6 @@
+[build]
+Disk="GeoUTools.d64"
+Header="geoutimeHdr.bin"
+
+[Sequential]
+Data="geoutime.bin"

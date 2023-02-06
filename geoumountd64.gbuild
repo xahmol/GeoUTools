@@ -1,0 +1,6 @@
+[build]
+Disk="GeoUTools.d64"
+Header="geoumountHdr.bin"
+
+[Sequential]
+Data="geoumount.bin"
