@@ -123,6 +123,9 @@ void get_ntp_time() {
 
     socket = 0;
 
+    // Aborting anything the UII+ might be doing to be safe
+    uii_abort();
+
     // Connect to NTP host. Return on error
     if(verbose) {
         sprintf(buffer,"Connecting to: %s", host);

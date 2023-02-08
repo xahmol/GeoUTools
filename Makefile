@@ -92,11 +92,15 @@ ULTHOST = ftp://192.168.1.19/usb1/11/
 ULTHOST2 = ftp://192.168.1.31/usb1/11/
 ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
 
+# Data for ZIP file
+ZIP = GeoUTools-v01-$(shell date "+%Y%m%d-%H%M").zip
+ZIPLIST = $(SUITE).d64 $(SUITE).d81 readme.pdf
+
 ########################################
 
 .SUFFIXES:
 .PHONY: all clean deploy vice
-all: $(MOUNT).bin $(TIME).bin $(CONF).bin $(SUITE).d81 $(SUITE).d64
+all: $(MOUNT).bin $(TIME).bin $(CONF).bin $(SUITE).d81 $(SUITE).d64 $(ZIP)
 
 # Building GeoUMount
 $(MOUNT).bin: $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
@@ -124,6 +128,11 @@ $(SUITE).d64:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d64.gbuild $(TIME).bin $(TIM
 	$(GBUILD) $(TIME)d64.gbuild
 	$(GBUILD) $(CONF)d64.gbuild
 
+# Creating ZIP file for distribution
+$(ZIP): $(ZIPLIST)
+	zip $@ $^
+
+# Cleaning repo of build files
 clean:
 	$(DEL) $(MOUNT)*.bin $(MOUNT).map $(TIME)*.bin $(TIME).map $(CONF)*.bin $(CONF).map 2>$(NULLDEV)
 
