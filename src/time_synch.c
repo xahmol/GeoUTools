@@ -99,9 +99,9 @@ unsigned char CheckStatus() {
 void close_socket() {
 // Close the open websocket
 
-    InitForIO();
+    enableIO();
     uii_socketclose(socket);
-    DoneWithIO();
+    restoreIO();
 }
 
 void get_ntp_time() {
@@ -131,9 +131,9 @@ void get_ntp_time() {
         sprintf(buffer,"Connecting to: %s", host);
         PutString(buffer,49,10);
     }
-    InitForIO();
+    enableIO();
 	socket = uii_udpconnect(host, 123); //https://github.com/markusC64/1541ultimate2/blob/master/software/io/network/network_target.cc
-    DoneWithIO();
+    restoreIO();
     
     if(CheckStatus()) {
         close_socket();
@@ -147,12 +147,12 @@ void get_ntp_time() {
 
 	fullcmd[2] = socket;
 
-    InitForIO();
+    enableIO();
     uii_settarget(TARGET_NETWORK);
     uii_sendcommand(fullcmd, 51);//3 + sizeof( ntp_packet ));
 	uii_readstatus();
 	uii_accept();
-    DoneWithIO();
+    restoreIO();
 
     if(CheckStatus()) {
         close_socket();
@@ -163,9 +163,9 @@ void get_ntp_time() {
     if(verbose) {
         PutString("Reading result.",69,10);
     }
-    InitForIO();
+    enableIO();
     uii_socketread(socket, 50);// 2 + sizeof( ntp_packet ));
-    DoneWithIO();
+    restoreIO();
 
     if(CheckStatus()) {
         close_socket();
@@ -205,9 +205,9 @@ void get_ntp_time() {
     settime[4]=datetime->tm_min;
     settime[5]=datetime->tm_sec;
 
-    InitForIO();
+    enableIO();
     uii_set_time(settime);
-    DoneWithIO();
+    restoreIO();
     if(verbose) {
         sprintf(buffer,"Synched UII+ RTC. Status: %s", uii_status);
         PutString(buffer,99,10);
@@ -219,9 +219,9 @@ void timeSynch () {
     char* ptrend;
     
     // Get UII+ RTC time
-    InitForIO();
+    enableIO();
     uii_get_time();
-    DoneWithIO();
+    restoreIO();
 
     if(!CheckStatus())
     {

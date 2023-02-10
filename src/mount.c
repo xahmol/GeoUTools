@@ -287,7 +287,7 @@ void SetValidDrives() {
     CopyString(drivetypeID,(char *) (DRIVETYPES));
 
     // Initialize DOS target of Ultimate Command Interface
-    InitForIO();
+    enableIO();
 	uii_settarget(TARGET_DOS1);
     if(uii_isdataavailable())
 	{
@@ -299,7 +299,7 @@ void SetValidDrives() {
 
     // Get device info from UCI
     uii_get_deviceinfo();
-	DoneWithIO(); 
+	restoreIO(); 
 
     for(drive=0;drive<4;drive++)
     {
@@ -357,10 +357,10 @@ void Readdir() {
     presentdir.lastprint = 0;
 
     // Initialise reading dir
-    InitForIO();
+    enableIO();
     uii_open_dir();
     uii_get_dir();
-    DoneWithIO();
+    restoreIO();
 
     // Loop while dir data is available or memory is full
     while(uii_isdataavailable())
@@ -369,7 +369,7 @@ void Readdir() {
         presenttype = 0;
 
         // Get next dir entry
-        InitForIO();
+        enableIO();
 		uii_readdata();
 		uii_accept();
 
@@ -380,11 +380,11 @@ void Readdir() {
         // Abort on receiving empty data
         if(!uii_data[1]) {
                 uii_abort();
-                DoneWithIO();
+                restoreIO();
                 return;
         }
 
-        DoneWithIO();
+        restoreIO();
 
         datalength = strlen(uii_data);
 
@@ -430,9 +430,9 @@ void Readdir() {
             // Break loop if memory is full
             if(!present ||  _heapmemavail()<MIN_HEAP_SIZE) {
                 // Abort UCI dir reading
-                InitForIO();
+                enableIO();
                 uii_abort();
-                DoneWithIO();
+                restoreIO();
                 return;
             }
 
@@ -491,17 +491,17 @@ void DrawIDandPath(unsigned char refresh) {
     }
 
     // Get ID from UCI and print
-    InitForIO();
+    enableIO();
     uii_identify();
-	DoneWithIO();
+	restoreIO();
 
     sprintf(buffer,"ID: %s",uii_data);
     PutString(buffer,29,interfaceCoords->filelist_xstart+5);
 
     // Get present path from UCI and print
-    InitForIO();
+    enableIO();
     uii_get_path();
-	DoneWithIO();
+	restoreIO();
 
     // Get width of pathname
     CopyString(buffer,uii_data);
@@ -880,9 +880,9 @@ void DriveselectD() {
 void DirBack() {
 // Go back to parent dir
 
-    InitForIO();
+    enableIO();
     uii_change_dir("..");
-	DoneWithIO();
+	restoreIO();
     DrawIDandPath(1);
     DrawDir(1);
 }
@@ -890,9 +890,9 @@ void DirBack() {
 void DirRoot() {
 // Go back to root dir
 
-    InitForIO();
+    enableIO();
     uii_change_dir("/");
-	DoneWithIO();
+	restoreIO();
     DrawIDandPath(1);
     DrawDir(1);
 }
@@ -900,9 +900,9 @@ void DirRoot() {
 void DirHome() {
 // Go to default home dir
 
-    InitForIO();
+    enableIO();
     uii_change_dir_home();
-	DoneWithIO();
+	restoreIO();
     DrawIDandPath(1);
     DrawDir(1);
 }
@@ -1006,9 +1006,9 @@ void MountSelected(unsigned char filepos) {
     // If type is dir, change dir
     if(presentdirelement->type == 1) {
         // Change dir
-        InitForIO();
+        enableIO();
         uii_change_dir(presentdirelement->filename);
-        DoneWithIO();
+        restoreIO();
 
         // Redraw filebrowser
         DrawIDandPath(1);
@@ -1017,9 +1017,9 @@ void MountSelected(unsigned char filepos) {
     }
 
     // Mount disk
-    InitForIO();
+    enableIO();
     uii_mount_disk(targetdrive+7,presentdirelement->filename);
-    DoneWithIO();
+    restoreIO();
 
     // Error handling
     if(CheckStatus()) { return; }

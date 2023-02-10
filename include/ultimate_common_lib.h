@@ -110,6 +110,10 @@ struct DirectoryEntry {
 	unsigned char *filename;
 };
 
+// GEOS addition protptypes by Xander Mol
+void enableIO();
+void restoreIO();
+
 // prototypes
 void uii_logtext(char *text);
 void uii_logstatusreg(void);

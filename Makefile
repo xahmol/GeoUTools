@@ -73,12 +73,12 @@ CONF = geoutimecfg
 CFLAGS  = -t $(SYS)  -Os -I include
 
 # Sources and config for GeoUMount
-MOUNTSRC = src/mount.c src/interface.c src/ultimate_common_lib.c src/ultimate_dos_lib.c
+MOUNTSRC = src/mount.c src/interface.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_dos_lib.c
 MOUNTHDR = src/$(MOUNT)Hdr.s
 MOUNTFLG = -C $(MOUNT)_cc65config.cfg -m $(MOUNT).map
 
 # Sources and config for GeoUTime
-TIMESRC = src/time_synch.c src/time_common.c src/ultimate_common_lib.c src/ultimate_time_lib.c src/ultimate_network_lib.c
+TIMESRC = src/time_synch.c src/time_common.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_time_lib.c src/ultimate_network_lib.c
 TIMEHDR = src/$(TIME)Hdr.s
 TIMEFLG = -C $(TIME)_cc65config.cfg -m $(TIME).map
 
