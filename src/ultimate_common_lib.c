@@ -20,8 +20,8 @@ unsigned char *statusreg = (unsigned char *)STATUS_REG;
 unsigned char *respdatareg = (unsigned char *)RESP_DATA_REG;
 unsigned char *statusdatareg = (unsigned char *)STATUS_DATA_REG;
 
-char uii_status[STATUS_QUEUE_SZ];
-char uii_data[DATA_QUEUE_SZ*2];
+char uii_status[STATUS_QUEUE_SZ+1];
+char uii_data[(DATA_QUEUE_SZ*2)+1];
 char temp_string_onechar[2];
 int uii_data_index;
 int uii_data_len;
@@ -196,7 +196,7 @@ int uii_readdata(void)
 	uii_logstatusreg();
 
 	// If there is data to read
-	while (uii_isdataavailable())
+	while (uii_isdataavailable() && count<DATA_QUEUE_SZ*2)
 	{
 		uii_data[count++] = *respdatareg;
 	}
@@ -212,7 +212,7 @@ int uii_readstatus(void)
 	uii_logtext("\n\nreading status...");
 	uii_logstatusreg();
 
-	while(uii_isstatusdataavailable())
+	while(uii_isstatusdataavailable() && count<STATUS_QUEUE_SZ)
 	{
 		uii_status[count++] = *statusdatareg;
 	}

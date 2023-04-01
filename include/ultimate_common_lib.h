@@ -96,8 +96,8 @@ extern unsigned char *statusreg;
 extern unsigned char *respdatareg;
 extern unsigned char *statusdatareg;
 
-extern char uii_status[STATUS_QUEUE_SZ];
-extern char uii_data[DATA_QUEUE_SZ*2];
+extern char uii_status[STATUS_QUEUE_SZ+1];
+extern char uii_data[(DATA_QUEUE_SZ*2)+1];
 
 extern char temp_string_onechar[2];
 extern int uii_data_index;
