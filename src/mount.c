@@ -284,7 +284,7 @@ void SetValidDrives() {
     targetdrive = 0;
 
     // Get GEOS drive types
-    CopyString(drivetypeID,(char *) (DRIVETYPES));
+    CopyFString(4,drivetypeID,(char *) (DRIVETYPES));
 
     // Initialize DOS target of Ultimate Command Interface
     enableIO();
