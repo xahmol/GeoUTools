@@ -112,7 +112,7 @@ void uii_sendcommand(unsigned char *bytes, int count)
 		uii_logtext("\nwaiting for cmd_busy to clear...");
 		uii_logstatusreg();
 		
-		while ( !(((*statusreg & 32) == 0) && ((*statusreg & 16) == 0)))  {
+		while (*statusreg & 0x35) {
 			uii_logtext("\nwaiting...");
 			uii_logstatusreg();
 		};
