@@ -25,24 +25,29 @@ _enableIO:
 
     php
     sei
+
+    pla
+    sta ioSave +1 ;save IRQ enable flag
+
     lda $01
     sta ioSave  ;save memory configuration
     and #$f8
     ora #$05    ;bank in I/O
     sta $01
-    plp
     rts
 
 ; ------------------------------------------------------------------------------------------
 _restoreIO:
 ; Function to restore GEOS to original state after using IO
 ; ------------------------------------------------------------------------------------------
-    php
-    sei
     lda ioSave  ;restore previous configuration
     sta $01
+
+    lda ioSave +1 ;restore IRQ enable flag
+    pha
+
     plp
     rts
 
 ioSave:
-    .res 1
+    .res 2
