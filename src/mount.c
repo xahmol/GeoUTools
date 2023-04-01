@@ -1149,6 +1149,9 @@ void main (void)
     // Set presentdir pointer at zero
     presentdir.firstelement = 0;
 
+    // Check if UCI is detected, else abort.
+    if(!uii_detect()) { DlgBoxOk("No Ultimate Command Interface detected","Press OK to abort program."); EnterDeskTop(); }
+
     // Get valid UII+ drives
     SetValidDrives();
 

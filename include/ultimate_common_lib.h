@@ -90,6 +90,7 @@ Patches and pull requests are welcome
 
 #define uii_success() (uii_status[0] == '0' && uii_status[1] == '0')
 
+extern unsigned char *id_reg;
 extern unsigned char *cmddatareg;
 extern unsigned char *controlreg;
 extern unsigned char *statusreg;
@@ -115,6 +116,8 @@ void enableIO();
 void restoreIO();
 
 // prototypes
+unsigned char uii_detect(void);
+
 void uii_logtext(char *text);
 void uii_logstatusreg(void);
 

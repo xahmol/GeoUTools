@@ -14,6 +14,7 @@ Patches and pull requests are welcome
 #include <string.h>
 #include "ultimate_common_lib.h"
 
+unsigned char *id_reg = (unsigned char *)ID_REG;
 unsigned char *cmddatareg = (unsigned char *)CMD_DATA_REG;
 unsigned char *controlreg = (unsigned char *)CONTROL_REG;
 unsigned char *statusreg = (unsigned char *)STATUS_REG;
@@ -29,6 +30,12 @@ int uii_data_len;
 unsigned char uii_target = TARGET_DOS1;
 
 // Core functions
+unsigned char uii_detect(void)
+{
+	// Detect present of UCI via ID_REG. Value should be $C9
+	if(*id_reg == 0xc9) { return 1; } else { return 0; }
+}
+
 void uii_logtext(char *text)
 {
 #ifdef DEBUG
