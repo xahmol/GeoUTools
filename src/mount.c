@@ -1151,7 +1151,7 @@ void main (void)
 
     // Check if UCI is detected, else abort.
     enableIO();
-    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface detected","Press OK to abort program."); EnterDeskTop(); }
+    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface","Press OK to abort program."); EnterDeskTop(); }
     restoreIO();
 
     // Get valid UII+ drives

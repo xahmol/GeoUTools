@@ -33,7 +33,16 @@ unsigned char uii_target = TARGET_DOS1;
 unsigned char uii_detect(void)
 {
 	// Detect present of UCI via ID_REG. Value should be $C9
-	if(*id_reg == 0xc9) { return 1; } else { return 0; }
+	if(*id_reg == 0xc9) {
+		// Reset UCI
+		uii_abort();
+		
+		// Return 1 for detected = true
+		return 1;
+	} else {
+		// Return 0 for detected = false
+		return 0;
+	}
 }
 
 void uii_logtext(char *text)

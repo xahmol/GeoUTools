@@ -82,6 +82,7 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 
 // Global variables
 unsigned char socket = 0;
+unsigned char osType = 0;
 
 // Application routines
 unsigned char CheckStatus() {
@@ -122,9 +123,6 @@ void get_ntp_time() {
     char res[32];
 
     socket = 0;
-
-    // Aborting anything the UII+ might be doing to be safe
-    uii_abort();
 
     // Connect to NTP host. Return on error
     if(verbose) {
@@ -279,8 +277,11 @@ void main (void)
 {
     // Check if UCI is detected, else abort.
     enableIO();
-    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface detected","Press OK to abort program."); EnterDeskTop(); }
+    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface","Press OK to abort program."); EnterDeskTop(); }
     restoreIO();
+
+    // Get host OS type
+    osType = get_ostype();
 
     // Load config file
     ConfigLoad();
@@ -292,7 +293,8 @@ void main (void)
         drawWindow.top = 20;
         drawWindow.bot = 140;
         drawWindow.left = 0;
-        drawWindow.right = 319 + DOUBLE_W;
+        if(osType & GEOS128 ) { drawWindow.right = 319 + DOUBLE_W;  }
+        else { drawWindow.right = 319; }
         Rectangle();  // Window
         FrameRectangle(255);    // Frame
         PutString(CBOLDON "GeoUTime - Verbose mode" CPLAINTEXT,29,10);
