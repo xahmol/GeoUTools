@@ -278,7 +278,9 @@ void timeSynch () {
 void main (void)
 {
     // Check if UCI is detected, else abort.
-    if(!uii_detect()) { DlgBoxOk("No Ultimate Command Interface detected","Press OK to abort program."); EnterDeskTop(); }
+    enableIO();
+    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface detected","Press OK to abort program."); EnterDeskTop(); }
+    restoreIO();
 
     // Load config file
     ConfigLoad();
