@@ -294,7 +294,7 @@ void ReinitScreen(char *s) {
 	
     // Clear main screen
     SetPattern(2);
-    SetRectangleCoords(0,SC_PIX_HEIGHT,0,screen_pixel_width);
+    SetRectangleCoords(0,SC_PIX_HEIGHT-1,0,screen_pixel_width-1);
     Rectangle();
 	SetPattern(0);
 	InitDrawWindow (winMain);
