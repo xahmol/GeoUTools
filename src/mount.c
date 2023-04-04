@@ -301,6 +301,12 @@ void SetValidDrives() {
     uii_get_deviceinfo();
 	restoreIO(); 
 
+    // Check if DEVINFO is known (which is the case on older firmwares)
+    if(uii_status[0] == '2' && uii_status[1] =='1') {
+        DlgBoxOk("Old firmware detected","Click OK to abort");
+        EnterDeskTop();
+    }
+
     for(drive=0;drive<4;drive++)
     {
         validdrive[drive]=0;
@@ -1151,7 +1157,7 @@ void main (void)
 
     // Check if UCI is detected, else abort.
     enableIO();
-    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface","Press OK to abort program."); EnterDeskTop(); }
+    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface","Press OK to abort."); EnterDeskTop(); }
     restoreIO();
 
     // Get valid UII+ drives
