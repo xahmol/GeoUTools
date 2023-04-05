@@ -400,19 +400,27 @@ void Readdir() {
         // Check if file is a matching image type
         if(!presenttype) {
 
-            // Check for filename extension of a disk image (D64, D71 or D81)
-            if( (uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D') &&
-                (uii_data[datalength-2] == '6') &&
-                (uii_data[datalength-1] == '4')) { presenttype =2; }
-            if( (uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D') &&
-                (uii_data[datalength-2] == '7') &&
-                (uii_data[datalength-1] == '1')) { presenttype =3; }
-            if( (uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D') &&
-                (uii_data[datalength-2] == '8') &&
-                (uii_data[datalength-1] == '1')) { presenttype =4; }
+            // Check for filename extension of a disk image (D64/G64, D71/G71 or D81)
 
-            // Check of identified image type matches selected target drive
-            if( presenttype != drivetypeID[targetdrive-1]+1) { presenttype=0; }  
+            // First check for D or G as first letter of extension
+            if( uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D' ||
+                uii_data[datalength-3] == 'g' || uii_data[datalength-3] == 'G' ) {
+
+                // Check for D64/G64
+                if( (uii_data[datalength-2] == '6') && (uii_data[datalength-1] == '4') ) { presenttype = 2; }
+
+                // Check for D71/G71
+                if( (uii_data[datalength-2] == '7') && (uii_data[datalength-1] == '1') ) { presenttype = 3; }
+
+                // Check for D81
+                if( (uii_data[datalength-2] == '8') && (uii_data[datalength-1] == '1') ) { presenttype = 4; }
+            }
+
+            // Check of identified image type matches selected target drive, allow D64/G64 on 1571
+            if( presenttype != drivetypeID[targetdrive-1]+1) {
+                if( presenttype == 2 && drivetypeID[targetdrive-1] == 2) { presenttype = 2; }
+                else { presenttype = 0; }
+            }  
         }
 
         //SetPattern(0);
