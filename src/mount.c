@@ -366,7 +366,6 @@ void Readdir() {
     enableIO();
     uii_open_dir();
     uii_get_dir();
-    restoreIO();
 
     // Loop while dir data is available or memory is full
     while(uii_isdataavailable())
@@ -375,7 +374,6 @@ void Readdir() {
         presenttype = 0;
 
         // Get next dir entry
-        enableIO();
 		uii_readdata();
 		uii_accept();
 
@@ -384,13 +382,11 @@ void Readdir() {
         // Check on second byte of data that is set 0 in last iteration
         // If still zero and not overwritten, no new data is received
         // Abort on receiving empty data
-        if(!uii_data[1]) {
-                uii_abort();
-                restoreIO();
-                return;
-        }
-
-        restoreIO();
+        //if(!uii_data[1]) {
+        //        uii_abort();
+        //        restoreIO();
+        //        return;
+        //}
 
         datalength = strlen(uii_data);
 
@@ -444,7 +440,6 @@ void Readdir() {
             // Break loop if memory is full
             if(!present ||  _heapmemavail()<MIN_HEAP_SIZE) {
                 // Abort UCI dir reading
-                enableIO();
                 uii_abort();
                 restoreIO();
                 return;
@@ -472,10 +467,12 @@ void Readdir() {
         }
 
         // Clear second byte for quick fix on data available test
-        uii_data[1]=0;
+        //uii_data[1]=0;
         //cgetc();
 	}
 
+    // Switch out IO again and restore original GEOS state
+    restoreIO();
 }
 
 // Screen functions
