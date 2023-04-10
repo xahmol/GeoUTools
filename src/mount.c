@@ -323,23 +323,29 @@ void SetValidDrives() {
     // Set dir at home dir
     uii_change_dir_home();
 
+    // Get RAM disk info from UCI
+    memset(ramdiskID,0,8);
+    uii_get_ramdisk_info();
+    restoreIO();
+    if(!Checkcommandsupport()) {
+        // Only set RAMdisk info if command is supported in firmware
+        CopyFString(8,ramdiskID,uii_data);
+    }
+    //else
+    //{
+    //    // Check if DEVINFO is known (which is the case on older firmwares)
+    //    DlgBoxOk("Old firmware detected","Click OK to abort");
+    //    EnterDeskTop();
+    //}
+
     // Get device info from UCI
+    enableIO();
     uii_get_deviceinfo();
 	restoreIO();    
     if(Checkcommandsupport()) {
         // Check if DEVINFO is known (which is the case on older firmwares)
         DlgBoxOk("Old firmware detected","Click OK to abort");
         EnterDeskTop();
-    }
-
-    // Get RAM disk info from UCI
-    memset(ramdiskID,0,8);
-    enableIO();
-    uii_get_ramdisk_info();
-    restoreIO();
-    if(!Checkcommandsupport()) {
-        // Only set RAMdisk info if command is supported in firmware
-        CopyFString(8,ramdiskID,uii_data);
     }
     
     for(drive=0;drive<4;drive++)
@@ -466,25 +472,25 @@ void Readdir() {
                 // Check for D64/G64
                 if( (uii_data[datalength-2] == '6') && (uii_data[datalength-1] == '4') ) {
                 // Allow D64/G64 on 1541, 1571 and RAM 1541
-                    if (drivetypeID[targetdrive-1] == 1 ||
-                        drivetypeID[targetdrive-1] == 2 ||
-                        drivetypeID[targetdrive-1] == 4) {
+                    if (validdrive[targetdrive-1] == 1 ||
+                        validdrive[targetdrive-1] == 2 ||
+                        validdrive[targetdrive-1] == 4) {
                             presenttype = 2; }
                 }
 
                 // Check for D71/G71
                 if( (uii_data[datalength-2] == '7') && (uii_data[datalength-1] == '1') ) {
                 // Allow D71/G71 on 1571 and RAM 1571
-                    if (drivetypeID[targetdrive-1] == 2 ||
-                        drivetypeID[targetdrive-1] == 5) {
+                    if (validdrive[targetdrive-1] == 2 ||
+                        validdrive[targetdrive-1] == 5) {
                             presenttype = 3; }
                 }
 
                 // Check for D81
                 if( (uii_data[datalength-2] == '8') && (uii_data[datalength-1] == '1') ) {
                 // Allow D81 on 1581 and RAM 1581
-                    if (drivetypeID[targetdrive-1] == 3 ||
-                        drivetypeID[targetdrive-1] == 6) {
+                    if (validdrive[targetdrive-1] == 3 ||
+                        validdrive[targetdrive-1] == 6) {
                             presenttype = 4; }
                 }
 
@@ -492,7 +498,7 @@ void Readdir() {
                 if( ((uii_data[datalength-2] == 'n') && (uii_data[datalength-1] == 'p')) ||
                     ((uii_data[datalength-2] == 'N') && (uii_data[datalength-1] == 'P')) ) {
                 // Allow DNP on RAM DNP
-                    if (drivetypeID[targetdrive-1] == 7 ) {
+                    if (validdrive[targetdrive-1] == 7 ) {
                             presenttype = 5; }
                 }
             }
@@ -612,6 +618,8 @@ void DrawDrivetypes() {
 void DrawTargetdrive(unsigned char refresh) {
 // Draw presently selected target. Clear area first on refresh flag.
 
+//  unsigned char drive;
+
     if(refresh)
     {
         SetPattern(0);
@@ -628,6 +636,12 @@ void DrawTargetdrive(unsigned char refresh) {
         sprintf(buffer,"No valid target");
     }
     PutString(buffer,29,interfaceCoords->righttab_xstart);
+
+    //for(drive=0;drive<8;drive++)
+    //{
+    //    sprintf(buffer,"%2X",ramdiskID[drive]);
+    //    PutString(buffer,39,interfaceCoords->righttab_xstart+16*drive);
+    //}
 }
 
 void PrintDirEntry(unsigned char printpos) {
@@ -1098,7 +1112,7 @@ void MountSelected(unsigned char filepos) {
 
     // Mount disk
     enableIO();
-    if(ramdiskID[(targetdrive-1)*2]) {
+    if(!ramdiskID[(targetdrive-1)*2]) {
         // No RAM disk
         uii_mount_disk(targetdrive+7,presentdirelement->filename);
     } else {
