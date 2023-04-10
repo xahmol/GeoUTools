@@ -371,6 +371,39 @@ void uii_get_deviceinfo(void)
 	uii_accept();
 }
 
+void uii_get_ramdisk_info(void)
+{
+	unsigned char cmd[] = {0x00,CTRL_CMD_GET_RAMDISK_INFO};
+	
+	uii_settarget(TARGET_CONTROL);
+	uii_sendcommand(cmd, 2);
+
+	uii_readdata();
+	uii_readstatus();
+	uii_accept();
+}
+
+void uii_loadIntoRamDisk(unsigned char id, char *filename)
+{
+	int x = 0;
+	unsigned char* fullcmd = (unsigned char *)malloc(strlen(filename)+3);
+	fullcmd[0] = 0x00;
+	fullcmd[1] = DOS_CMD_LOAD_INTO_RAMDISK;
+	fullcmd[2] = id;
+	
+	for(x=0;x<strlen(filename);x++)
+		fullcmd[x+3] = filename[x];
+	
+	uii_settarget(TARGET_DOS1);
+	uii_sendcommand(fullcmd, strlen(filename)+3);
+	
+	free(fullcmd);
+	
+	uii_readdata();
+	uii_readstatus();
+	uii_accept();
+}
+
 void uii_load_reu(unsigned char size)
 {
 	// REU sizes on UII+:

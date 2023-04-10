@@ -18,54 +18,57 @@ Patches and pull requests are welcome
 #include <stdio.h>
 
 								// bit 7    bit 6    bit 5    bit 4    bit 3    bit 2    bit 1    bit 0
-#define CONTROL_REG		0xDF1C	// --------reserved------ ---------   CLR_ERR   ABORT   DATA_ACC  PUSH_CMD
-#define STATUS_REG		0xDF1C  //DATA_AV   STAT_AV [    STATE    ]    ERROR    ABORT_P DATA_ACC  CMD_BUSY
-#define CMD_DATA_REG	0xDF1D
-#define ID_REG			0xDF1D
-#define RESP_DATA_REG   0xDF1E
-#define STATUS_DATA_REG	0xDF1F
+#define CONTROL_REG					0xDF1C	// --------reserved------ ---------   CLR_ERR   ABORT   DATA_ACC  PUSH_CMD
+#define STATUS_REG					0xDF1C  //DATA_AV   STAT_AV [    STATE    ]    ERROR    ABORT_P DATA_ACC  CMD_BUSY
+#define CMD_DATA_REG				0xDF1D
+#define ID_REG						0xDF1D
+#define RESP_DATA_REG   			0xDF1E
+#define STATUS_DATA_REG				0xDF1F
 
-#define DATA_QUEUE_SZ		896
-#define STATUS_QUEUE_SZ		256
+#define DATA_QUEUE_SZ				896
+#define STATUS_QUEUE_SZ				256
 
-#define TARGET_DOS1		0x01
-#define TARGET_DOS2		0x02
-#define TARGET_NETWORK	0x03
-#define TARGET_CONTROL	0x04
+#define TARGET_DOS1					0x01
+#define TARGET_DOS2					0x02
+#define TARGET_NETWORK				0x03
+#define TARGET_CONTROL				0x04
 
-#define DOS_CMD_IDENTIFY		0x01
-#define DOS_CMD_OPEN_FILE		0x02
-#define DOS_CMD_CLOSE_FILE		0x03
-#define DOS_CMD_READ_DATA		0x04
-#define DOS_CMD_WRITE_DATA		0x05
-#define DOS_CMD_FILE_SEEK		0x06
-#define DOS_CMD_FILE_INFO		0x07
-#define DOS_CMD_FILE_STAT		0x08
-#define DOS_CMD_DELETE_FILE		0x09
-#define DOS_CMD_RENAME_FILE		0x0a
-#define DOS_CMD_COPY_FILE		0x0b
-#define DOS_CMD_CHANGE_DIR		0x11
-#define DOS_CMD_GET_PATH		0x12
-#define DOS_CMD_OPEN_DIR		0x13
-#define DOS_CMD_READ_DIR		0x14
-#define DOS_CMD_COPY_UI_PATH	0x15
-#define DOS_CMD_CREATE_DIR		0x16
-#define DOS_CMD_COPY_HOME_PATH	0x17
-#define DOS_CMD_LOAD_REU		0x21
-#define DOS_CMD_SAVE_REU		0x22
-#define DOS_CMD_MOUNT_DISK		0x23
-#define DOS_CMD_UMOUNT_DISK		0x24
-#define DOS_CMD_SWAP_DISK		0x25
-#define DOS_CMD_GET_TIME		0x26
-#define DOS_CMD_SET_TIME		0x27
-#define CTRL_CMD_DEVICE_INFO	0x29
-#define CTRL_CMD_ENABLE_DISK_A	0x30
-#define CTRL_CMD_DISABLE_DISK_A	0x31
-#define CTRL_CMD_ENABLE_DISK_B	0x32
-#define CTRL_CMD_DISABLE_DISK_B	0x33
-#define CTRL_CMD_DRIVE_A_POWER 	0x34
-#define CTRL_CMD_DRIVE_B_POWER	0x35
-#define DOS_CMD_ECHO			0xf0
+#define DOS_CMD_IDENTIFY			0x01
+#define DOS_CMD_OPEN_FILE			0x02
+#define DOS_CMD_CLOSE_FILE			0x03
+#define DOS_CMD_READ_DATA			0x04
+#define DOS_CMD_WRITE_DATA			0x05
+#define DOS_CMD_FILE_SEEK			0x06
+#define DOS_CMD_FILE_INFO			0x07
+#define DOS_CMD_FILE_STAT			0x08
+#define DOS_CMD_DELETE_FILE			0x09
+#define DOS_CMD_RENAME_FILE			0x0a
+#define DOS_CMD_COPY_FILE			0x0b
+#define DOS_CMD_CHANGE_DIR			0x11
+#define DOS_CMD_GET_PATH			0x12
+#define DOS_CMD_OPEN_DIR			0x13
+#define DOS_CMD_READ_DIR			0x14
+#define DOS_CMD_COPY_UI_PATH		0x15
+#define DOS_CMD_CREATE_DIR			0x16
+#define DOS_CMD_COPY_HOME_PATH		0x17
+#define DOS_CMD_LOAD_REU			0x21
+#define DOS_CMD_SAVE_REU			0x22
+#define DOS_CMD_MOUNT_DISK			0x23
+#define DOS_CMD_UMOUNT_DISK			0x24
+#define DOS_CMD_SWAP_DISK			0x25
+#define DOS_CMD_GET_TIME			0x26
+#define DOS_CMD_SET_TIME			0x27
+#define DOS_CMD_LOAD_INTO_RAMDISK	0x41
+#define DOS_CMD_SAVE_RAMDISK 		0x42
+#define CTRL_CMD_DEVICE_INFO		0x29
+#define CTRL_CMD_ENABLE_DISK_A		0x30
+#define CTRL_CMD_DISABLE_DISK_A		0x31
+#define CTRL_CMD_ENABLE_DISK_B		0x32
+#define CTRL_CMD_DISABLE_DISK_B		0x33
+#define CTRL_CMD_DRIVE_A_POWER 		0x34
+#define CTRL_CMD_DRIVE_B_POWER		0x35
+#define CTRL_CMD_GET_RAMDISK_INFO	0x40
+#define DOS_CMD_ECHO				0xf0
 
 #define NET_CMD_GET_INTERFACE_COUNT	0x02
 #define NET_CMD_GET_IP_ADDRESS		0x05

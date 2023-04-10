@@ -83,20 +83,26 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 // Global variables
 char buffer[81];
 unsigned char validdrive[4] = {0,0,0,0};
-char drivetypes[4][14] = {
+char drivetypes[8][14] = {
     "No target",
     "Emulated 1541",
     "Emulated 1571",
-    "Emulated 1581"
+    "Emulated 1581",
+    "RAM 1541",
+    "RAM 1571",
+    "RAM 1581",
+    "RAM DMP"
 };
-char entrytypes[5][4] = {
+char entrytypes[6][4] = {
     "DIR",
     "D64",
     "D71",
     "D81",
+    "DNP",
     "!TL"
 };
 char drivetypeID[4];
+char ramdiskID[8];
 unsigned char targetdrive;
 unsigned char clickflag;
 
@@ -276,6 +282,26 @@ void vdc_write_reg(void);
 void vdc_copyline(unsigned char srchi, unsigned char srclo, unsigned char desthi, unsigned char destlo);
 
 // Application routines
+unsigned char CheckStatus() {
+// Function to check UII+ status and print error box if applicable
+
+    if (!uii_success()) {
+        DlgBoxOk("Ultimate Command Interface error!",(const char *)uii_status);
+        return 1;
+    }
+    return 0;
+}
+
+unsigned char Checkcommandsupport() {
+// Function to check if command is supported in present firmware
+
+    if(uii_status[0] == '2' && uii_status[1] =='1') {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 void SetValidDrives() {
 // Initialise variables to defines which drive IDs are valid targets
 
@@ -299,14 +325,23 @@ void SetValidDrives() {
 
     // Get device info from UCI
     uii_get_deviceinfo();
-	restoreIO(); 
-
-    // Check if DEVINFO is known (which is the case on older firmwares)
-    if(uii_status[0] == '2' && uii_status[1] =='1') {
+	restoreIO();    
+    if(Checkcommandsupport()) {
+        // Check if DEVINFO is known (which is the case on older firmwares)
         DlgBoxOk("Old firmware detected","Click OK to abort");
         EnterDeskTop();
     }
 
+    // Get RAM disk info from UCI
+    memset(ramdiskID,0,8);
+    enableIO();
+    uii_get_ramdisk_info();
+    restoreIO();
+    if(!Checkcommandsupport()) {
+        // Only set RAMdisk info if command is supported in firmware
+        CopyFString(8,ramdiskID,uii_data);
+    }
+    
     for(drive=0;drive<4;drive++)
     {
         validdrive[drive]=0;
@@ -318,6 +353,32 @@ void SetValidDrives() {
                 validdrive[drive] = drivetypeID[drive];
                 if(!targetdrive) { targetdrive = drive+1; }
             }
+        }
+
+        // Check if drive ID is a supported RAM drive
+        if(ramdiskID[2*drive]) {
+            switch (ramdiskID[2*drive])
+            {
+            case 0x41:
+                validdrive[drive]=4;
+                break;
+
+            case 0x71:
+                validdrive[drive]=5;
+                break;
+            
+            case 0x81:
+                validdrive[drive]=6;
+                break;
+
+            case 0xdd:
+                validdrive[drive]=7;
+                break;
+            
+            default:
+                break;
+            }
+            if(!targetdrive) { targetdrive = drive+1; }
         }
     }
 }
@@ -403,20 +464,38 @@ void Readdir() {
                 uii_data[datalength-3] == 'g' || uii_data[datalength-3] == 'G' ) {
 
                 // Check for D64/G64
-                if( (uii_data[datalength-2] == '6') && (uii_data[datalength-1] == '4') ) { presenttype = 2; }
+                if( (uii_data[datalength-2] == '6') && (uii_data[datalength-1] == '4') ) {
+                // Allow D64/G64 on 1541, 1571 and RAM 1541
+                    if (drivetypeID[targetdrive-1] == 1 ||
+                        drivetypeID[targetdrive-1] == 2 ||
+                        drivetypeID[targetdrive-1] == 4) {
+                            presenttype = 2; }
+                }
 
                 // Check for D71/G71
-                if( (uii_data[datalength-2] == '7') && (uii_data[datalength-1] == '1') ) { presenttype = 3; }
+                if( (uii_data[datalength-2] == '7') && (uii_data[datalength-1] == '1') ) {
+                // Allow D71/G71 on 1571 and RAM 1571
+                    if (drivetypeID[targetdrive-1] == 2 ||
+                        drivetypeID[targetdrive-1] == 5) {
+                            presenttype = 3; }
+                }
 
                 // Check for D81
-                if( (uii_data[datalength-2] == '8') && (uii_data[datalength-1] == '1') ) { presenttype = 4; }
-            }
+                if( (uii_data[datalength-2] == '8') && (uii_data[datalength-1] == '1') ) {
+                // Allow D81 on 1581 and RAM 1581
+                    if (drivetypeID[targetdrive-1] == 3 ||
+                        drivetypeID[targetdrive-1] == 6) {
+                            presenttype = 4; }
+                }
 
-            // Check of identified image type matches selected target drive, allow D64/G64 on 1571
-            if( presenttype != drivetypeID[targetdrive-1]+1) {
-                if( presenttype == 2 && drivetypeID[targetdrive-1] == 2) { presenttype = 2; }
-                else { presenttype = 0; }
-            }  
+                // Check for DNP
+                if( ((uii_data[datalength-2] == 'n') && (uii_data[datalength-1] == 'p')) ||
+                    ((uii_data[datalength-2] == 'N') && (uii_data[datalength-1] == 'P')) ) {
+                // Allow DNP on RAM DNP
+                    if (drivetypeID[targetdrive-1] == 7 ) {
+                            presenttype = 5; }
+                }
+            }
         }
 
         //SetPattern(0);
@@ -430,7 +509,7 @@ void Readdir() {
         if(presenttype) {
             // Get file or dir name to buffer
             maxlength = datalength;
-            if(maxlength>20) {maxlength=20; presenttype=5; }    // Truncate for max 20
+            if(maxlength>20) {maxlength=20; presenttype=6; }    // Truncate for max 20
             memset(buffer,0,21);
             CopyFString(maxlength,buffer,uii_data+1);
 
@@ -476,16 +555,6 @@ void Readdir() {
 }
 
 // Screen functions
-
-unsigned char CheckStatus() {
-// Function to check UII+ status and print error box if applicable
-
-    if (!uii_success()) {
-        DlgBoxOk("Ultimate Command Interface error!",(const char *)uii_status);
-        return 1;
-    }
-    return 0;
-}
 
 void DrawIDandPath(unsigned char refresh) {
 // Draw UCI ID and pathname. Clear previous if refresh flag set
@@ -1012,7 +1081,7 @@ void MountSelected(unsigned char filepos) {
     InvertRectangle();
 
     // If type is 'too long', return
-    if(presentdirelement->type == 5) { return; }
+    if(presentdirelement->type == 6) { return; }
 
     // If type is dir, change dir
     if(presentdirelement->type == 1) {
@@ -1029,7 +1098,13 @@ void MountSelected(unsigned char filepos) {
 
     // Mount disk
     enableIO();
-    uii_mount_disk(targetdrive+7,presentdirelement->filename);
+    if(ramdiskID[(targetdrive-1)*2]) {
+        // No RAM disk
+        uii_mount_disk(targetdrive+7,presentdirelement->filename);
+    } else {
+        // RAM disk
+        uii_loadIntoRamDisk(targetdrive+7,presentdirelement->filename);
+    }
     restoreIO();
 
     // Error handling
