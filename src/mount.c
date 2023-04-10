@@ -1103,7 +1103,7 @@ void MountSelected(unsigned char filepos) {
         uii_mount_disk(targetdrive+7,presentdirelement->filename);
     } else {
         // RAM disk
-        uii_loadIntoRamDisk(targetdrive+7,presentdirelement->filename);
+        uii_loadIntoRamDisk(targetdrive-1,presentdirelement->filename);
     }
     restoreIO();
 
