@@ -187,6 +187,12 @@ char iconBottom[] = {
     0x81,0x03,0x80,0x03,0x9F,0xF3,0x9F,0xF3,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,0xFF
 };
 
+char iconSave[] = {
+    0xA0,0xFF,0xFE,0x80,0x03,0x80,0x03,0x9F,0xE3,0x97,0x53,0x97,0x53,0x97,0x53,0x97,
+    0xD3,0x90,0x13,0x97,0xD3,0x98,0x33,0x9F,0xF3,0x80,0x03,0x80,0x03,0xFF,0xFF,0x7F,
+    0xFF
+};
+
 // Declare interface functions
 void DriveselectA (void);
 void DriveselectB (void);
@@ -197,12 +203,13 @@ void DirRoot (void);
 void DirHome (void);
 void DirTop (void);
 void DirBottom (void);
+void SaveImage (void);
 void ScrollUp (void);
 void ScrollDown (void);
 
 // Interface icontab
 struct icontab vic_mainicons = {
-    11,
+    12,
     { 0,0 },
     {
         { iconA, 28, 50, 2, 16, (int)DriveselectA },
@@ -214,13 +221,14 @@ struct icontab vic_mainicons = {
         { iconHome, 28, 170, 2, 16, (int)DirHome },
         { iconTop, 31, 130, 2, 16, (int)DirTop },
         { iconBottom, 31, 150, 2, 16, (int)DirBottom },
+        { iconSave, 31,170, 2, 16,(int)SaveImage},
         { iconArrowUp, 25, 45, 1, 8, (int)ScrollUp },
-        { iconArrowDown, 25, 180, 1, 8, (int)ScrollDown },
+        { iconArrowDown, 25, 180, 1, 8, (int)ScrollDown }
     }
 };
 
 struct icontab vdc_mainicons = {
-    11,
+    12,
     { 0,0 },
     {
         { iconA, 56, 50, 2 | DOUBLE_B, 16, (int)DriveselectA },
@@ -232,6 +240,7 @@ struct icontab vdc_mainicons = {
         { iconHome, 56, 170, 2 | DOUBLE_B, 16, (int)DirHome },
         { iconTop, 61, 130, 2 | DOUBLE_B, 16, (int)DirTop },
         { iconBottom, 61, 150, 2 | DOUBLE_B, 16, (int)DirBottom },
+        { iconSave, 61,170, 2 | DOUBLE_B, 16,(int)SaveImage},
         { iconArrowUp, 50, 45, 1, 8, (int)ScrollUp },
         { iconArrowDown, 50, 180, 1, 8, (int)ScrollDown },
     }
@@ -1042,6 +1051,48 @@ void DirBottom() {
     DrawDir(2);
 }
 
+void SaveImage() {
+// Save RAM disk image back to an image file
+    
+    char imagename[21] = "ramdisk";
+
+    // Check if targetdrive is a valid and supported RAM disk
+    if(validdrive[targetdrive-1]<4) {return; }
+
+    // Ask for filename
+    if( DlgBoxGetString(imagename,16,"Enter filename for the image","(or press Cancel)")
+        == CANCEL) { return ; }
+
+    // Add extention based on RAM disk type
+    CopyString(imagename+strlen(imagename),entrytypes[validdrive[targetdrive-1]-3]);
+
+    // Check if file exists
+    enableIO();
+    uii_open_file(1,imagename);
+    if(uii_success()) {
+        uii_close_file();
+        restoreIO();
+        if( DlgBoxYesNo("File exists.","Overwrite file?") == NO ) {
+            // Exit function on NO on overwrite
+            return;
+        } else {
+            // Delete existing file if YES on overwrite
+            enableIO();
+            uii_delete_file(imagename);
+        }
+    } else {
+        uii_abort();
+    }
+
+    // Save image
+    uii_saveRamDisk(targetdrive-1,imagename);
+    restoreIO();
+    if( !CheckStatus() ) { 
+        sprintf(buffer,"ID %d to %s",targetdrive+7,imagename);
+        DlgBoxOk("Image saved.",buffer);
+    }
+}
+
 void ScrollUp() {
 // Handler for clicking arrow up  
 
@@ -1126,7 +1177,7 @@ void MountSelected(unsigned char filepos) {
 
     // Confirm and ask if program should be exited
     sprintf(buffer,"%s mounted on ID %d",presentdirelement->filename,targetdrive+7);
-    if(DlgBoxOkCancel(buffer,"Exit program?") == OK)
+    if(DlgBoxYesNo(buffer,"Exit program?") == YES)
     {
         Freedir();
         EnterDeskTop();

@@ -404,6 +404,27 @@ void uii_loadIntoRamDisk(unsigned char id, char *filename)
 	uii_accept();
 }
 
+void uii_saveRamDisk(unsigned char id, char *filename)
+{
+	int x = 0;
+	unsigned char* fullcmd = (unsigned char *)malloc(strlen(filename)+3);
+	fullcmd[0] = 0x00;
+	fullcmd[1] = DOS_CMD_SAVE_RAMDISK;
+	fullcmd[2] = id;
+	
+	for(x=0;x<strlen(filename);x++)
+		fullcmd[x+3] = filename[x];
+	
+	uii_settarget(TARGET_DOS1);
+	uii_sendcommand(fullcmd, strlen(filename)+3);
+	
+	free(fullcmd);
+	
+	uii_readdata();
+	uii_readstatus();
+	uii_accept();
+}
+
 void uii_load_reu(unsigned char size)
 {
 	// REU sizes on UII+:
