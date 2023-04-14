@@ -441,6 +441,11 @@ void Readdir() {
     // Initialise reading dir
     enableIO();
     uii_open_dir();
+    if(!uii_success()) {
+        uii_abort();
+        restoreIO();
+        return;
+    }
     uii_get_dir();
 
     // Loop while dir data is available or memory is full
@@ -1055,6 +1060,7 @@ void SaveImage() {
 // Save RAM disk image back to an image file
     
     char imagename[21] = "ramdisk";
+    unsigned char namelen = 0;
 
     // Check if targetdrive is a valid and supported RAM disk
     if(validdrive[targetdrive-1]<4) {return; }
@@ -1064,7 +1070,9 @@ void SaveImage() {
         == CANCEL) { return ; }
 
     // Add extention based on RAM disk type
-    CopyString(imagename+strlen(imagename),entrytypes[validdrive[targetdrive-1]-3]);
+    namelen = strlen(imagename);
+    imagename[namelen] = '.';
+    CopyString(imagename+1+namelen,entrytypes[validdrive[targetdrive-1]-3]);
 
     // Check if file exists
     enableIO();
@@ -1090,6 +1098,7 @@ void SaveImage() {
     if( !CheckStatus() ) { 
         sprintf(buffer,"ID %d to %s",targetdrive+7,imagename);
         DlgBoxOk("Image saved.",buffer);
+        DrawDir(1);
     }
 }
 
