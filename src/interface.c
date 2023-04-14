@@ -82,6 +82,7 @@ unsigned int screen_pixel_width;
 unsigned char osType = 0;
 unsigned char vdc = 0;
 char appname[21];
+unsigned char windowflag = 0;
 
 // Window definitions
 struct window *winMain;
@@ -220,6 +221,9 @@ int CreateWindow() {
     Rectangle();  // Window
     FrameRectangle(255);    // Frame
 
+    // Set window flag so other mouse clicks know not to react
+    windowflag = 1;
+
     // Returns the x co-ordinate for output to this window
     return xcoord;
 }
@@ -246,6 +250,9 @@ void CloseWindow() {
     InitDrawWindow (winIntRecover);
     dispBufferOn = ST_WR_FORE + ST_WR_BACK;
     RecoverRectangle();
+
+    // Clear window flag
+    windowflag = 0;
 }
 
 void ReinitScreen(char *s) {

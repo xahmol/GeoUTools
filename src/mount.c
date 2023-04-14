@@ -56,6 +56,14 @@ Code and resources from others used:
 
 -   Bart van Leeuwen for testing and providing the Device Manager ROM and GEOS RAM Boot
 
+-   markusC64 (https://github.com/markusC64)
+    for code rveiew, testiing and adapting UII+ firmware to enableRAM disk functionality.
+
+-   mkslack ( https://github.com/mkslack ) for code review and testing
+
+-   Forum64.de forum thread for testing and suggestions
+    ( https://www.forum64.de/index.php?thread/133681-news-zur-ultimate-1541-ii-und-geos/ )
+
 -   Gideon Zweijtzer for creating the Ultimate II+ cartridge and the Ultimate64, and the Ultimate Command Interface enabling this software.
    
 -   Tested using real hardware (C128D, C128DCR, Ultimate 64) using GEOS128 2.0, GEOS64 2.0 and Megapatch3 128.
@@ -1200,8 +1208,11 @@ void OtherMousePress() {
     unsigned int ypos = mouseYPos;
     unsigned char filepos;
 
+    // Ignore if window active
+    if(windowflag) { return; }
+
     // Don't act on mouse button release
-    if ((mouseData & MOUSE_BTN_DOWN) != 0) return;
+    if ((mouseData & MOUSE_BTN_DOWN) != 0) { return; }
 
     // Check if mouse was pressed in filebrowser area
     if(xpos>5 && xpos<interfaceCoords->filelist_xend && ypos>50 && ypos<186)

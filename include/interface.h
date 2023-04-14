@@ -7,6 +7,7 @@ extern unsigned int screen_pixel_width;
 extern unsigned char osType;
 extern unsigned char vdc;
 extern char appname[21];
+extern unsigned char windowflag;
 
 // Window definitions
 extern struct window *winMain;
