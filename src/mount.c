@@ -483,13 +483,14 @@ void Readdir() {
         if(uii_data[0]&0x10) { presenttype=1; }
 
         // Check if file is a matching image type
-        if(!presenttype) {
+        if(!presenttype && datalength>4) {
 
             // Check for filename extension of a disk image (D64/G64, D71/G71 or D81)
 
-            // First check for D or G as first letter of extension
-            if( uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D' ||
-                uii_data[datalength-3] == 'g' || uii_data[datalength-3] == 'G' ) {
+            // First check for D or G as first letter of extension after a dot
+            if( (   uii_data[datalength-4] == '.') && 
+                (   uii_data[datalength-3] == 'd' || uii_data[datalength-3] == 'D' ||
+                    uii_data[datalength-3] == 'g' || uii_data[datalength-3] == 'G' ) ) {
 
                 // Check for D64/G64
                 if( (uii_data[datalength-2] == '6') && (uii_data[datalength-1] == '4') ) {
