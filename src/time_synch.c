@@ -234,37 +234,36 @@ void timeSynch () {
         buffer[0]=uii_data[2];
         buffer[1]=uii_data[3];
         buffer[2]=0;
-        system_date.s_year = strtol(buffer,&ptrend,10);
+        year = strtol(buffer,&ptrend,10);
 
         // Copy month
         buffer[0]=uii_data[5];
         buffer[1]=uii_data[6];
-        system_date.s_month = strtol(buffer,&ptrend,10);
+        month = strtol(buffer,&ptrend,10);
 
         // Copy day
         buffer[0]=uii_data[8];
         buffer[1]=uii_data[9];
-        system_date.s_day = strtol(buffer,&ptrend,10);
+        day = strtol(buffer,&ptrend,10);
 
         // Copy hour
         buffer[0]=uii_data[11];
         buffer[1]=uii_data[12];
-        system_date.s_hour = strtol(buffer,&ptrend,10);
+        hour = strtol(buffer,&ptrend,10);
 
         // Copy minutes
         buffer[0]=uii_data[14];
         buffer[1]=uii_data[15];
-        system_date.s_minutes = strtol(buffer,&ptrend,10);
+        minutes = strtol(buffer,&ptrend,10);
 
         // Copy seconds
         buffer[0]=uii_data[17];
         buffer[1]=uii_data[18];
-        system_date.s_seconds = strtol(buffer,&ptrend,10);
+        seconds = strtol(buffer,&ptrend,10);
 
         if(verbose) {
             sprintf(buffer,"New GEOS system time: %2d/%2d/%2d %2d:%2d:%2d",
-            system_date.s_day,system_date.s_month,system_date.s_year,
-            system_date.s_hour,system_date.s_minutes,system_date.s_seconds);
+            day,month,year,hour,minutes,seconds);
             PutString(buffer,119,10);
             DlgBoxOk("Time set!",buffer);
         }

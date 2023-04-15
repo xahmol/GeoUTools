@@ -6,6 +6,12 @@
 
 #define NTP_TIMESTAMP_DELTA 2208988800ul //0x83AA7E80
 #define configfileversion   1
+#define year                (*(char*)0x8516)
+#define month               (*(char*)0x8517)
+#define day                 (*(char*)0x8518)
+#define hour                (*(char*)0x8519)                
+#define minutes             (*(char*)0x851A)
+#define seconds             (*(char*)0x851B)
 
 // Global variables
 extern long secondsfromutc; 
