@@ -137,7 +137,7 @@ struct icontab vic_winOK = {
 struct icontab vdc_winOK = {
     1,
     { 0,0 },
-    { IconOK, 58, 130, 6 | DOUBLE_B, 16, (int)CloseWindow }
+    { IconOK, 52, 130, 6 | DOUBLE_B, 16, (int)CloseWindow }
 };
 
 // Screen functions
