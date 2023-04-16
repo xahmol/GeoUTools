@@ -25,7 +25,7 @@ Patches and pull requests are welcome
 #define RESP_DATA_REG   			0xDF1E
 #define STATUS_DATA_REG				0xDF1F
 
-#define DATA_QUEUE_SZ				896
+#define DATA_QUEUE_SZ				256
 #define STATUS_QUEUE_SZ				256
 
 #define TARGET_DOS1					0x01
