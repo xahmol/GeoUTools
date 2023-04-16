@@ -215,6 +215,7 @@ void get_ntp_time() {
 void timeSynch () {
 // Synch system time with UII+ RTC
     char* ptrend;
+    unsigned char rtc_hour;
     
     // Get UII+ RTC time
     enableIO();
@@ -234,36 +235,51 @@ void timeSynch () {
         buffer[0]=uii_data[2];
         buffer[1]=uii_data[3];
         buffer[2]=0;
-        year = strtol(buffer,&ptrend,10);
+        system_date.s_year = strtol(buffer,&ptrend,10);
 
         // Copy month
         buffer[0]=uii_data[5];
         buffer[1]=uii_data[6];
-        month = strtol(buffer,&ptrend,10);
+        system_date.s_month = strtol(buffer,&ptrend,10);
 
         // Copy day
         buffer[0]=uii_data[8];
         buffer[1]=uii_data[9];
-        day = strtol(buffer,&ptrend,10);
+        system_date.s_day = strtol(buffer,&ptrend,10);
 
         // Copy hour
         buffer[0]=uii_data[11];
         buffer[1]=uii_data[12];
-        hour = strtol(buffer,&ptrend,10);
+        rtc_hour = strtol(buffer,&ptrend,10);
+        system_date.s_hour = rtc_hour;
+
+        if(rtc_hour>12) {
+            // Set PM
+            cia_hour = (uii_data[12] - 50) + ((uii_data[11] - 49)*16) + 128;
+        } else {
+            // Set AM
+            cia_hour = (uii_data[12] - 48) + ((uii_data[11] - 48)*16);
+        }
 
         // Copy minutes
         buffer[0]=uii_data[14];
         buffer[1]=uii_data[15];
-        minutes = strtol(buffer,&ptrend,10);
+        system_date.s_minutes = strtol(buffer,&ptrend,10);
+        cia_minutes = (uii_data[15] - 48) + ((uii_data[14] - 48)*16);
 
         // Copy seconds
         buffer[0]=uii_data[17];
         buffer[1]=uii_data[18];
-        seconds = strtol(buffer,&ptrend,10);
+        system_date.s_seconds = strtol(buffer,&ptrend,10);
+        cia_seconds = (uii_data[18] - 48) + ((uii_data[17] - 48)*16);
+
+        // Set tens of seconds to zero
+        cia_tensofsec = 0;
 
         if(verbose) {
             sprintf(buffer,"New GEOS system time: %2d/%2d/%2d %2d:%2d:%2d",
-            day,month,year,hour,minutes,seconds);
+            system_date.s_day,system_date.s_month,system_date.s_year,
+            system_date.s_hour,system_date.s_minutes,system_date.s_seconds);
             PutString(buffer,119,10);
             DlgBoxOk("Time set!",buffer);
         }

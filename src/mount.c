@@ -537,7 +537,7 @@ void Readdir() {
 
         if(presenttype) {
             // Get file or dir name to buffer
-            maxlength = datalength;
+            maxlength = datalength-1; // Minus 1 for first attribute byte
             if(maxlength>20) {maxlength=20; presenttype=6; }    // Truncate for max 20
             memset(buffer,0,21);
             CopyFString(maxlength,buffer,uii_data+1);
