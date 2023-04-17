@@ -372,7 +372,7 @@ void SetValidDrives() {
 
         // Check if drive ID is an Ulimate emulated drive
         if( ( uii_data[2] == (drive + 8) && uii_data[3] ) ||
-            ( uii_data[5] == (drive+8) && uii_data[4]) ) {
+            ( uii_data[5] == (drive+8) && uii_data[6]) ) {
             if(drivetypeID[drive]<4) {
                 validdrive[drive] = drivetypeID[drive];
                 if(!targetdrive) { targetdrive = drive+1; }
