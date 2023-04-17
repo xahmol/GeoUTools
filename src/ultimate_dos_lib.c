@@ -174,13 +174,13 @@ void uii_get_ramdisk_info(void)
 	uii_accept();
 }
 
-void uii_loadIntoRamDisk(unsigned char id, char *filename)
+void uii_loadIntoRamDisk(unsigned char id, char *filename, unsigned char whatif)
 {
 	int x = 0;
 	unsigned char* fullcmd = (unsigned char *)malloc(strlen(filename)+3);
 	fullcmd[0] = 0x00;
 	fullcmd[1] = DOS_CMD_LOAD_INTO_RAMDISK;
-	fullcmd[2] = id;
+	fullcmd[2] = id + (128*whatif);
 	
 	for(x=0;x<strlen(filename);x++)
 		fullcmd[x+3] = filename[x];

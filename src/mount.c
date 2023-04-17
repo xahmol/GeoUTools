@@ -99,15 +99,16 @@ char drivetypes[8][14] = {
     "RAM 1541",
     "RAM 1571",
     "RAM 1581",
-    "RAM DMP"
+    "RAM DNP"
 };
-char entrytypes[6][4] = {
+char entrytypes[7][4] = {
     "DIR",
     "D64",
     "D71",
     "D81",
     "DNP",
-    "!TL"
+    "!TL",
+    "!IS"
 };
 char drivetypeID[4];
 char ramdiskID[8];
@@ -370,8 +371,8 @@ void SetValidDrives() {
         validdrive[drive]=0;
 
         // Check if drive ID is an Ulimate emulated drive
-        if(uii_data[2] == (drive + 8) || uii_data[5] == (drive+8) )
-        {
+        if( ( uii_data[2] == (drive + 8) && uii_data[3] ) ||
+            ( uii_data[5] == (drive+8) && uii_data[4]) ) {
             if(drivetypeID[drive]<4) {
                 validdrive[drive] = drivetypeID[drive];
                 if(!targetdrive) { targetdrive = drive+1; }
@@ -671,6 +672,18 @@ void PrintDirEntry(unsigned char printpos) {
 // Print entry
 
     unsigned char type = presentdirelement->type;
+
+    if(type == 5) {
+        // Check if DNP is correct size
+        enableIO();
+        uii_loadIntoRamDisk(targetdrive-1,presentdirelement->filename,1);
+        if(!uii_success()) {
+            uii_abort();
+            type=7;
+            presentdirelement->type = type;
+        }
+        restoreIO();
+    }
     PutString(presentdirelement->filename,printpos,interfaceCoords->filelist_xstart+5);
     PutString(entrytypes[type-1],printpos,interfaceCoords->filelist_xstart+165);
 }
@@ -1163,8 +1176,8 @@ void MountSelected(unsigned char filepos) {
     InvertRectangle();
     InvertRectangle();
 
-    // If type is 'too long', return
-    if(presentdirelement->type == 6) { return; }
+    // If type is 'too long' or 'incorrect size', return
+    if(presentdirelement->type > 5) { return; }
 
     // If type is dir, change dir
     if(presentdirelement->type == 1) {
@@ -1186,7 +1199,7 @@ void MountSelected(unsigned char filepos) {
         uii_mount_disk(targetdrive+7,presentdirelement->filename);
     } else {
         // RAM disk
-        uii_loadIntoRamDisk(targetdrive-1,presentdirelement->filename);
+        uii_loadIntoRamDisk(targetdrive-1,presentdirelement->filename,0);
     }
     restoreIO();
 

@@ -27,7 +27,7 @@ void uii_close_file(void);
 void uii_delete_file(char* filename);
 void uii_get_deviceinfo(void);
 void uii_get_ramdisk_info(void);
-void uii_loadIntoRamDisk(unsigned char id, char *filename);
+void uii_loadIntoRamDisk(unsigned char id, char *filename, unsigned char whatif);
 void uii_saveRamDisk(unsigned char id, char *filename);
 
 #endif
