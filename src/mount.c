@@ -272,6 +272,7 @@ struct intCoords vdc_intCoords = { 5,400,408,464 };
 // clicked on and are used in the structs that defines the menus below.
 void geosSwitch4080(void);
 void geosExit (void);
+void saveREU (void);
 void informationCredits (void);
 
 // Menu structures with pointers to the menu handlers above
@@ -287,10 +288,11 @@ static struct menu menuGEOS = {
 
 static struct menu menuMain = {
     // Main menu
-        { 0, 15, 0, 95 },
-        2 | HORIZONTAL,
+        { 0, 15, 0, 145 },
+        3 | HORIZONTAL,
           {
             { "GEOS", SUB_MENU, &menuGEOS},
+            { "Save REU", MENU_ACTION, saveREU},
             { "Credits", MENU_ACTION, informationCredits }
           }
  };
@@ -1286,6 +1288,54 @@ void geosExit (void) {
     {
         return;
     }  
+}
+
+void saveREU() {
+// Function to save present REU expanded memory to REU file
+
+    char imagename[21] = "geosram";
+    unsigned char namelen;
+
+    ReDoMenu();
+
+    // Ask for filename
+    if( DlgBoxGetString(imagename,16,"Enter filename for the image","(or press Cancel)")
+        == CANCEL) { return ; }
+
+    // Add extention based on RAM disk type
+    namelen = strlen(imagename);
+    imagename[namelen] = '.';
+    CopyString(imagename+1+namelen,"reu");
+
+    // Check if file exists
+    enableIO();
+    uii_open_file(1,imagename);
+    if(uii_success()) {
+        uii_close_file();
+        restoreIO();
+        if( DlgBoxYesNo("File exists.","Overwrite file?") == NO ) {
+            // Exit function on NO on overwrite
+            return;
+        } else {
+            // Delete existing file if YES on overwrite
+            enableIO();
+            uii_delete_file(imagename);
+        }
+    } else {
+        uii_abort();
+    }
+
+    uii_open_file(0x06,imagename);
+    uii_save_reu(ramExpSize);
+    CopyString(buffer,uii_data);
+    uii_close_file();
+    restoreIO();
+    if( !CheckStatus() ) { 
+        DlgBoxOk("Image saved.",buffer);
+        DrawDir(1);
+    }
+
+    return;
 }
 
 void informationCredits (void) {

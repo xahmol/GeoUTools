@@ -29,5 +29,6 @@ void uii_get_deviceinfo(void);
 void uii_get_ramdisk_info(void);
 void uii_loadIntoRamDisk(unsigned char id, char *filename, unsigned char whatif);
 void uii_saveRamDisk(unsigned char id, char *filename);
+void uii_save_reu(unsigned char size);
 
 #endif

@@ -93,9 +93,9 @@ struct window *winIntRecover;
 
 struct window vic_winHdr = {0, 14, 200, SC_PIX_WIDTH-1 };
 struct window vic_winMain = {15, SC_PIX_HEIGHT-1, 0, SC_PIX_WIDTH-1};
-struct window vic_winInt = {50,150,10,310};
-struct window vic_winShd = {58,158,18,318};
-struct window vic_winRec = {50,158,10,318};
+struct window vic_winInt = {50,150,40,279};
+struct window vic_winShd = {58,158,48,287};
+struct window vic_winRec = {50,158,40,287};
 
 struct window vdc_winHdr = {0, 14, 400, SCREENPIXELWIDTH-1 };
 struct window vdc_winMain = {15, SC_PIX_HEIGHT-1, 0, SCREENPIXELWIDTH-1};
@@ -131,7 +131,7 @@ struct icontab noicons = {
 struct icontab vic_winOK = {
     1,
     { 0,0 },
-    { IconOK, 31, 130, 6, 16, (int)CloseWindow }
+    { IconOK, 28, 130, 6, 16, (int)CloseWindow }
 };
 
 struct icontab vdc_winOK = {
@@ -208,7 +208,7 @@ int CreateWindow() {
         winIntShadow = &vic_winShd;
         winIntRecover = &vic_winRec;
         winOK = &vic_winOK;
-        xcoord = 20;
+        xcoord = 45;
     }
 
     // Draw window, shadow and frame

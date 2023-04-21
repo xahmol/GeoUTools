@@ -215,3 +215,18 @@ void uii_saveRamDisk(unsigned char id, char *filename)
 	uii_readstatus();
 	uii_accept();
 }
+
+void uii_save_reu(unsigned char size)
+{
+	// Function to save REU memory to REU file
+	// Size is memory length to save in 64k blocks
+
+	unsigned char cmd[] = {0x00,DOS_CMD_SAVE_REU,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+
+	cmd[8] = size;
+	uii_settarget(TARGET_DOS1);
+	uii_sendcommand(cmd,10);
+	uii_readdata();
+	uii_readstatus();
+	uii_accept();
+}
