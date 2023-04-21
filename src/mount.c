@@ -1294,7 +1294,8 @@ void saveREU() {
 // Function to save present REU expanded memory to REU file
 
     char imagename[21] = "geosram";
-    unsigned char namelen;
+    unsigned char namelen, drive;
+    unsigned char reusavesize = ramExpSize;
 
     ReDoMenu();
 
@@ -1325,12 +1326,21 @@ void saveREU() {
         uii_abort();
     }
 
+    // Determine save size by adding RAM native drive size if any
+    for(drive=0;drive<4;drive++) {
+        if(ramdiskID[2*drive] == 0xdd) {
+            // RAM DNP, get number of tracks
+            reusavesize += ramdiskID[(2*drive)+1];
+        }
+    }
+
+    // Save REU image
     uii_open_file(0x06,imagename);
-    uii_save_reu(ramExpSize);
-    CopyString(buffer,uii_data);
+    uii_save_reu(reusavesize);
     uii_close_file();
     restoreIO();
-    if( !CheckStatus() ) { 
+    if( !CheckStatus() ) {
+        sprintf(buffer,"%d KB to %s",reusavesize*64,imagename);
         DlgBoxOk("Image saved.",buffer);
         DrawDir(1);
     }
