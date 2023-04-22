@@ -219,9 +219,9 @@ void uii_saveRamDisk(unsigned char id, char *filename)
 void uii_save_reu(unsigned char size)
 {
 	// Function to save REU memory to REU file
-	// Size is memory length to save in 64k blocks
+	// Size is memory length to save in 64k blocks - 1
 
-	unsigned char cmd[] = {0x00,DOS_CMD_SAVE_REU,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+	unsigned char cmd[] = {0x00,DOS_CMD_SAVE_REU,0x00,0x00,0x00,0x00,0xff,0xff,0x00,0x00};
 
 	cmd[8] = size;
 	uii_settarget(TARGET_DOS1);

@@ -114,6 +114,7 @@ char drivetypeID[4];
 char ramdiskID[8];
 unsigned char targetdrive;
 unsigned char clickflag;
+unsigned char reusavesize;
 
 // Directory entry struct
 struct DirElement {
@@ -272,10 +273,18 @@ struct intCoords vdc_intCoords = { 5,400,408,464 };
 // clicked on and are used in the structs that defines the menus below.
 void geosSwitch4080(void);
 void geosExit (void);
-void saveREU (void);
+void REUSave0 (void);
+void REUSave1 (void);
+void REUSave2 (void);
+void REUSave3 (void);
+void REUSave4 (void);
+void REUSave5 (void);
+void REUSave6 (void);
+void REUSave7 (void);
 void informationCredits (void);
 
 // Menu structures with pointers to the menu handlers above
+
 static struct menu menuGEOS = {
     // GEOS
         { 15, 15+2*15, 0, 100 },
@@ -286,13 +295,29 @@ static struct menu menuGEOS = {
           }
  };
 
+ static struct menu menuREUSave = {
+    // GEOS
+        { 15, 15+8*15, 50, 100 },
+        8 | VERTICAL,
+          {
+            { "16 MB",  MENU_ACTION, REUSave7},
+            { "8 MB",   MENU_ACTION, REUSave6},
+            { "4 MB",   MENU_ACTION, REUSave5},
+            { "2 MB",   MENU_ACTION, REUSave4},
+            { "1 MB",   MENU_ACTION, REUSave3},
+            { "512 KB", MENU_ACTION, REUSave2},
+            { "256 KB", MENU_ACTION, REUSave1},
+            { "128 KB", MENU_ACTION, REUSave0}
+          }
+ };
+
 static struct menu menuMain = {
     // Main menu
         { 0, 15, 0, 145 },
         3 | HORIZONTAL,
           {
             { "GEOS", SUB_MENU, &menuGEOS},
-            { "Save REU", MENU_ACTION, saveREU},
+            { "Save REU", SUB_MENU, &menuREUSave},
             { "Credits", MENU_ACTION, informationCredits }
           }
  };
@@ -1294,8 +1319,7 @@ void saveREU() {
 // Function to save present REU expanded memory to REU file
 
     char imagename[21] = "geosram";
-    unsigned char namelen, drive;
-    unsigned char reusavesize = ramExpSize;
+    unsigned char namelen;
 
     ReDoMenu();
 
@@ -1326,25 +1350,64 @@ void saveREU() {
         uii_abort();
     }
 
-    // Determine save size by adding RAM native drive size if any
-    for(drive=0;drive<4;drive++) {
-        if(ramdiskID[2*drive] == 0xdd) {
-            // RAM DNP, get number of tracks
-            reusavesize += ramdiskID[(2*drive)+1];
-        }
-    }
-
     // Save REU image
     uii_open_file(0x06,imagename);
     uii_save_reu(reusavesize);
     uii_close_file();
     restoreIO();
     if( !CheckStatus() ) {
-        sprintf(buffer,"%d KB to %s",reusavesize*64,imagename);
+        sprintf(buffer,"%d KB to %s",(reusavesize+1)*64,imagename);
         DlgBoxOk("Image saved.",buffer);
         DrawDir(1);
     }
+}
 
+// Menu pulldown options for the different REU sizes
+void REUSave0() {
+    reusavesize = 1;
+    saveREU();
+    return;
+}
+
+void REUSave1() {
+    reusavesize = 3;
+    saveREU();
+    return;
+}
+
+void REUSave2() {
+    reusavesize = 7;
+    saveREU();
+    return;
+}
+
+void REUSave3() {
+    reusavesize = 15;
+    saveREU();
+    return;
+}
+
+void REUSave4() {
+    reusavesize = 31;
+    saveREU();
+    return;
+}
+
+void REUSave5() {
+    reusavesize = 63;
+    saveREU();
+    return;
+}
+
+void REUSave6() {
+    reusavesize = 127;
+    saveREU();
+    return;
+}
+
+void REUSave7() {
+    reusavesize = 255;
+    saveREU();
     return;
 }
 
