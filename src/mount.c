@@ -1322,6 +1322,7 @@ void saveREU() {
     unsigned char namelen;
 
     ReDoMenu();
+    GotoFirstMenu();
 
     // Ask for filename
     if( DlgBoxGetString(imagename,16,"Enter filename for the image","(or press Cancel)")
