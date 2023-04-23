@@ -287,17 +287,18 @@ void informationCredits (void);
 
 static struct menu menuGEOS = {
     // GEOS
-        { 15, 15+2*15, 0, 100 },
-        2 | VERTICAL,
+        { 15, 15+3*14, 0, 100 },
+        3 | VERTICAL,
           {
             { "Switch 40/80", MENU_ACTION, geosSwitch4080 },
+            { "Credits", MENU_ACTION, informationCredits},
             { "Exit", MENU_ACTION, geosExit },
           }
  };
 
  static struct menu menuREUSave = {
     // GEOS
-        { 15, 15+8*15, 50, 100 },
+        { 15, 15+8*14, 50, 100 },
         8 | VERTICAL,
           {
             { "16 MB",  MENU_ACTION, REUSave7},
@@ -313,12 +314,11 @@ static struct menu menuGEOS = {
 
 static struct menu menuMain = {
     // Main menu
-        { 0, 15, 0, 145 },
-        3 | HORIZONTAL,
+        { 0, 15, 0, 100 },
+        2 | HORIZONTAL,
           {
             { "GEOS", SUB_MENU, &menuGEOS},
-            { "Save REU", SUB_MENU, &menuREUSave},
-            { "Credits", MENU_ACTION, informationCredits }
+            { "Save REU", SUB_MENU, &menuREUSave}
           }
  };
 
