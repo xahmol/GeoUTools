@@ -1,0 +1,6 @@
+[build]
+Disk="GeoUTools.d81"
+Header="geouconfigHdr.bin"
+
+[Sequential]
+Data="geouconfig.bin"

@@ -85,7 +85,7 @@ CF_128          = $C0
                                         ;of 63 bytes, so 63 with bit 7 set.
 
     ; Icon data: 63 bytes
-    .incbin "timeicon.bin", 0, 63
+    .incbin "configicon.bin", 0, 63
 
 	.byte	$80 | SEQ			        ;Commodore file type, with bit 7 set.
 	.byte	APPLICATION		    	    ;Geos file type
@@ -96,8 +96,8 @@ CF_128          = $C0
 						                ;desk accessories.
 	.word	__STARTUP_RUN__			    ;init address of program (where to JMP to)
 
-    .byte "GeoUTimeCfg "                ;permanent filename: 12 characters
-    .byte "V0.2"                        ;4 character version number,
+    .byte "GeoUConfig  "                ;permanent filename: 12 characters
+    .byte "V0.3"                        ;4 character version number,
 	.byte 0,0,0                         ;3 zeroes
     
     .byte   CF_40_80                    ;OS Compatibility flag
@@ -111,7 +111,7 @@ CF_128          = $C0
                                         ;- 23 app data 
 
     ; Application description of max 96 chars
-    .byte "Configuration utility for GeoUTime."
+    .byte "Configuration utility for GeoUTools."
     .byte 0
 
     ; Align to make 256 bytes

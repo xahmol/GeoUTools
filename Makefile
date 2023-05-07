@@ -67,13 +67,13 @@ GBUILD = /home/xahmol/geostools/GEOSBuild
 SUITE = geoutools
 MOUNT = geoumount
 TIME = geoutime
-CONF = geoutimecfg
+CONF = geouconfig
 
 # Common compile flags
 CFLAGS  = -t $(SYS)  -Os -I include
 
 # Sources and config for GeoUMount
-MOUNTSRC = src/mount.c src/interface.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_dos_lib.c
+MOUNTSRC = src/mount.c src/interface.c src/mount_common.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_dos_lib.c
 MOUNTHDR = src/$(MOUNT)Hdr.s
 MOUNTFLG = -C $(MOUNT)_cc65config.cfg -m $(MOUNT).map
 
@@ -82,8 +82,8 @@ TIMESRC = src/time_synch.c src/time_common.c src/uultimate_geosassembly.s src/ul
 TIMEHDR = src/$(TIME)Hdr.s
 TIMEFLG = -C $(TIME)_cc65config.cfg -m $(TIME).map
 
-# Sources and config for GeoUTime Config
-CONFSRC = src/time_config.c src/time_common.c src/interface.c
+# Sources and config for GeoUConfig
+CONFSRC = src/config.c src/mount_common.c src/time_common.c src/interface.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_dos_lib.c
 CONFHDR = src/$(CONF)Hdr.s
 CONFFLG = -C $(CONF)_cc65config.cfg -m $(CONF).map
 
@@ -93,7 +93,7 @@ ULTHOST2 = ftp://192.168.1.31/usb1/11/
 ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
 
 # Data for ZIP file
-ZIP = GeoUTools-v02-$(shell date "+%Y%m%d-%H%M").zip
+ZIP = GeoUTools-v03-$(shell date "+%Y%m%d-%H%M").zip
 ZIPLIST = $(SUITE).d64 $(SUITE).d81 readme.pdf
 
 ########################################
@@ -110,7 +110,7 @@ $(MOUNT).bin: $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
 $(TIME).bin: $(TIME).grc $(TIMESRC) $(TIMEHDR)
 	$(CL) $(CFLAGS) $(TIMEFLG) -o $(TIME).bin $(TIME).grc $(TIMESRC) $(TIMEHDR)
 
-# Building GeoUTime Config
+# Building GeoUUConfig
 $(CONF).bin: $(CONF).grc $(CONFSRC) $(CONFHDR)
 	$(CL) $(CFLAGS) $(CONFFLG) -o $(CONF).bin $(CONF).grc $(CONFSRC) $(CONFHDR)
 

@@ -97,7 +97,7 @@ CF_128          = $C0
 	.word	__STARTUP_RUN__			    ;init address of program (where to JMP to)
 
     .byte "GeoUMount   "                ;permanent filename: 12 characters
-    .byte "V0.2"                        ;4 character version number,
+    .byte "V0.3"                        ;4 character version number,
 	.byte 0,0,0                         ;3 zeroes
     
     .byte   CF_40_80                    ;OS Compatibility flag
@@ -108,7 +108,7 @@ CF_128          = $C0
 	.res  (63 - 11)                     ; Filling op for:
                                         ;- 20 char author name
                                         ;- 20 bytes parent
-                                        ;- 23 app data 
+                                        ;- 23 app data default all at zero
 
     ; Application description of max 96 chars
     .byte "Disk mounter for the Ultimate II+ in GEOS."

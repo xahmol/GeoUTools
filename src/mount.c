@@ -85,34 +85,12 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 //#include <conio.h>
 #include "defines.h"
 #include "interface.h"
+#include "mount_common.h"
 #include "ultimate_common_lib.h"
 #include "ultimate_dos_lib.h"
 
 // Global variables
 char buffer[81];
-unsigned char validdrive[4] = {0,0,0,0};
-char drivetypes[8][14] = {
-    "No target",
-    "Emulated 1541",
-    "Emulated 1571",
-    "Emulated 1581",
-    "RAM 1541",
-    "RAM 1571",
-    "RAM 1581",
-    "RAM DNP"
-};
-char entrytypes[7][4] = {
-    "DIR",
-    "D64",
-    "D71",
-    "D81",
-    "DNP",
-    "!TL",
-    "!IS"
-};
-char drivetypeID[4];
-char ramdiskID[8];
-unsigned char targetdrive;
 unsigned char clickflag;
 unsigned char reusavesize;
 
@@ -327,113 +305,6 @@ void vdc_write_reg(void);
 void vdc_copyline(unsigned char srchi, unsigned char srclo, unsigned char desthi, unsigned char destlo);
 
 // Application routines
-unsigned char CheckStatus() {
-// Function to check UII+ status and print error box if applicable
-
-    if (!uii_success()) {
-        DlgBoxOk("Ultimate Command Interface error!",(const char *)uii_status);
-        return 1;
-    }
-    return 0;
-}
-
-unsigned char Checkcommandsupport() {
-// Function to check if command is supported in present firmware
-
-    if(uii_status[0] == '2' && uii_status[1] =='1') {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-void SetValidDrives() {
-// Initialise variables to defines which drive IDs are valid targets
-
-    unsigned char drive;
-
-    targetdrive = 0;
-
-    // Get GEOS drive types
-    CopyFString(4,drivetypeID,(char *) (DRIVETYPES));
-
-    // Initialize DOS target of Ultimate Command Interface
-    enableIO();
-	uii_settarget(TARGET_DOS1);
-    if(uii_isdataavailable())
-	{
-		uii_abort();
-	}
-
-    // Set dir at home dir
-    uii_change_dir_home();
-
-    // Get RAM disk info from UCI
-    memset(ramdiskID,0,8);
-    uii_get_ramdisk_info();
-    restoreIO();
-    if(!Checkcommandsupport()) {
-        // Only set RAMdisk info if command is supported in firmware
-        CopyFString(8,ramdiskID,uii_data);
-    }
-    //else
-    //{
-    //    // Check if DEVINFO is known (which is the case on older firmwares)
-    //    DlgBoxOk("Old firmware detected","Click OK to abort");
-    //    EnterDeskTop();
-    //}
-
-    // Get device info from UCI
-    enableIO();
-    uii_get_deviceinfo();
-	restoreIO();    
-    if(Checkcommandsupport()) {
-        // Check if DEVINFO is known (which is the case on older firmwares)
-        DlgBoxOk("Old firmware detected","Click OK to abort");
-        EnterDeskTop();
-    }
-    
-    for(drive=0;drive<4;drive++)
-    {
-        validdrive[drive]=0;
-
-        // Check if drive ID is an Ulimate emulated drive
-        if( ( uii_data[2] == (drive + 8) && uii_data[3] ) ||
-            ( uii_data[5] == (drive+8) && uii_data[6]) ) {
-            if(drivetypeID[drive]<4) {
-                validdrive[drive] = drivetypeID[drive];
-                if(!targetdrive) { targetdrive = drive+1; }
-            }
-        }
-
-        // Check if drive ID is a supported RAM drive
-        if(ramdiskID[2*drive]) {
-            switch (ramdiskID[2*drive])
-            {
-            case 0x41:
-                validdrive[drive]=4;
-                break;
-
-            case 0x71:
-                validdrive[drive]=5;
-                break;
-            
-            case 0x81:
-                validdrive[drive]=6;
-                break;
-
-            case 0xdd:
-                validdrive[drive]=7;
-                break;
-            
-            default:
-                break;
-            }
-            if(!targetdrive) { targetdrive = drive+1; }
-        }
-    }
-}
-
 void Freedir() {
 // Free memory of presently loaded dir
 
@@ -1458,13 +1329,15 @@ void main (void)
     // Set presentdir pointer at zero
     presentdir.firstelement = 0;
 
-    // Check if UCI is detected, else abort.
-    enableIO();
-    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface","Press OK to abort."); EnterDeskTop(); }
-    restoreIO();
+    // Get config data from application header
+    ReadConfigdata();
 
     // Get valid UII+ drives
     SetValidDrives();
+    if(!targetdrive) {
+        DlgBoxOk("No targets detected or set.","Press OK to abort.");
+        EnterDeskTop();
+    }
 
     // Initialize the screen after program startup
     ReinitScreen(appname);
