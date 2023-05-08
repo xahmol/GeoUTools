@@ -221,7 +221,6 @@ unsigned char SaveFileHeader() {
     fileHeader.author[45] = mountconfig.target;
 
     // Save fileheader block back to disk
-    // char PutBlock (struct tr_se *myTrSe, char *buffer)
     if(PutBlock(&dirEntryBuf.header,(char*)&fileHeader)) {
         return 1;
     }
@@ -284,7 +283,7 @@ void PrintConfigdata(unsigned char refresh) {
     }
 
     // Print GeoUTime config data
-    PutString(CBOLDON "GeoUTime Config data:" CPLAINTEXT,119,5);
+    PutString(CBOLDON "GeoUTime config data:" CPLAINTEXT,119,5);
     sprintf(buffer,"Hostname: %s",host);
     PutString(buffer,129,5);
     sprintf(buffer,"UTC offset: %ld",secondsfromutc);
@@ -486,6 +485,7 @@ void SetDrivesGeneric(unsigned char drive) {
     ReDoMenu();
     GotoFirstMenu();
 
+    // Ask to enable or disable drive as target
     sprintf(buffer,"Set drive %c as valid?",'A'+drive);
     if(DlgBoxYesNo(buffer,"Click Yes or No.") == YES) {
         mountconfig.valid[drive] = drivetypeID[drive];
@@ -493,6 +493,7 @@ void SetDrivesGeneric(unsigned char drive) {
         mountconfig.valid[drive] = 0;
     }
 
+    // Check for RAM drives
     if(mountconfig.valid[drive]>3) {
         switch (mountconfig.valid[drive])
         {
@@ -516,6 +517,11 @@ void SetDrivesGeneric(unsigned char drive) {
             mountconfig.valid[drive] = 0;
             break;
         }
+    }
+
+    // Set targetdrive if first valid drive
+    if(mountconfig.valid[drive] && !mountconfig.target) { 
+        mountconfig.target = drive+1;
     }
 
     SaveFileHeader();
@@ -581,7 +587,7 @@ void informationCredits (void) {
 void main (void)
 {
     // Set appname
-    CopyString(appname,"   GeoUTime Cfg   ");
+    CopyString(appname,"   GeoUConfig   ");
 
     // Set version number in string variable
     sprintf(version,
@@ -611,7 +617,6 @@ void main (void)
 
     PrintConfigdata(0);
 
-    
     // Never returns    
     MainLoop();
 }
