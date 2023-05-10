@@ -8,8 +8,8 @@
 #define configfileversion   1
 #define cia_hour            (*(char*)0xDC0B)                
 #define cia_minutes         (*(char*)0xDC0A)
-#define cia_seconds         (*(char*)0x8509)
-#define cia_tensofsec       (*(char*)0x8508)
+#define cia_seconds         (*(char*)0xDC09)
+#define cia_tensofsec       (*(char*)0xDC08)
 
 // Global variables
 extern long secondsfromutc; 

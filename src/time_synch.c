@@ -84,6 +84,26 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 unsigned char socket = 0;
 unsigned char osType = 0;
 
+// Icons
+void QuitApplication();
+
+char iconQuit[] = {
+    0x05,0xFF,0x82,0xFE,0x80,0x04,0x00,0x82,0x03,0x80,0x04,0x00,0xB8,0x03,0x80,0x0F,
+    0x80,0x19,0x80,0x03,0x80,0x18,0xC0,0x01,0x80,0x03,0x80,0x18,0xD9,0xBB,0xC0,0x03,
+    0x80,0x18,0xD9,0x99,0x80,0x03,0x80,0x18,0xD9,0x99,0x80,0x03,0x80,0x18,0xD9,0x99,
+    0x80,0x03,0x80,0x18,0xD9,0x99,0x80,0x03,0x80,0x1B,0xD9,0x99,0x80,0x03,0x80,0x0F,
+    0x8F,0x98,0xE0,0x03,0x80,0x04,0x00,0x82,0x03,0x80,0x04,0x00,0x81,0x03,0x06,0xFF,
+    0x81,0x7F,0x05,0xFF
+};
+
+struct icontab quiticon = {
+    1,
+    { 0,0 },
+    {
+        { iconQuit, 1, 160, 6, 16, (int)QuitApplication }
+    }
+};
+
 // Application routines
 unsigned char CheckStatus() {
 // Function to check UII+ status and print error box if applicable
@@ -281,9 +301,13 @@ void timeSynch () {
             system_date.s_day,system_date.s_month,system_date.s_year,
             system_date.s_hour,system_date.s_minutes,system_date.s_seconds);
             PutString(buffer,119,10);
-            DlgBoxOk("Time set!",buffer);
         }
     }
+}
+
+// Quit icon handler
+void QuitApplication() {
+    EnterDeskTop();
 }
 
 // Main
@@ -306,7 +330,7 @@ void main (void)
     {
         SetPattern(0);
         drawWindow.top = 20;
-        drawWindow.bot = 140;
+        drawWindow.bot = 180;
         drawWindow.left = 0;
         if(osType & GEOS128 ) { drawWindow.right = 319 + DOUBLE_W;  }
         else { drawWindow.right = 319; }
@@ -330,4 +354,10 @@ void main (void)
 
     // Synch GEOS system time with UII+ RTC
     timeSynch();
+
+    // Activate quit icon
+    if(verbose){
+        DoIcons(&quiticon);
+        MainLoop();
+    }
 }

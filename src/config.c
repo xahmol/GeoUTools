@@ -178,7 +178,7 @@ static struct menu menuMount = {
 
 static struct menu menuMain = {
     // Main menu
-        { 0, 15, 0, 125 },
+        { 0, 15, 0, 115 },
         3 | HORIZONTAL,
           {
             { "GEOS", SUB_MENU, &menuGEOS},
