@@ -267,6 +267,9 @@ void timeSynch () {
         buffer[1]=uii_data[9];
         system_date.s_day = strtol(buffer,&ptrend,10);
 
+        // Enable IO to access CIA time registers
+        enableIO();
+
         // Copy hour
         buffer[0]=uii_data[11];
         buffer[1]=uii_data[12];
@@ -295,6 +298,9 @@ void timeSynch () {
 
         // Set tens of seconds to zero
         cia_tensofsec = 0;
+
+        // Return to normal state
+        restoreIO();
 
         if(verbose) {
             sprintf(buffer,"New GEOS system time: %2d/%2d/%2d %2d:%2d:%2d",
