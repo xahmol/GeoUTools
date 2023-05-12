@@ -350,7 +350,7 @@ void settingHostname (void) {
     ReDoMenu();
     GotoFirstMenu();
 
-    if(DlgBoxGetString(host,80,"Enter NTP server hostname","(Cancel to keep present}") != CANCEL) {
+    if(DlgBoxGetString(host,80,"Enter NTP server hostname","(Cancel to keep present)") != CANCEL) {
         ConfigSave();
         PrintConfigdata(1);
     };
@@ -367,7 +367,7 @@ void settingUTCOffset (void) {
     GotoFirstMenu();
 
     sprintf(offsetinput,"%ld",secondsfromutc);
-    if(DlgBoxGetString(offsetinput,9,"Enter UTC offset in seconds","(Cancel to keep present}") != CANCEL) {
+    if(DlgBoxGetString(offsetinput,9,"Enter UTC offset in seconds","(Cancel to keep present)") != CANCEL) {
         secondsfromutc = strtol(offsetinput,&ptrend,10);
         ConfigSave();
         PrintConfigdata(1);
