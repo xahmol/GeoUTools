@@ -5,7 +5,7 @@ Tools for using the UII+ cartridge with GEOS
 
 [Version history and download](#version-history-and-download)
 
-[Known issues and bugs](#known-issues-and-bugs)
+[Firmware and setting prerequisites and known issues](#firmware-and-setting-prerequisites-and-known-issues)
 
 [Introduction](#introduction)
 
@@ -24,24 +24,58 @@ Tools for using the UII+ cartridge with GEOS
 ## Version history and download
 ([Back to contents](#contents))
 
-[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools.d81)
+[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230514-1633.zip)
+
+Version 1.0 - 20230514-1633:
+- Official 1.0 release
+- Updated documentation from 0.1 to 1.0 version
+
+Version 0.3 - 20230512-1251:
+- Again many bugfixes
+- Changed the name of GeoUTimeCfg to GeoUConfig as it now can also set configuration settings for GeoUMount
+- Via GeoUConfig, now the automatic valid targets detection of GeoUMount can be manually changed in case of older firmwares or issues with automatic detection. Also the default target drive can be changed by the user.
+
+Version 0.2 - 20230423-1542:
+- Many bugfixes and code improvements fixing issues that was causing the applicatios to crash in many GEOS configurations
+- Added support for new firmware functionality to detect GEOS RAM drives that support image mounting and image saving from the Ultimate Command Interface.
+- Better failsafes for older firnwares
+
 
 Version 0.1 - 20230128 - 2223:
 - First public alpha version
 
-## Known issues and bugs
+## Firmware and setting prerequisites and known issues
 ([Back to contents](#contents))
-- Freezes in Wheels. Needs further testing and investigation
+
+### Ultimate II/II+/II+L firmware requirements
+
+- Firmware 3.10f or newer: full automatic drive detection and support to detect/mount/save GEOS RAM drives
+- Firmware 3.xx: automatic device detection possible. But in firmwares older than 3.10f automatic device detection is based on hardware drive IDs of the emulated A and B drives of the Ultimate II/II+/II+L cartridge, instead of the software ID. As in many GEOS configurations the software IDs of drives are changed by GEOS this can create issues in device detection going wrong and, as a resut. unexpected results on mounting images to these drives. To fix this, choose manual override of the automated detected targets using GeoUConfig.
+- Firmwares before 3.xx: Automatic target detection is not possible, so setting valid drive targets via GeoUConfig is always needed for GeoUMount to work.
+
+Link to Ultimate II/II+/II+L firmwares:
+
+- Official released versions: https://ultimate64.com/Firmware
+- Github: https://github.com/GideonZ/ultimate_releases (might contain newer not yet officially released firmwares, or firmwares that were temporarily retracted)
+
+### Ultimate II/II+/II+L setting requirements
+
+![Ultimate Cartridge Settings](https://github.com/xahmol/GeoUTools/blob/main/screenshots/u2p-settings.png?raw=true)
+
+For GeoUTools it is important to check these settings in the C64 and Cartridge Settings menu after pressing F2 from the UI:
+- Command Interface: **IMPORTANT** This setting has to be set to 'enabled' for anything in GeoUTools to work
+- UltiDOS: Allow SetDate: This setting has to be set to 'enabled' to allow GeoUTime to change the Ultimate Real Time Clock time
+- RAM Expansion Unit: Should be set to 'enabled' to support detecting, mounting and saving GEOS RAM drives
+- REU Size: set the desired size of the REU here, maximum is 16 megabytes. Depending on the GEOS configuration and GEOS distribution used, up to 4 megabytes can be used by GEOS itself with the remaining 12 megabytes available for RAM Native ram drives (the latter only supported in distributions as Wheels or Megapatch)
 
 ## Introduction
 ([Back to contents](#contents))
 
-**GeoUTools** is alittle suite of (for now) two utilities to help using the Ultimate II+ cartridge from within GEOS.
+**GeoUTools** is a little suite of (for now) three utilities to help using the Ultimate II+ cartridge from within GEOS.
 
 ### GeoUTime
 
 Utility to set the GEOS system time (and the UII+to RTC clock) the time received from a user defined NTP server.
-This includes GeoUTimeCfg, a tool to set the configuration settings for GeoUTime (NTP server hostname, offset from UTC time in seconds and verbosity on or off).
 
 GeoUTIme is an auto exec application that starts automatically on boot. For this reason, the verbosity setting by default is 'Off' so not showing dialogues on every boot. But it can be switched on for debugging (or curiosity what happens).
 
@@ -50,12 +84,20 @@ This utility can be used to swap and mount virtual disks on your UII+ cartridge,
 
 Images can be selected from a filebrowser, that filters on image types fitting the target drive.
 
-Number of direntries in this build tops around 175 or so (rest of the dir is not shown). Which, also considering the filtering on dirs and fitting image types only, is more than enough for my personal needs.
+If supported by a new enough firmware, also GEOS RAM drives residiing in REU memory are supported for mounting and image saving.
+
+Number of direntries in this build tops around 250 or so (rest of the dir is not shown). Which, also considering the filtering on dirs and fitting image types only, is more than enough for my personal needs.
+
+### GeoUConfig
+
+Utility to set the configuration for GeoUTime and GeoUMount.
+For GeoUTime, enabling or disabling time query of an NTP server, the NTP server hostname, offset from UTC time in seconds and verbosity on or off can be set.
+For GeoUMount, automatic valid target detection can be manually overridden, and the default target drive can be set.
 
 ## What is on the disk
 ([Back to contents](#contents))
 
-On first mount from the disk image downloaded from GitHub, the disk is not yet converted to a GEOS disk, so you will get this message:
+On first mount from the disk image downloaded from GitHub, the disk is not yet converted to a GEOS disk, so you might (depending on GEOS distribution used) get this message:
 
 ![Non GEOS disk message](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20nongeosdisk.png)
 
@@ -65,11 +107,11 @@ Click on Yes in this dialogie. You will then see these contents on the disk:
 
 - **GeoUMount**: Disk mounting tool
 - **GeoUTime**: NTP time synching tool
-- **GeoUTimeCfg**: Utility to set configuration options for GeoUTime
+- **GeoUConfig**: Utility to set configuration options for GeoUTime
 
 Double click on the desired icon of the three to start the corresponding utility.
 
-Note that on first use, both GeoUTime and GeoUTimeCfg create a configuration file on the disk if no one is yet present. After this, the contents of the disk look like this:
+Note that on first use, both GeoUTime and GeoUConfig create a configuration file on the disk if no one is yet present. After this, the contents of the disk look like this:
 
 ![Configuration file added on disk](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20contents%20data.png)
 
@@ -82,23 +124,37 @@ Obviously you are free (even encouraged) tp copy these files to another disk tar
 
 This application sets the configuration options for GeoUTIme and saves them in the GeoUTimeDat configuration file. It creates this file on first start if no file is present already.
 
-Interface after application start:
+Interface after application start, showing the present configuration settings:
 
-![GeoUTimeCfg main interface](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20mainscreen.png)
+![GeoUTimeCfg main interface](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20mainscreen.png?raw=true)
 
-The options can be reached via the main menu in the topleft corner.
+The options can be reached via the main menu in the topleft corner. The interface will update on changed settings. All changed will be automatically saved.
+
+Under 'GeoUMount config data' you can also see if autodetection of valid drive targets succeeded. This line can show the following options:
+
+- Autodetection of valid drives succeeded: Firmware supports imrpoved automated drive detection (firmwares 3.10f and newer)
+- Autodetection might be incorrect: Autodetection is supported, but based on hardware ID instead of software ID, so it might be wrong. Check the detected settings and manually adjust if needed (firmwares 3.xx up to 3.10e)
+- Autodetection not supported in firmware: Autodetection is not supported, so manual selection of valid targets is required. Detection override is forced on 'Enabled' (firmwares before 3.xx)
 
 ### GEOS menu
 
 Options in this menu:
 
-![GEOS menu](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20geos%20menu.png)
+![GEOS menu](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20geos%20menu.png?raw=true)
 
 *Switch 40/80*
 
 (Only works in GEOS128, ignored in GEOS64)
 
 Switches between 40 and 80 column mode. On selecting, the other mode will be selected and the screen will be redrwam. If a single monitor is used, switch monitor to the corresponding other mode to view.
+
+*Credits*
+
+Selecting this option shows the application credits:
+
+![GeoUTime credits](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20GEOS%20credits.png?raw=true)
+
+Press OK to leave the credits dialogue box.
 
 *Exit*
 
@@ -108,7 +164,7 @@ Exits to the GEOS desktop and quits the application.
 
 Options in this menu:
 
-![Time menu](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20menu.png)
+![Time menu](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20time%20menu.png?raw=true)
 
 *Enable NTP*
 
@@ -116,7 +172,7 @@ Choose if time should be synched with the selected NTP server (setting is 'On'),
 
 Selecting this option gives this dialogue:
 
-![NTP enable dialogue](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20ntp%20enable.png)
+![NTP enable dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20time%20ntp%20enable.png?raw=true)
 
 Select Yes to enable, No to disable.
 
@@ -126,7 +182,7 @@ Enter the hostname of the desired NTP server. The default server is pool.ntp.org
 
 This option results in this dialogue:
 
-![Hostname dialogue](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20hostname.png)
+![Hostname dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20%20time%20hostname.png?raw=true)
 
 For another NTP server, just enter its hostname (URL or IP). The application will not check validity of the input, to check if it works and the hostname resolves and results in a successful connection the verbose mode is suggested.
 
@@ -144,7 +200,7 @@ See https://www.timeanddate.com/time/zones/ for all offsets in hours (multiply b
 
 This option presents this dialogue:
 
-![UTC offset dialogue](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20utc%20offset.png)
+![UTC offset dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20%20time%20utc%20offset.png?raw=true)
 
 Tupe the desired offset (noting the signing, so do not forget the minus sign if offsets are negative to UTC) and press ENTER. CANCEL to keep present value.
 
@@ -156,17 +212,45 @@ Enabling is useful for debugging hostname and UTC offset settings, or if you jus
 
 Selecting this option gives this dialogue:
 
-![Verbose dialogue](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20time%20verbosity.png)
+![Verbose dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20%20time%20verbosity.png?raw=true)
 
 Select Yes for verbose mode, No for silent mode.
 
-## Information menu
+### Mount menu
 
-Only option in this menu is *Credits*. Selecting this option shows the application credits:
+Options in this menu:
 
-![GeoUTime credits](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUTimeCfg%20information%20credits.png)
+![Mount menu](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20mount%20menu.png?raw=true)
 
-Press OK to leave the credits dialogue box.
+*Enable override*
+
+With this menu option you can enable or disable overriding the automated valid target detection for GeoUmount. This menu option gives this dialogue box:
+
+![Enable override dialogie](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20mount%20override.png?raw=true)
+
+Select Yes to enable manual override, No to use automatic target detection.
+
+*Set drive*
+
+With this menu option you can enable or disable drive A to D as valid target via this submenu:
+
+![Set drive submenu](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20mount%20set%20drive.png?raw=true)
+
+Choose the desired drive to change from this submenu. This gives this dialogue box:
+
+![Set drive as valid dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20mount%20set%20drive%20valid.png?raw=true)
+
+Select Yes to set the drive as valid target, No to select drive not to be a valid target.
+
+*Set target*
+
+With this menu option to can set the default active target drive. Without setting this manually, the target drive is set as the first encountered valid target.
+
+You can select the target drive via the submenu:
+
+![Set target submenu](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUConfig%20mount%20set%20target.png?raw=true)
+
+Selecting a drive via this submenu will change the target setting. Selecting Auto will revert to just selecting the first encountered valid drive.
 
 ## GeoUTime instructions
 ([Back to contents](#contents))
@@ -190,7 +274,8 @@ This mode is meant to either debug your configuration settings, or if you are ju
 - Setting the UII+ Real Time Clock with that time
 - Synching GEOS system time with the UII+ RTC clock.
 - Confirming succes
-Click OK in dialogue box to exit.
+
+Click the Quit icon to exit.
 
 Note that on any NTP connection error, the GEOS clock will be synched to the unchanged UII+ RTC clock as fallback.
 
@@ -199,7 +284,7 @@ If NTP enable is switched to off, only the synch between UII+ RTC and the GEOS s
 ## GeoUMount instructions
 ([Back to contents](#contents))
 
-This application enables to mount disk images on the UII+ filesystem to an UII+ emulated drive in GEOS via a filebrowser.
+This application enables to mount disk images on the UII+ filesystem to an UII+ emulated drive or GEOS RAM drive (if enabled and supported in firmware version) in GEOS via a filebrowser.
 
 ### Application limitations and considerations
 The application ensures only disk images can be selected to mount that correspond with the drive type of the target drive by filtering the filelist to show only the corresponding image type.
@@ -208,15 +293,17 @@ This is done as GEOS crashes if the drive type of any of the active GEOS drive i
 
 To properly enable filtering, image filenames should end with the proper corresponding .dxx extension:
 
-- .d64 for 1541 drive type
+- .d64 for 1541 drive type or 1571 drive type
+- .g64 for 1541 drive type or 1571 drive type
 - .d71 for 1571 drive type
 - .d81 for 1581 drive type
+- .dnp for RAM Native drive images
 
-Other image types ate not presently supported.
+Other image types are not presently supported.
 
 Also note that file and dirnames can only be selected if they have a maximum name length of 20 characters, including extension. Reason is memory constraints: allowing for longer filenames would cause less filenames that can be loaded in memory. If you need to select dirs or files with longer names, shorten them first to 20 chars (including extension) at most.
 
-Maximum number of files shown is dependent on the free memory on the target system used, but should normally be between 170-180 files. If you have more valid images or subdirectories in your present directory, any entry over that number will not be shown. If you need to reach these dirs or files, consider reorganizing your dir to place the files in subdirs with fewer entries.
+Maximum number of files shown is dependent on the free memory on the target system used, but should normally be around 250 files. If you have more valid images or subdirectories in your present directory, any entry over that number will not be shown. If you need to reach these dirs or files, consider reorganizing your dir to place the files in subdirs with fewer entries.
 
 ### Main interface
 
@@ -238,15 +325,36 @@ Options in this menu:
 
 Switches between 40 and 80 column mode. On selecting, the other mode will be selected and the screen will be redrwam. If a single monitor is used, switch monitor to the corresponding other mode to view.
 
-*Exit*
-
-Exits to the GEOS desktop and quits the application.
-
-**Credits**
+*Credits*
 
 This menu option shows this dialogue:
 
 ![Credits GeoUMount](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20credits.png)
+
+*Exit*
+
+Exits to the GEOS desktop and quits the application.
+
+**Save REU menu**
+
+In this menu the contents of the REU memory can be saved to a .reu file in the presently active directory.
+
+Select the memory size to save via this submenu:
+
+![Save REU choose memory size to save](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20reu%20menu.png?raw=true)
+
+Then a dialoguebox asks for a filename for the image to save. Enter filename or press Cancel to cancel.
+
+![Save REU filename dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20reu%20filename.png?raw=true)
+
+If already a file with that name exists in the active directory, a new dialogue asks to confirm or cancel.
+
+![Save REU file exists dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20reu%20file%20exists.png?raw=true)
+
+Depending on selected memory size, saving can take a while. After success, a message like this is shown.
+
+![Save REU succes](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20reu%20file%20succes.png?raw=true)
+
 
 ### Selecting the target drive
 
@@ -273,8 +381,28 @@ This section is the lower right area of the main interface:
 |![Back icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20icon.png)|Pressing this icon moves the present directory shown to the parent directory of the presently selected directory.|
 |![Root icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20root.png)|Pressing this icon moves the present directory shown to the root directory of the filesystem.|
 |![Home icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20home.png)|Pressing this icon moves the present directory shown to the directory configured as home dir in the UII+ interface options.|
-|![Top icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20pageup.png)|Pressing this icon moves to the top of the filelist in the present showb directory.|
-|![Bottom icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20pagedown.png)|Pressing this icon moves to the bottom of the filelist in the present showb directory.|
+|![Top icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20pageup.png)|Pressing this icon moves to the top of the filelist in the present shown directory.|
+|![Bottom icon](https://raw.githubusercontent.com/xahmol/GeoUTools/main/screenshots/geoutools%20-%20GeoUMount%20back%20pagedown.png)|Pressing this icon moves to the bottom of the filelist in the present shown directory.|
+|![Save icon](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20image.png?raw=true)|Pressing this icon saves the contents of the active RAM drive to an image.|
+
+**Save image icon**
+
+This button only works if the selected target drive is a RAM drive, otherwise clicking this icon will be ignored.
+
+With clicking this icon, the contents of the target RAM drive can be saved to an image file in the presently active directory. Extension will be based on the drive type of the target drive.
+
+First a filename will be asked, enter filename or click Cancel to cancel.
+
+![Save Image filename dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20image%20filename.png?raw=true)
+
+If a file with this filename already exists, a confirmation dialogue box will pop up. Click Yes to confirm and overwrite the existing file, No to cancel.
+
+![File exists dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20image%20file%20exists.png?raw=true)
+
+Depending on size of the image, saving can take a while. On success, this message will op uo. Click OK to continue.
+
+![Image save success dialogue](https://github.com/xahmol/GeoUTools/blob/main/screenshots/geoutools%20-%20GeoUMount%20save%20image%20file%20succes.png?raw=true)
+
 
 ### Filebrowser: pathname
 
@@ -313,6 +441,7 @@ Tupes:
 |D71|1571 images with .d71 extension|
 |D81|1581 images with .d81 extension|
 |!TL|Name to long to be fully shown. Can not be selected without shortening name|
+|!IS|DNP image with a size not matching size of target drive|
 
 **Moving to a subdirectory**
 
@@ -328,9 +457,9 @@ On success, the following dialogue is presented:
 
 If this is shown, the selected image is already is mounted.
 
-Choose Cancel if you want to proceed with GeoUMount (for example if you selected a wrog image).
+Choose Yes if you want to proceed with GeoUMount (for example if you selected a wrong image or if you want to mount images on other targets as well).
 
-Choose OK to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
+Choose No to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
 
 ## Credits
 ([Back to contents](#contents))
