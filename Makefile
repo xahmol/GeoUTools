@@ -93,7 +93,7 @@ ULTHOST2 = ftp://192.168.1.31/usb1/11/
 ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
 
 # Data for ZIP file
-ZIP = GeoUTools-v03-$(shell date "+%Y%m%d-%H%M").zip
+ZIP = GeoUTools-v10-$(shell date "+%Y%m%d-%H%M").zip
 ZIPLIST = $(SUITE).d64 $(SUITE).d81 readme.pdf
 
 ########################################

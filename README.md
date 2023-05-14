@@ -11,7 +11,7 @@ Tools for using the UII+ cartridge with GEOS
 
 [What is on the disk](#what-is-on-the-disk)
 
-[GeiUTimeCfg instructions](#geiutimecfg-instructions)
+[GeoUConfig instructions](#geouconfig-instructions)
 
 [GeoUTime instructions](#geoutime-instructions)
 
@@ -77,7 +77,7 @@ A new file called GeoUTimeDat is added to store configuration data.
 
 Obviously you are free (even encouraged) tp copy these files to another disk target, such as your main RAM drive.
 
-## GeiUTimeCfg instructions
+## GeoUConfig instructions
 ([Back to contents](#contents))
 
 This application sets the configuration options for GeoUTIme and saves them in the GeoUTimeDat configuration file. It creates this file on first start if no file is present already.
