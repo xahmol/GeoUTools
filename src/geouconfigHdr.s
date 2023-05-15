@@ -97,7 +97,7 @@ CF_128          = $C0
 	.word	__STARTUP_RUN__			    ;init address of program (where to JMP to)
 
     .byte "GeoUConfig  "                ;permanent filename: 12 characters
-    .byte "V1/0"                        ;4 character version number,
+    .byte "V1.0"                        ;4 character version number,
 	.byte 0,0,0                         ;3 zeroes
     
     .byte   CF_40_80                    ;OS Compatibility flag
