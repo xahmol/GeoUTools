@@ -151,12 +151,13 @@ void get_ntp_time() {
     }
     enableIO();
 	socket = uii_udpconnect(host, 123); //https://github.com/markusC64/1541ultimate2/blob/master/software/io/network/network_target.cc
-    restoreIO();
     
     if(CheckStatus()) {
         close_socket();
+        restoreIO();
         return;
     }
+    restoreIO();
 
     // Sending data request. Return on error
     if(verbose) {
@@ -170,12 +171,13 @@ void get_ntp_time() {
     uii_sendcommand(fullcmd, 51);//3 + sizeof( ntp_packet ));
 	uii_readstatus();
 	uii_accept();
-    restoreIO();
 
     if(CheckStatus()) {
         close_socket();
+        restoreIO();
         return;
     }
+    restoreIO();
 
     // Recieving datat. Return on error
     if(verbose) {
@@ -183,15 +185,16 @@ void get_ntp_time() {
     }
     enableIO();
     uii_socketread(socket, 50);// 2 + sizeof( ntp_packet ));
-    restoreIO();
 
     if(CheckStatus()) {
         close_socket();
+        restoreIO();
         return;
     }
 
     // Close socketwinOK
     close_socket();
+    restoreIO();
 
     // Convert time received to UCI format and set UII+ RTC time
     t = uii_data[37] | (((unsigned long)uii_data[36])<<8)| (((unsigned long)uii_data[35])<<16)| (((unsigned long)uii_data[34])<<24);
