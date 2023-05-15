@@ -120,9 +120,7 @@ unsigned char CheckStatus() {
 void close_socket() {
 // Close the open websocket
 
-    enableIO();
     uii_socketclose(socket);
-    restoreIO();
 }
 
 void get_ntp_time() {
@@ -151,13 +149,14 @@ void get_ntp_time() {
     }
     enableIO();
 	socket = uii_udpconnect(host, 123); //https://github.com/markusC64/1541ultimate2/blob/master/software/io/network/network_target.cc
-    
+    restoreIO();
+
     if(CheckStatus()) {
+        enableIO();
         close_socket();
         restoreIO();
         return;
     }
-    restoreIO();
 
     // Sending data request. Return on error
     if(verbose) {
@@ -171,13 +170,14 @@ void get_ntp_time() {
     uii_sendcommand(fullcmd, 51);//3 + sizeof( ntp_packet ));
 	uii_readstatus();
 	uii_accept();
+    restoreIO();
 
     if(CheckStatus()) {
+        enableIO();
         close_socket();
         restoreIO();
         return;
     }
-    restoreIO();
 
     // Recieving datat. Return on error
     if(verbose) {
@@ -185,14 +185,17 @@ void get_ntp_time() {
     }
     enableIO();
     uii_socketread(socket, 50);// 2 + sizeof( ntp_packet ));
+    restoreIO();
 
     if(CheckStatus()) {
+        enableIO();
         close_socket();
         restoreIO();
         return;
     }
 
     // Close socketwinOK
+    enableIO();
     close_socket();
     restoreIO();
 
@@ -238,7 +241,7 @@ void get_ntp_time() {
 void timeSynch () {
 // Synch system time with UII+ RTC
     char* ptrend;
-    unsigned char rtc_hour;
+    unsigned char rtc_hour,bcd_hour_tens,bcd_hour_ones,bcd_hour_base;
     
     // Get UII+ RTC time
     enableIO();
@@ -279,13 +282,20 @@ void timeSynch () {
         rtc_hour = strtol(buffer,&ptrend,10);
         system_date.s_hour = rtc_hour;
 
+        // Adjust for AM or PM
         if(rtc_hour>12) {
             // Set PM
-            cia_hour = (uii_data[12] - 50) + ((uii_data[11] - 49)*16) + 128;
+            bcd_hour_base = 128;
+            rtc_hour-= 12;
         } else {
             // Set AM
-            cia_hour = (uii_data[12] - 48) + ((uii_data[11] - 48)*16);
+            bcd_hour_base = 0;
         }
+
+        // Convert to BCD
+        bcd_hour_tens = rtc_hour/10;
+        bcd_hour_ones = rtc_hour%10;
+        cia_hour = bcd_hour_base + (bcd_hour_tens)*16 + bcd_hour_ones;
 
         // Copy minutes
         buffer[0]=uii_data[14];
