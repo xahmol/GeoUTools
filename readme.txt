@@ -1,0 +1,366 @@
+GeoUTools
+Tools for using the UII+ cartridge with GEOS
+
+
+Contents
+
+Version history and download
+Firmware and setting prerequisites and known issues
+Introduction
+What is on the disk
+GeoUConfig instructions
+GeoUTime instructions
+GeoUMount instructions
+Credits
+
+
+Version history and download
+
+Version 1.0 - 20230515-2156:
+- Official 1.0 release
+- Updated documentation from 0.1 to 1.0 version
+
+Version 0.3 - 20230512-1251:
+- Again many bugfixes
+- Changed the name of GeoUTimeCfg to GeoUConfig as it now can also set configuration settings for GeoUMount
+- Via GeoUConfig, now the automatic valid targets detection of GeoUMount can be manually changed in case of older firmwares or issues with automatic detection. Also the default target drive can be changed by the user.
+
+Version 0.2 - 20230423-1542:
+- Many bugfixes and code improvements fixing issues that was causing the applicatios to crash in many GEOS configurations
+- Added support for new firmware functionality to detect GEOS RAM drives that support image mounting and image saving from the Ultimate Command Interface.
+- Better failsafes for older firnwares
+
+Version 0.1 - 20230128 - 2223:
+- First public alpha version
+
+
+Firmware and setting prerequisites and known issues
+
+Ultimate II/II+/II+L firmware requirements
+- Firmware 3.10f or newer: full automatic drive detection and support to detect/mount/save GEOS RAM drives
+- Firmware 3.xx: automatic device detection possible. But in firmwares older than 3.10f automatic device detection is based on hardware drive IDs of the emulated A and B drives of the Ultimate II/II+/II+L cartridge, instead of the software ID. As in many GEOS configurations the software IDs of drives are changed by GEOS this can create issues in device detection going wrong and, as a resut. unexpected results on mounting images to these drives. To fix this, choose manual override of the automated detected targets using GeoUConfig.
+- Firmwares before 3.xx: Automatic target detection is not possible, so setting valid drive targets via GeoUConfig is always needed for GeoUMount to work.
+
+Link to Ultimate II/II+/II+L firmwares:
+Official released versions: https://ultimate64.com/Firmware
+Github: https://github.com/GideonZ/ultimate_releases (might contain newer not yet officially released firmwares, or firmwares that were temporarily retracted)
+
+Ultimate II/II+/II+L setting requirements
+
+For GeoUTools it is important to check these settings in the C64 and Cartridge Settings menu after pressing F2 from the UI:
+- Command Interface: IMPORTANT This setting has to be set to 'enabled' for anything in GeoUTools to work
+- UltiDOS: Allow SetDate: This setting has to be set to 'enabled' to allow GeoUTime to change the Ultimate Real Time Clock time
+- RAM Expansion Unit: Should be set to 'enabled' to support detecting, mounting and saving GEOS RAM drives
+- REU Size: set the desired size of the REU here, maximum is 16 megabytes. Depending on the GEOS configuration and GEOS distribution used, up to 4 megabytes can be used by GEOS itself with the remaining 12 megabytes available for RAM Native ram drives (the latter only supported in distributions as Wheels or Megapatch)
+
+
+Introduction
+
+GeoUTools is a little suite of (for now) three utilities to help using the Ultimate II+ cartridge from within GEOS.
+
+GeoUTime
+Utility to set the GEOS system time (and the UII+to RTC clock) the time received from a user defined NTP server.
+GeoUTIme is an auto exec application that starts automatically on boot. For this reason, the verbosity setting by default is 'Off' so not showing dialogues on every boot. But it can be switched on for debugging (or curiosity what happens).
+
+GeoUMount
+This utility can be used to swap and mount virtual disks on your UII+ cartridge, helpful because the UII+ menu is not available under GEOS128 80 column mode and often crashes under GEOS128 40 column mode. However therefore mostly useful under GEOS128, the program should work in all flavours of GEOS on the C64 and C128 as long as that computer has an UII+ cartridge.
+Images can be selected from a filebrowser, that filters on image types fitting the target drive.
+If supported by a new enough firmware, also GEOS RAM drives residiing in REU memory are supported for mounting and image saving.
+Number of direntries in this build tops around 250 or so (rest of the dir is not shown). Which, also considering the filtering on dirs and fitting image types only, is more than enough for my personal needs.
+
+GeoUConfig
+Utility to set the configuration for GeoUTime and GeoUMount.
+For GeoUTime, enabling or disabling time query of an NTP server, the NTP server hostname, offset from UTC time in seconds and verbosity on or off can be set.
+For GeoUMount, automatic valid target detection can be manually overridden, and the default target drive can be set.
+
+
+What is on the disk
+
+On first mount from the disk image downloaded from GitHub, the disk is not yet converted to a GEOS disk, so you might (depending on GEOS distribution used) get a message 'This is a NON-GEOS disk'.
+Click on Yes in this dialogie. You will then see these contents on the disk:
+
+GeoUMount: Disk mounting tool
+GeoUTime: NTP time synching tool
+GeoUConfig: Utility to set configuration options for GeoUTime
+
+Double click on the desired icon of the three to start the corresponding utility.
+
+Note that on first use, both GeoUTime and GeoUConfig create a configuration file on the disk if no one is yet present.
+A new file called GeoUTimeDat is added to store configuration data.
+
+Obviously you are free (even encouraged) tp copy these files to another disk target, such as your main RAM drive.
+
+
+GeoUConfig instructions
+
+This application sets the configuration options for GeoUTIme and saves them in the GeoUTimeDat configuration file. It creates this file on first start if no file is present already.
+
+After application start, the interface shows the present configuration settings.
+
+The options can be reached via the main menu in the topleft corner. The interface will update on changed settings. All changed will be automatically saved.
+
+Under 'GeoUMount config data' you can also see if autodetection of valid drive targets succeeded. This line can show the following options:
+- Autodetection of valid drives succeeded: Firmware supports imrpoved automated drive detection (firmwares 3.10f and newer)
+- Autodetection might be incorrect: Autodetection is supported, but based on hardware ID instead of software ID, so it might be wrong. Check the detected settings and manually adjust if needed (firmwares 3.xx up to 3.10e)
+- Autodetection not supported in firmware: Autodetection is not supported, so manual selection of valid targets is required. Detection override is forced on 'Enabled' (firmwares before 3.xx)
+
+GEOS menu
+Options in this menu:
+
+Switch 40/80
+(Only works in GEOS128, ignored in GEOS64)
+Switches between 40 and 80 column mode. On selecting, the other mode will be selected and the screen will be redrwam. If a single monitor is used, switch monitor to the corresponding other mode to view.
+
+Credits
+Selecting this option shows the application credits.
+Press OK to leave the credits dialogue box.
+
+Exit
+Exits to the GEOS desktop and quits the application.
+
+Time menu
+Options in this menu:
+
+Enable NTP
+Choose if time should be synched with the selected NTP server (setting is 'On'), or if only the GEOS system time should be synched to he UII+ Real Time Clock without an NTP request.
+Selecting this option gives adialogue. Select Yes to enable, No to disable.
+
+Hostname
+Enter the hostname of the desired NTP server. The default server is pool.ntp.org.
+For another NTP server, just enter its hostname (URL or IP). The application will not check validity of the input, to check if it works and the hostname resolves and results in a successful connection the verbose mode is suggested.
+To keep the present hostname, press either CANCEL or ENTER.
+
+UTC offset
+Edits the time offset to UTC (Universal standard time). The offset needs to provided in seconds. Automated adjustment for daylight savings ('Summer' and 'Winter' time) is not provided, so you have to adjust your offset on the change from daylight saving time to not.
+Offset is set in seconds (to allow for half hour difference timezones and also for finetuning if desired), so multiply the UTC offset in hours by 3600. And note that the offset is signed, so start with a minus for offsets negative to UTC.
+Default is set on Central European Time, which requires an offset of 3600. Setting to Central European Summer Time would require 7200. Another example: setting to Eastern Standard Time (EST, timezone for a.o. New York City) would be UTC -5, so -5*3600 = -18000.
+See https://www.timeanddate.com/time/zones/ for all offsets in hours (multiply by 3600 to get to seconds).
+Tupe the desired offset (noting the signing, so do not forget the minus sign if offsets are negative to UTC) and press ENTER. CANCEL to keep present value.
+
+Verbose
+Enable or disable the verbosity flag. Enabling this option makes the GeoUTime give visual feedback on the steps it performs, disabling will make GeoUTime perform its actions without any visual feedback.
+Enabling is useful for debugging hostname and UTC offset settings, or if you just are curious. Disabling is recommended for day to day use as auto executing application at boot time.
+Select Yes for verbose mode, No for silent mode.
+
+Mount menu
+Options in this menu:
+
+Enable override
+With this menu option you can enable or disable overriding the automated valid target detection for GeoUmount.
+Select Yes to enable manual override, No to use automatic target detection.
+
+Set drive
+With this menu option you can enable or disable drive A to D as valid target via s submenu.
+Choose the desired drive to change from this submenu.
+Select Yes to set the drive as valid target, No to select drive not to be a valid target.
+
+Set target
+With this menu option to can set the default active target drive. Without setting this manually, the target drive is set as the first encountered valid target.
+You can select the target drive via the submenu.
+Selecting a drive via this submenu will change the target setting. Selecting Auto will revert to just selecting the first encountered valid drive.
+
+
+GeoUTime instructions
+
+This application is driven by the options stored in the configuration file and does not need further user interaction.
+It is an auto exec application, so it should be started automatically if placed on the boot disk/drive. Therefore it is recommended to use verbosity only incidentally and switch it off after use. It is also possible to start the application manually.
+If verbosity is set to no in the configuration file options, nothing will be shown on the screen apart from the screen blanking during execution and the system time being updated after returning to the desktop.
+If verbosity mode is 'On' and NTP enable is 'On', information on what the application is doing is printed. his mode is meant to either debug your configuration settings, or if you are just curious what happens:
+- Connecting to the selected hostname of the desired NTP server
+- Sending the data request to that server
+- Reiving the data and interpreting result
+- Showing UNIX epoch received
+- Cobverting that output to time in selected time zone using the UTC offset
+- Setting the UII+ Real Time Clock with that time
+- Synching GEOS system time with the UII+ RTC clock.
+- Confirming succes
+Click the Quit icon to exit.
+
+Note that on any NTP connection error, the GEOS clock will be synched to the unchanged UII+ RTC clock as fallback.
+If NTP enable is switched to off, only the synch between UII+ RTC and the GEOS system time takes place, no NTP time request will be performed.
+
+
+GeoUMount instructions
+
+This application enables to mount disk images on the UII+ filesystem to an UII+ emulated drive or GEOS RAM drive (if enabled and supported in firmware version) in GEOS via a filebrowser.
+
+Application limitations and considerations
+The application ensures only disk images can be selected to mount that correspond with the drive type of the target drive by filtering the filelist to show only the corresponding image type.
+This is done as GEOS crashes if the drive type of any of the active GEOS drive is changed on the fly by for example mounting a .D64 image to a 1581 emulated drive. As GEOS is not aware of the changed disk type, it will load the wrong turbo load code on the drive, which makes GEOS crash or freeze. By filtering the filelist, this should be prevented.
+
+To properly enable filtering, image filenames should end with the proper corresponding .dxx extension:
+- .d64 for 1541 drive type or 1571 drive type
+- .g64 for 1541 drive type or 1571 drive type
+- .d71 for 1571 drive type
+- .d81 for 1581 drive type
+- .dnp for RAM Native drive images
+Other image types are not presently supported.
+
+Also note that file and dirnames can only be selected if they have a maximum name length of 20 characters, including extension. Reason is memory constraints: allowing for longer filenames would cause less filenames that can be loaded in memory. If you need to select dirs or files with longer names, shorten them first to 20 chars (including extension) at most.
+
+Maximum number of files shown is dependent on the free memory on the target system used, but should normally be around 250 files. If you have more valid images or subdirectories in your present directory, any entry over that number will not be shown. If you need to reach these dirs or files, consider reorganizing your dir to place the files in subdirs with fewer entries.
+
+Main interface
+After start, this main interface is shown.
+
+Main menu
+
+GEOS menu
+Options in this menu:
+
+Switch 40/80
+(Only works in GEOS128, ignored in GEOS64)
+Switches between 40 and 80 column mode. On selecting, the other mode will be selected and the screen will be redrwam. If a single monitor is used, switch monitor to the corresponding other mode to view.
+
+Credits
+This menu option shows the credit information.
+
+Exit
+Exits to the GEOS desktop and quits the application.
+
+Save REU menu
+
+In this menu the contents of the REU memory can be saved to a .reu file in the presently active directory.
+Select the memory size to save via the submenu. Then a dialoguebox asks for a filename for the image to save. Enter filename or press Cancel to cancel.
+If already a file with that name exists in the active directory, a new dialogue asks to confirm or cancel.
+Depending on selected memory size, saving can take a while. After success, a message like this is shown.
+
+Selecting the target drive
+The target drive selection area is the upper right area in the main interface. In this area you can select the target drive to mount the selected disk image to.
+The text right of the icons A, B, C and D show if this drive letter can be selected as valid target to mount images to via the Ultimate II+ cartridge. Obviously only those drive letters that correspond active drives emulated by the UII+ can selected. If the drive letter is not a valid target, the text 'No target' is shown to the right of the button. If it corresponds to a valid target, the type of the emulated drive is presented (supported for now are emulated 1541, 1571 and 1581 drives).
+
+GeoUMount presently does not support changing this drive configuration from within the application. Use the standard Configure app to change drive configuration if desired.
+
+Pressing the icon of a valid drive target wull change the target to this drive. If the drive type of the new target drive is different than the type of the old target, a refresh of the presently shown directory will be triggered to apply filtering for this new drive type.
+
+Filebrowser navigation icons
+This section is the lower right area of the main interface.
+
+Icon		Function
+Arrow left	Pressing this icon moves the present directory shown to the parent directory of the presently selected directory.
+Slash		Pressing this icon moves the present directory shown to the root directory of the filesystem.
+Home		Pressing this icon moves the present directory shown to the directory configured as home dir in the UII+ interface options.
+Arrow up	Pressing this icon moves to the top of the filelist in the present shown directory.
+Arrow down	Pressing this icon moves to the bottom of the filelist in the present shown directory.
+Save		Pressing this icon saves the contents of the active RAM drive to an image.
+
+Save image icon
+This button only works if the selected target drive is a RAM drive, otherwise clicking this icon will be ignored.
+With clicking this icon, the contents of the target RAM drive can be saved to an image file in the presently active directory. Extension will be based on the drive type of the target drive.
+First a filename will be asked, enter filename or click Cancel to cancel.
+If a file with this filename already exists, a confirmation dialogue box will pop up. Click Yes to confirm and overwrite the existing file, No to cancel.
+Depending on size of the image, saving can take a while. On success, this message will op uo. Click OK to continue.
+
+
+Filebrowser: pathname
+The top section shows the path of the presently selected directory, next to the identification (Ultimate DOS version) of the UII+ file system Ultimate Command Interface DOS target.
+
+Filebrowser: line scroll arrows
+By clicking on the arrow icons in the filebrowser area you can scroll one entry up (upper arrow icon) or down (lower arrow icon).
+
+Filebrowser: page up and page down
+By clicking on the upper and lower scrollbar areas in the filebrowser area you can scroll one page up (upper scrollbar area) or down (lower scrollbar area).
+
+Filebrowser: filelist
+This area shows the visible part of the file and directory list of the presently selected directory. 13 files or directories can be shown visibly, use the scroll or navigation icons/areas to move the visible part.
+In the left column the name of the file or directory is shown, in the right column the type.
+
+Types:
+
+Code	Description
+DIR		Directory
+D64		1541 images with .d64 extension
+D71		1571 images with .d71 extension
+D81		1581 images with .d81 extension
+!TL		Name to long to be fully shown. Can not be selected without shortening name
+!IS		DNP image with a size not matching size of target drive
+
+Moving to a subdirectory
+Move to a subdirectory by clicking on the desired directory name shown.
+
+Selecting an image to mount
+Select an image to mount by clicking on a valid filename (so type .d64, .d71 or .d81 dependent on selected target drive).
+On success, a dialogue is presented. If this is shown, the selected image is already is mounted.
+Choose Yes if you want to proceed with GeoUMount (for example if you selected a wrong image or if you want to mount images on other targets as well).
+Choose No to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
+
+
+Credits
+
+GeoUTools
+Tools for using the UII+ cartridge with GEOS
+
+Written in 2023 by Xander Mol
+
+https://github.com/xahmol/GeoUTools
+
+https://www.idreamtin8bits.com/
+
+Code and resources from others used:
+
+Scott Hutter - Ultimate II+ library and GeoUTerm:
+https://github.com/xlar54/ultimateii-dos-lib/
+(library for the UII+ UCI functions. And GeoUTerm as GEOS sample application using this)
+
+CC65 cross compiler:
+https://cc65.github.io/
+
+Daniel England (Daniel England) - GEOSBuild:
+https://github.com/M3wP/GEOSBuild
+(buildtool for GEOS disks)
+
+David Lee - GEOS Image Editor
+https://www.facebook.com/groups/704637082964003/permalink/5839146806179646
+(editor for GEOS icons)
+
+Subchrist Software - SpritePad Pro
+https://subchristsoftware.itch.io/spritepad-c64-pro
+(editor used for the file icons)
+
+Hitchhikers Guide to GEOS v2020
+Berkeley Softworks / Paul B Murdaugh
+https://github.com/geos64128/HG2G2020
+
+Sample sequential application header of GeoProgrammer
+Berkeley Softworks
+
+ntp2ultimate by MaxPlap: code for obtaining time via NTP
+https://github.com/MaxPlap/ntp2ultimate
+
+Heureks: GEOS64 Programming Examples
+https://codeberg.org/heurekus/C64-Geos-Programming
+(sample code using C in CC65 for writing applications in GEOS)
+
+Lyonlabs / Cenbe GEOS resources page:
+https://www.lyonlabs.org/commodore/onrequest/geos/index.html
+
+Bo Zimmerman GEOS resources page:
+http://www.zimmers.net/geos/
+
+CVM Files GEOS disk images
+https://cbmfiles.com/geos/geos-13.php
+
+GEOS - Wheels - GeoWorks - MegaPatch - gateWay - BreadBox Facebook Group
+https://www.facebook.com/groups/704637082964003/permalink/5839146806179646
+
+Bart van Leeuwen for testing and providing the Device Manager ROM and GEOS RAM Boot
+
+markusC64 (https://github.com/markusC64)
+for code rveiew, testiing and adapting UII+ firmware to enableRAM disk functionality.
+
+mkslack ( https://github.com/mkslack ) for code review and testing
+
+Forum64.de forum thread for testing and suggestions
+( https://www.forum64.de/index.php?thread/133681-news-zur-ultimate-1541-ii-und-geos/ )
+
+Gideon Zweijtzer for creating the Ultimate II+ cartridge and the Ultimate64, and the Ultimate Command Interface enabling this software.
+
+Tested using real hardware (C128D, C128DCR, Ultimate 64) using GEOS128 2.0, GEOS64 2.0 and Megapatch3 128.
+
+Licensed under the GNU General Public License v3.0
+
+The code can be used freely as long as you retain
+a notice describing original source and author.
+
+THE PROGRAMS ARE DISTRIBUTED IN THE HOPE THAT THEY WILL BE USEFUL,
+BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
