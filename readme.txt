@@ -317,9 +317,9 @@ Subchrist Software - SpritePad Pro
 https://subchristsoftware.itch.io/spritepad-c64-pro
 (editor used for the file icons)
 
-Hitchhikers Guide to GEOS v2020
+Hitchhikers Guide to GEOS v2022
 Berkeley Softworks / Paul B Murdaugh
-https://github.com/geos64128/HG2G2020
+https://github.com/geos64128/HG2G2022
 
 Sample sequential application header of GeoProgrammer
 Berkeley Softworks

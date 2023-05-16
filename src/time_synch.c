@@ -348,8 +348,8 @@ void main (void)
     if(verbose)
     {
         SetPattern(0);
-        drawWindow.top = 20;
-        drawWindow.bot = 180;
+        drawWindow.top = 0;
+        drawWindow.bot = 199;
         drawWindow.left = 0;
         if(osType & GEOS128 ) { drawWindow.right = 319 + DOUBLE_W;  }
         else { drawWindow.right = 319; }

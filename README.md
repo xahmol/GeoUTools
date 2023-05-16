@@ -24,9 +24,9 @@ Tools for using the UII+ cartridge with GEOS
 ## Version history and download
 ([Back to contents](#contents))
 
-[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230515-2156.zip)
+[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230516-1124.zip)
 
-Version 1.0 - 20230515-2156:
+Version 1.0 - 20230516-1124:
 - Official 1.0 release
 - Updated documentation from 0.1 to 1.0 version
 
@@ -495,9 +495,9 @@ Code and resources from others used:
     https://subchristsoftware.itch.io/spritepad-c64-pro
     (editor used for the file icons)
 
--   Hitchhikers Guide to GEOS v2020
+-   Hitchhikers Guide to GEOS v2022
     Berkeley Softworks / Paul B Murdaugh
-    https://github.com/geos64128/HG2G2020
+    https://github.com/geos64128/HG2G2022
 
 -   Sample sequential application header of GeoProgrammer
     Berkeley Softworks
