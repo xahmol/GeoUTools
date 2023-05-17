@@ -351,7 +351,7 @@ void main (void)
         drawWindow.top = 0;
         drawWindow.bot = 199;
         drawWindow.left = 0;
-        if(osType & GEOS128 ) { drawWindow.right = 319 + DOUBLE_W;  }
+        if(osType & GEOS128 ) { drawWindow.right = 319 | DOUBLE_W | ADD1_W;  }
         else { drawWindow.right = 319; }
         Rectangle();  // Window
         FrameRectangle(255);    // Frame

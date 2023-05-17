@@ -94,7 +94,7 @@ ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
 
 # Data for ZIP file
 ZIP = GeoUTools-v10-$(shell date "+%Y%m%d-%H%M").zip
-ZIPLIST = $(SUITE).d64 $(SUITE).d81 readme.pdf
+ZIPLIST = $(SUITE).d64 $(SUITE).d81 readme.pdf readme_de.pdf
 
 ########################################
 
@@ -120,6 +120,7 @@ $(SUITE).d81:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d81.gbuild $(TIME).bin $(TIM
 	$(GBUILD) $(MOUNT)d81.gbuild
 	$(GBUILD) $(TIME)d81.gbuild
 	$(GBUILD) $(CONF)d81.gbuild
+	c1541 -attach $(SUITE).d81 -geoswrite "gEOutOOLS.DOC.cvt"
 
 # Creating suite .d64 disk image
 $(SUITE).d64:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d64.gbuild $(TIME).bin $(TIME)Hdr.bin $(TIME)d64.gbuild $(CONF).bin $(CONF)Hdr.bin $(CONF)d64.gbuild
@@ -127,6 +128,7 @@ $(SUITE).d64:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d64.gbuild $(TIME).bin $(TIM
 	$(GBUILD) $(MOUNT)d64.gbuild
 	$(GBUILD) $(TIME)d64.gbuild
 	$(GBUILD) $(CONF)d64.gbuild
+	c1541 -attach $(SUITE).d64 -geoswrite "gEOutOOLS.DOC.cvt"
 
 # Creating ZIP file for distribution
 $(ZIP): $(ZIPLIST)

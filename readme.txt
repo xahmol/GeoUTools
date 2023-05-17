@@ -165,7 +165,7 @@ GeoUTime instructions
 This application is driven by the options stored in the configuration file and does not need further user interaction.
 It is an auto exec application, so it should be started automatically if placed on the boot disk/drive. Therefore it is recommended to use verbosity only incidentally and switch it off after use. It is also possible to start the application manually.
 If verbosity is set to no in the configuration file options, nothing will be shown on the screen apart from the screen blanking during execution and the system time being updated after returning to the desktop.
-If verbosity mode is 'On' and NTP enable is 'On', information on what the application is doing is printed. his mode is meant to either debug your configuration settings, or if you are just curious what happens:
+If verbosity mode is 'On' and NTP enable is 'On', information on what the application is doing is printed. This mode is meant to either debug your configuration settings, or if you are just curious what happens:
 - Connecting to the selected hostname of the desired NTP server
 - Sending the data request to that server
 - Reiving the data and interpreting result
@@ -201,7 +201,7 @@ Also note that file and dirnames can only be selected if they have a maximum nam
 Maximum number of files shown is dependent on the free memory on the target system used, but should normally be around 250 files. If you have more valid images or subdirectories in your present directory, any entry over that number will not be shown. If you need to reach these dirs or files, consider reorganizing your dir to place the files in subdirs with fewer entries.
 
 Main interface
-After start, this main interface is shown.
+After start, the main interface is shown.
 
 Main menu
 
@@ -337,7 +337,7 @@ https://www.lyonlabs.org/commodore/onrequest/geos/index.html
 Bo Zimmerman GEOS resources page:
 http://www.zimmers.net/geos/
 
-CVM Files GEOS disk images
+CBM Files GEOS disk images
 https://cbmfiles.com/geos/geos-13.php
 
 GEOS - Wheels - GeoWorks - MegaPatch - gateWay - BreadBox Facebook Group
@@ -349,6 +349,8 @@ markusC64 (https://github.com/markusC64)
 for code rveiew, testiing and adapting UII+ firmware to enableRAM disk functionality.
 
 mkslack ( https://github.com/mkslack ) for code review and testing
+
+wweicht for GeoWrite version of manual and testing
 
 Forum64.de forum thread for testing and suggestions
 ( https://www.forum64.de/index.php?thread/133681-news-zur-ultimate-1541-ii-und-geos/ )

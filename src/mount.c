@@ -229,8 +229,8 @@ struct icontab vdc_mainicons = {
         { iconTop, 61, 130, 2 | DOUBLE_B, 16, (int)DirTop },
         { iconBottom, 61, 150, 2 | DOUBLE_B, 16, (int)DirBottom },
         { iconSave, 61,170, 2 | DOUBLE_B, 16,(int)SaveImage},
-        { iconArrowUp, 50, 45, 1, 8, (int)ScrollUp },
-        { iconArrowDown, 50, 180, 1, 8, (int)ScrollDown },
+        { iconArrowUp, 49, 45, 1 | DOUBLE_B, 8, (int)ScrollUp },
+        { iconArrowDown, 49, 180, 1 | DOUBLE_B, 8, (int)ScrollDown },
     }
 };
 
@@ -245,7 +245,7 @@ struct intCoords {
 struct intCoords *interfaceCoords;
 
 struct intCoords vic_intCoords = { 5,200,208,224 };
-struct intCoords vdc_intCoords = { 5,400,408,464 };
+struct intCoords vdc_intCoords = { 5,392,408,464 };
 
 // Declare functions prototypes that are called when menu items are 
 // clicked on and are used in the structs that defines the menus below.

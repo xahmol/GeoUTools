@@ -24,9 +24,9 @@ Tools for using the UII+ cartridge with GEOS
 ## Version history and download
 ([Back to contents](#contents))
 
-[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230516-1124.zip)
+[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230517-1759.zip)
 
-Version 1.0 - 20230516-1124:
+Version 1.0 - 20230517-1759:
 - Official 1.0 release
 - Updated documentation from 0.1 to 1.0 version
 
@@ -515,7 +515,7 @@ Code and resources from others used:
 -   Bo Zimmerman GEOS resources page:
     http://www.zimmers.net/geos/
 
--   CVM Files GEOS disk images
+-   CBM Files GEOS disk images
     https://cbmfiles.com/geos/geos-13.php
 
 -   GEOS - Wheels - GeoWorks - MegaPatch - gateWay - BreadBox Facebook Group
@@ -527,6 +527,8 @@ Code and resources from others used:
     for code rveiew, testiing and adapting UII+ firmware to enableRAM disk functionality.
 
 -   mkslack ( https://github.com/mkslack ) for code review and testing
+
+-   wweicht for GeoWrite version of manual and testing
 
 -   Forum64.de forum thread for testing and suggestions
     ( https://www.forum64.de/index.php?thread/133681-news-zur-ultimate-1541-ii-und-geos/ )
