@@ -129,6 +129,8 @@ void get_ntp_time() {
 
     struct tm *datetime;
     extern struct _timezone _tz;
+    unsigned char attempt = 1;
+    unsigned char delay;
 
     char settime[6];
 
@@ -179,14 +181,32 @@ void get_ntp_time() {
         return;
     }
 
-    // Recieving datat. Return on error
-    if(verbose) {
-        PutString("Reading result.",69,10);
-    }
-    enableIO();
-    uii_socketread(socket, 50);// 2 + sizeof( ntp_packet ));
-    restoreIO();
+    // Do maximum of 4 attempts at receiving data
+    do
+    {
+        // Add delay to avoid time to wait on response being too short
+        for(delay=0;delay<100;delay++) {; }
 
+        // Print verbose data with attempt number
+        if(verbose) {
+            sprintf(buffer,"Reading result attempt %d",attempt);
+            PutString(buffer,69,10);
+        }
+
+        // Try to read incoming data
+        enableIO();
+        uii_socketread(socket, 50);// 2 + sizeof( ntp_packet ));
+        restoreIO();
+
+        // If data received, end loop. Else do new attempt till counter = 5
+        if(uii_success()) { 
+            attempt = 5;
+        } else {
+            attempt++;
+        }
+    } while (attempt<5);
+
+    // Return if no data is received
     if(CheckStatus()) {
         enableIO();
         close_socket();
@@ -194,14 +214,14 @@ void get_ntp_time() {
         return;
     }
 
+    // Convert time received to UCI format and set UII+ RTC time
+    t = uii_data[37] | (((unsigned long)uii_data[36])<<8)| (((unsigned long)uii_data[35])<<16)| (((unsigned long)uii_data[34])<<24);
+    t -= NTP_TIMESTAMP_DELTA;
+
     // Close socketwinOK
     enableIO();
     close_socket();
     restoreIO();
-
-    // Convert time received to UCI format and set UII+ RTC time
-    t = uii_data[37] | (((unsigned long)uii_data[36])<<8)| (((unsigned long)uii_data[35])<<16)| (((unsigned long)uii_data[34])<<24);
-    t -= NTP_TIMESTAMP_DELTA;
 
     if(verbose) {
         sprintf(buffer,"UNIX epoch: %lu", t);

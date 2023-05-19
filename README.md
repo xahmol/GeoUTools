@@ -24,7 +24,7 @@ Tools for using the UII+ cartridge with GEOS
 ## Version history and download
 ([Back to contents](#contents))
 
-[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230517-1759.zip)
+[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230519-1727.zip.zip)
 
 Version 1.0 - 20230517-1759:
 - Official 1.0 release
