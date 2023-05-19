@@ -130,7 +130,7 @@ void get_ntp_time() {
     struct tm *datetime;
     extern struct _timezone _tz;
     unsigned char attempt = 1;
-    unsigned char delay;
+    unsigned char clock;
 
     char settime[6];
 
@@ -162,7 +162,7 @@ void get_ntp_time() {
 
     // Sending data request. Return on error
     if(verbose) {
-        PutString("Sending NTP request,",59,10);
+        PutString("Sending NTP request",59,10);
     }
 
 	fullcmd[2] = socket;
@@ -184,9 +184,12 @@ void get_ntp_time() {
     // Do maximum of 4 attempts at receiving data
     do
     {
-        // Add delay to avoid time to wait on response being too short
-        for(delay=0;delay<100;delay++) {; }
-
+        // Add delay of a second to avoid time to wait on response being too short
+        enableIO();
+        clock = cia_seconds;
+        while (cia_seconds == clock) { ; }
+        restoreIO();
+        
         // Print verbose data with attempt number
         if(verbose) {
             sprintf(buffer,"Reading result attempt %d",attempt);
