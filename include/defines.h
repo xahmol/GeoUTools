@@ -16,7 +16,7 @@ extern char buffer[81];
 /* Defines for versioning */
 /* Version number */
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 0
+#define VERSION_MINOR 1
 /* Build year */
 #define BUILD_YEAR_CH0 (__DATE__[ 7])
 #define BUILD_YEAR_CH1 (__DATE__[ 8])

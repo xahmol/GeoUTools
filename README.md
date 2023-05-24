@@ -24,7 +24,13 @@ Tools for using the UII+ cartridge with GEOS
 ## Version history and download
 ([Back to contents](#contents))
 
-[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230520-0004.zip)
+[Link to latest build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v11-20230524-1737.zip)
+
+Version 1.1 - 20230524-1737
+- Bugfixes in GeoUTime
+- Spell and grammar check on English documentation
+- German documentation added
+- GeoWrite versions of the documentation added to the disk images
 
 Version 1.0 - 20230517-1759:
 - Official 1.0 release
@@ -457,9 +463,9 @@ On success, the following dialogue is presented:
 
 If this is shown, the selected image is already mounted.
 
-Choose Yes if you want to proceed with GeoUMount (for example if you selected a wrong image or if you want to mount images on other targets as well).
+Choose No if you want to proceed with GeoUMount (for example if you selected a wrong image or if you want to mount images on other targets as well).
 
-Choose No to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
+Choose Yes to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
 
 ## Credits
 ([Back to contents](#contents))

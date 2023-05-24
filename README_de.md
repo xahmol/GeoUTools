@@ -24,7 +24,13 @@ Tools für die Verwendung der UII+ Cartridge mit GEOS
 ## Versionsgeschichte und Download
 ([Zurück zum Inhaltsverzeichnis](#inhaltsverzeichnis))
 
-[Link zum neuesten Build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v10-20230520-0004.zip)
+[Link zum neuesten Build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v11-20230524-1737.zip)
+
+Version 1.1 - 20230524-1737
+- Bugfixes in GeoUTime
+- Rechtschreib- und Grammatikprüfung im englischen Dokumentation
+- Deutsche Dokumentation hinzugefügt
+- GeoWrite-Versionen des Handbuchs zu den Disk-Images hinzugefügt
 
 Version 1.0 - 20230517-1759:
 - Offizielle Version 1.0
@@ -456,9 +462,9 @@ Bei Erfolg wird der folgende Dialog angezeigt:
 
 Wenn dies angezeigt wird, ist das ausgewählte Bild bereits montiert.
 
-Wählen Sie Ja, wenn Sie mit GeoUMount fortfahren wollen (z.B. wenn Sie ein falsches Image ausgewählt haben oder wenn Sie auch Images auf anderen Laufwerken einbinden wollen).
+Wählen Sie Nein, wenn Sie mit GeoUMount fortfahren wollen (z.B. wenn Sie ein falsches Image ausgewählt haben oder wenn Sie auch Images auf anderen Laufwerken einbinden wollen).
 
-Wählen Sie Nein, um die GeoUMount-Anwendung zu beenden und zum GEOS-Desktop zurückzukehren, wobei das neue Image auf dem ausgewählten Ziellaufwerk eingehängt wird.
+Wählen Sie Ja, um die GeoUMount-Anwendung zu beenden und zum GEOS-Desktop zurückzukehren, wobei das neue Image auf dem ausgewählten Ziellaufwerk eingehängt wird.
 
 ## Credits
 ([Zurück zum Inhaltsverzeichnis](#inhaltsverzeichnis))

@@ -16,6 +16,12 @@ Credits
 
 Version history and download
 
+Version 1.1 - 20230522-1022
+- Bugfixes in GeoUTime
+- Spell and grammar check on English documentation
+- German documentation added
+- GeoWrite versions of the documentation added to the disk images
+
 Version 1.0 - 20230515-2156:
 - Official 1.0 release
 - Updated documentation from 0.1 to 1.0 version
@@ -233,7 +239,7 @@ GeoUMount presently does not support changing this drive configuration from with
 
 Pressing the icon of a valid drive target will change the target to this drive. If the drive type of the new target drive is different than the type of the old target, a refresh of the presently shown directory will be triggered to apply filtering for this new drive type.
 
-file browser navigation icons
+File browser navigation icons
 This section is the lower right area of the main interface.
 
 Icon		Function
@@ -281,8 +287,8 @@ Move to a subdirectory by clicking on the desired directory name shown.
 Selecting an image to mount
 Select an image to mount by clicking on a valid filename (so type .d64, .d71 or .d81 dependent on selected target drive).
 On success, a dialogue is presented. If this is shown, the selected image is already mounted.
-Choose Yes if you want to proceed with GeoUMount (for example if you selected a wrong image or if you want to mount images on other targets as well).
-Choose No to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
+Choose No if you want to proceed with GeoUMount (for example if you selected a wrong image or if you want to mount images on other targets as well).
+Choose Yes to exit the GeoUMount application and go back to the GEOS desktop with the new image mounted to the selected target drive.
 
 
 Credits

@@ -14,6 +14,12 @@ Credits
 
 Versionsgeschichte und Download
 
+Version 1.1 - 20230522-1022
+- Bugfixes in GeoUTime
+- Rechtschreib- und Grammatikprüfung im englischen Dokumentation
+- Deutsche Dokumentation hinzugefügt
+- GeoWrite-Versionen des Handbuchs zu den Disk-Images hinzugefügt
+
 Version 1.0 - 20230516-1124:
 - Offizielle Version 1.0
 - Aktualisierte Dokumentation von Version 0.1 auf Version 1.0
@@ -277,8 +283,8 @@ Wechseln Sie in ein Unterverzeichnis, indem Sie auf den angezeigten Namen des ge
 Abbild zum Einbinden auswählen
 Wählen Sie ein zu mountendes Image aus, indem Sie auf einen gültigen Dateinamen klicken (geben Sie also je nach ausgewähltem Ziellaufwerk .d64, .d71 oder .d81 ein).
 Bei Erfolg wird ein Dialog angezeigt. Wenn dieser angezeigt wird, ist das ausgewählte Image bereits eingebunden.
-Wählen Sie Ja, wenn Sie mit GeoUMount fortfahren wollen (z.B. wenn Sie ein falsches Image ausgewählt haben oder wenn Sie auch Images auf anderen Laufwerken einbinden wollen).
-Wählen Sie Nein, um die GeoUMount-Anwendung zu beenden und zum GEOS-Desktop zurückzukehren, wobei das neue Image auf dem ausgewählten Ziellaufwerk eingehängt wird.
+Wählen Sie Nein, wenn Sie mit GeoUMount fortfahren wollen (z.B. wenn Sie ein falsches Image ausgewählt haben oder wenn Sie auch Images auf anderen Laufwerken einbinden wollen).
+Wählen Sie Ja, um die GeoUMount-Anwendung zu beenden und zum GEOS-Desktop zurückzukehren, wobei das neue Image auf dem ausgewählten Ziellaufwerk eingehängt wird.
 
 Credits
 
