@@ -14,7 +14,7 @@ Credits
 
 Versionsgeschichte und Download
 
-Version 1.1 - 20230522-1022
+Version 1.1 - 20230530-1000
 - Bugfixes in GeoUTime
 - Rechtschreib- und Grammatikprüfung im englischen Dokumentation
 - Deutsche Dokumentation hinzugefügt

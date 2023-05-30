@@ -24,9 +24,9 @@ Tools für die Verwendung der UII+ Cartridge mit GEOS
 ## Versionsgeschichte und Download
 ([Zurück zum Inhaltsverzeichnis](#inhaltsverzeichnis))
 
-[Link zum neuesten Build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v11-20230524-1737.zip)
+[Link zum neuesten Build](https://github.com/xahmol/GeoUTools/raw/main/GeoUTools-v11-20230530-1000.zip)
 
-Version 1.1 - 20230524-1737
+Version 1.1 - 20230530-1000
 - Bugfixes in GeoUTime
 - Rechtschreib- und Grammatikprüfung im englischen Dokumentation
 - Deutsche Dokumentation hinzugefügt
