@@ -64,7 +64,7 @@ endif
 GBUILD = /home/xahmol/geostools/GEOSBuild
 
 # Application names
-SUITE = geoutools
+SUITE = GeoUTools
 MOUNT = geoumount
 TIME = geoutime
 CONF = geouconfig
@@ -94,7 +94,7 @@ ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
 
 # Data for ZIP file
 ZIP = GeoUTools-v11-$(shell date "+%Y%m%d-%H%M").zip
-ZIPLIST = $(SUITE).d64 $(SUITE).d81 readme.pdf readme_de.pdf
+ZIPLIST = $(SUITE).d64 $(SUITE).d81 README.pdf README_de.pdf
 
 ########################################
 

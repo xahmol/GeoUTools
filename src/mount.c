@@ -376,7 +376,7 @@ void Readdir() {
         //        return;
         //}
 
-        datalength = strlen(uii_data);
+        datalength = strlen(uii_data+1)+1;
 
         // Check if entry is a dir by checking if bit 4 of first byte is set
         if(uii_data[0]&0x10) { presenttype=1; }
