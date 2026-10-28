@@ -2582,7 +2582,7 @@ Details in geos-oscar64's `docs/GEOSLIB_MANUAL.md` and `~/.claude/geos_reference
 
 ### Compiler bug: fast-call parameter range size (Atari layout crash)
 
-`InterCodeGenerator.cpp` (~line 6507, upstream 811e065 2026-10-23 still has it):
+`InterCodeGenerator.cpp` (~line 6507, upstream da1716d 2026-10-28 still has it):
 `dec->mLinkerObject->mTempSizes[0] = BC_REG_FPARAMS_END - dec->mFastCallBase;`
 uses an absolute address as a size; correct is
 `BC_REG_FPARAMS_END - BC_REG_FPARAMS - dec->mFastCallBase`. With the C64
@@ -2593,7 +2593,10 @@ range runs past `$FF` and the compiler aborts with
 than 12 bytes of fast-call parameters, e.g. `sprintf` -> `sformat`. Repro:
 `#include <stdio.h> char b[40]; int main(void){sprintf(b,"x");return 0;}`
 with `-n -tm=atari`. The one-line fix passes the full autotest suite
-(`make check` in `make/`).
+(`make check` in `make/`). The fix is kept as `patches/oscar64-fastcall-tempsize.patch` in
+geos-oscar64 (v0.1.1+, manual section 10); `~/oscar64` carries it on local
+branch `geos-fix` (upstream da1716d + patch, 2026-10-28; rebase on update,
+never push). No upstream PR: the author is not open to AI-assisted PRs.
 
 ### `-tf=bin` output range
 
