@@ -1,3 +1,6 @@
 [submodule "lib/ultimate-uci-oscar64"]
 	path = lib/ultimate-uci-oscar64
 	url = https://github.com/xahmol/ultimate-uci-oscar64.git
+[submodule "lib/geos-oscar64"]
+	path = lib/geos-oscar64
+	url = https://github.com/xahmol/geos-oscar64.git
