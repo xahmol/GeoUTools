@@ -1,147 +1,177 @@
-
 # GeoUTools
-# Tools for using the UII+ cartridge with GEOS
+# Tools for using the Ultimate II+ / Ultimate 64 / C64 Ultimate with GEOS:
+# GeoUMount (disk image mounter), GeoUTime (NTP time synch, auto-exec) and
+# GeoUConfig (settings). GEOS 64 and GEOS 128 (40/80 columns).
+#
+# Built with Oscar64 and the geos-oscar64 library; see docs/ARCHITECTURE.md.
 
-# Prerequisites for building:
-# - CC65 compiled for Linux and included in path with sudo make avail
-# - GEOSBuild tool compiled for Linux using Lazarus IDE.
-#   See compiling instructions at https://github.com/M3wP/GEOSBuild
-#   Provide path to tool below
-# - VICE /bin directory, or at least the c1541 tool, in the path environment
-#   and compiled for Linux
-#   https://vice-emu.sourceforge.io/
-# - ZIP packages installed: sudo apt-get install zip
-# - wput command installed: sudo apt-get install wput
-
-# Run 'make SYS=<target>'; or, set a SYS env.
-# var. to build for another target system.
-SYS ?= geos-cbm
-
-# If SYS was given on the commandline, redirect "c64" to "geos-cbm" and
-# "apple2enh" to "geos-apple"
-ifeq ($(origin SYS),command line)
-  ifeq ($(SYS),c64)
-    override SYS = geos-cbm
-    $(info GEOS: c64 -> geos-cbm)
-  endif
-  ifeq ($(SYS),apple2enh)
-    override SYS = geos-apple
-    $(info GEOS: apple2enh -> geos-apple)
-  endif
-endif
-
-# Just the usual way to find out if we're
-# using cmd.exe to execute make rules.
+# Cross-platform shell detection
 ifneq ($(shell echo),)
   CMD_EXE = 1
 endif
 
 ifdef CMD_EXE
   NULLDEV = nul:
-  DEL = -del /f
-  RMDIR = rmdir /s /q
+  DEL     = -del /f
+  RMDIR   = rmdir /s /q
+  MKDIR   = mkdir
 else
   NULLDEV = /dev/null
-  DEL = $(RM)
-  RMDIR = $(RM) -r
+  DEL     = $(RM)
+  RMDIR   = $(RM) -r
+  MKDIR   = mkdir -p
 endif
 
-ifdef CC65_HOME
-  AS = $(CC65_HOME)/bin/ca65
-  CC = $(CC65_HOME)/bin/cc65
-  CL = $(CC65_HOME)/bin/cl65
-  LD = $(CC65_HOME)/bin/ld65
-  SP = $(CC65_HOME)/bin/sp65
-else
-  AS := $(if $(wildcard ../../bin/ca65*),../../bin/ca65,ca65)
-  CC := $(if $(wildcard ../../bin/cc65*),../../bin/cc65,cc65)
-  CL := $(if $(wildcard ../../bin/cl65*),../../bin/cl65,cl65)
-  LD := $(if $(wildcard ../../bin/ld65*),../../bin/ld65,ld65)
-  SP := $(if $(wildcard ../../bin/sp65*),../../bin/sp65,sp65)
+# Local settings (gitignored): Ultimate IPs, compiler, library paths
+-include .env
+
+# Toolchain -- override in .env if oscar64 lives elsewhere. Programs with
+# sprintf need an Oscar64 with the fast-call range fix (geos-oscar64
+# manual, section 10). Plain '=' for CC is wrong here: CC is a make
+# built-in, so set OSCAR64 instead.
+OSCAR64     ?= /home/xahmol/oscar64/bin/oscar64
+OSCAR64_INC ?= $(dir $(OSCAR64))../include
+CC           = $(OSCAR64)
+
+# Libraries (git submodules, pinned to release tags; never edit lib/)
+GEOSLIB ?= lib/geos-oscar64
+UCILIB  ?= lib/ultimate-uci-oscar64
+
+# Build versioning
+VERSION_MAJOR     = 2
+VERSION_MINOR     = 0
+VERSION_PATCH     = 0
+VERSION_TIMESTAMP = $(shell date "+%Y%m%d-%H%M")
+VERSION           = v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)-$(VERSION_TIMESTAMP)
+GEOSVERSION       = V$(VERSION_MAJOR).$(VERSION_MINOR)
+
+# Compile flags
+#   -tm=atari -tf=bin -n -rt=...  : GEOS target (geos-oscar64 manual, section 1)
+#   -i=src                        : project sources and headers
+#   -i=GEOSLIB, UCILIB            : libraries
+#   -O2                           : optimise
+#   -dNOFLOAT                     : no float support in printf
+#   -dVERSION                     : version string
+CFLAGS = -ii=$(OSCAR64_INC) \
+         -i=src \
+         -i=$(GEOSLIB)/include \
+         -i=$(UCILIB)/include \
+         -tm=atari \
+         -tf=bin \
+         -n \
+         -rt=$(GEOSLIB)/include/geos/geos_crt.c \
+         -O2 \
+         -dNOFLOAT \
+         -dVERSION="\"$(VERSION)\""
+
+# GeoUTime runs as AUTO_EXEC at boot: the kernal's boot code still lives at
+# $5000-$5FFF then, so its program memory ends at $5000.
+TIMEFLAGS = -dGEOS_PROG_END=0x5000
+
+GEOSAPP = python3 -I $(GEOSLIB)/tools/geosapp.py
+
+# Sources (Oscar64 follows #pragma compile chains; listed so make rebuilds)
+LIBSRCS    = $(wildcard $(GEOSLIB)/include/*.h $(GEOSLIB)/include/geos/*.h $(GEOSLIB)/include/geos/*.c) \
+             $(wildcard $(UCILIB)/include/*.c $(UCILIB)/include/*.h)
+COMMONSRCS = src/defines.h src/uci_io.h src/uci_io.c
+TIMESRCS   = src/geoutime.c src/time_common.c src/time_common.h $(COMMONSRCS) $(LIBSRCS)
+CONFSRCS   = src/geouconfig.c src/time_common.c src/time_common.h \
+             src/mount_common.c src/mount_common.h \
+             src/interface.c src/interface.h $(COMMONSRCS) $(LIBSRCS)
+MOUNTSRCS  = src/geoumount.c src/mount_common.c src/mount_common.h \
+             src/interface.c src/interface.h $(COMMONSRCS) $(LIBSRCS)
+
+# Outputs
+SUITE   = GeoUTools
+APPS    = build/geoumount.cvt build/geoutime.cvt build/geouconfig.cvt
+DISKS   = build/$(SUITE).d64 build/$(SUITE).d81
+MANUALS = docs/geowrite-manual-en.cvt docs/geowrite-manual-de.cvt
+ZIPFILE = build/$(SUITE)-$(VERSION).zip
+README  = README.pdf README_de.pdf
+
+# Ultimate device deployment target. Store only the IP in .env.
+ULTIP1  ?= <set_ULTIP1_in_.env>
+ULTUSB  ?= usb0
+ULTPATH ?= Dev
+ULTFTP1  = ftp://$(ULTIP1)/$(ULTUSB)/$(ULTPATH)/
+ULTUSB2 ?= $(ULTUSB)
+ifdef ULTIP2
+ULTFTP2  = ftp://$(ULTIP2)/$(ULTUSB2)/$(ULTPATH)/
 endif
-
-# Path to GEOSBuild tool
-GBUILD = /home/xahmol/geostools/GEOSBuild
-
-# Application names
-SUITE = GeoUTools
-MOUNT = geoumount
-TIME = geoutime
-CONF = geouconfig
-
-# Common compile flags
-CFLAGS  = -t $(SYS)  -Os -I include
-
-# Sources and config for GeoUMount
-MOUNTSRC = src/mount.c src/interface.c src/mount_common.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_dos_lib.c
-MOUNTHDR = src/$(MOUNT)Hdr.s
-MOUNTFLG = -C $(MOUNT)_cc65config.cfg -m $(MOUNT).map
-
-# Sources and config for GeoUTime
-TIMESRC = src/time_synch.c src/time_common.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_time_lib.c src/ultimate_network_lib.c
-TIMEHDR = src/$(TIME)Hdr.s
-TIMEFLG = -C $(TIME)_cc65config.cfg -m $(TIME).map
-
-# Sources and config for GeoUConfig
-CONFSRC = src/config.c src/mount_common.c src/time_common.c src/interface.c src/uultimate_geosassembly.s src/ultimate_common_lib.c src/ultimate_dos_lib.c
-CONFHDR = src/$(CONF)Hdr.s
-CONFFLG = -C $(CONF)_cc65config.cfg -m $(CONF).map
-
-# Hostname of Ultimate II+ target for deployment. Edit for proper IP and usb number
-ULTHOST = ftp://192.168.1.19/usb1/11/
-ULTHOST2 = ftp://192.168.1.31/usb1/11/
-ULTHOST3 = ftp://192.168.1.55/usb0/Geos/
-
-# Data for ZIP file
-ZIP = GeoUTools-v11-$(shell date "+%Y%m%d-%H%M").zip
-ZIPLIST = $(SUITE).d64 $(SUITE).d81 README.pdf README_de.pdf
-
-########################################
 
 .SUFFIXES:
-.PHONY: all clean deploy vice
-all: $(MOUNT).bin $(TIME).bin $(CONF).bin $(SUITE).d81 $(SUITE).d64 $(ZIP)
+.PHONY: all clean apps disks zip docs deploy check-deploy deploy2 check-deploy2
 
-# Building GeoUMount
-$(MOUNT).bin: $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
-	$(CL) $(CFLAGS) $(MOUNTFLG) -o $(MOUNT).bin $(MOUNT).grc $(MOUNTSRC) $(MOUNTHDR)
+all: apps disks $(README) zip
 
-# Building GeoUTime
-$(TIME).bin: $(TIME).grc $(TIMESRC) $(TIMEHDR)
-	$(CL) $(CFLAGS) $(TIMEFLG) -o $(TIME).bin $(TIME).grc $(TIMESRC) $(TIMEHDR)
+apps: $(APPS)
 
-# Building GeoUUConfig
-$(CONF).bin: $(CONF).grc $(CONFSRC) $(CONFHDR)
-	$(CL) $(CFLAGS) $(CONFFLG) -o $(CONF).bin $(CONF).grc $(CONFSRC) $(CONFHDR)
+# ---- applications -----------------------------------------------------
 
-# Creating suite .d81 disk image
-$(SUITE).d81:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d81.gbuild $(TIME).bin $(TIME)Hdr.bin $(TIME)d81.gbuild $(CONF).bin $(CONF)Hdr.bin $(CONF)d81.gbuild
-	$(DEL) $(SUITE).d81 2>$(NULLDEV)
-	$(GBUILD) $(MOUNT)d81.gbuild
-	$(GBUILD) $(TIME)d81.gbuild
-	$(GBUILD) $(CONF)d81.gbuild
-	c1541 -attach $(SUITE).d81 -geoswrite "gEOutOOLS dOCuk.cvt"
-	c1541 -attach $(SUITE).d81 -geoswrite "gEOutOOLS dOKde.cvt"
+build/geoutime.bin: $(TIMESRCS)
+	@$(MKDIR) build 2>$(NULLDEV) ; true
+	$(CC) $(CFLAGS) $(TIMEFLAGS) -o=$@ src/geoutime.c
 
-# Creating suite .d64 disk image
-$(SUITE).d64:		$(MOUNT).bin $(MOUNT)Hdr.bin $(MOUNT)d64.gbuild $(TIME).bin $(TIME)Hdr.bin $(TIME)d64.gbuild $(CONF).bin $(CONF)Hdr.bin $(CONF)d64.gbuild
-	$(DEL) $(SUITE).d64 2>$(NULLDEV)
-	$(GBUILD) $(MOUNT)d64.gbuild
-	$(GBUILD) $(TIME)d64.gbuild
-	$(GBUILD) $(CONF)d64.gbuild
-	c1541 -attach $(SUITE).d64 -geoswrite "gEOutOOLS dOCuk.cvt"
-	c1541 -attach $(SUITE).d64 -geoswrite "gEOutOOLS dOKde.cvt"
+build/geouconfig.bin: $(CONFSRCS)
+	@$(MKDIR) build 2>$(NULLDEV) ; true
+	$(CC) $(CFLAGS) -o=$@ src/geouconfig.c
 
-# Creating ZIP file for distribution
-$(ZIP): $(ZIPLIST)
-	zip $@ $^
+build/geoumount.bin: $(MOUNTSRCS)
+	@$(MKDIR) build 2>$(NULLDEV) ; true
+	$(CC) $(CFLAGS) -o=$@ src/geoumount.c
 
-# Cleaning repo of build files
+build/%.cvt: build/%.bin assets/%.toml
+	$(GEOSAPP) assets/$*.toml $< $@ --set version=$(GEOSVERSION)
+
+# ---- disk images ----------------------------------------------------------
+
+disks: $(DISKS)
+
+build/$(SUITE).d64: $(APPS) $(MANUALS)
+	$(DEL) $@ 2>$(NULLDEV) ; true
+	c1541 -format "geoutools,1A" d64 $@ >$(NULLDEV)
+	for f in $(APPS) $(MANUALS); do c1541 -attach $@ -geoswrite "$$f" >$(NULLDEV) || exit 1; done
+
+build/$(SUITE).d81: $(APPS) $(MANUALS)
+	$(DEL) $@ 2>$(NULLDEV) ; true
+	c1541 -format "geoutools,1A" d81 $@ >$(NULLDEV)
+	for f in $(APPS) $(MANUALS); do c1541 -attach $@ -geoswrite "$$f" >$(NULLDEV) || exit 1; done
+
+# ---- documentation ----------------------------------------------------
+
+# Regenerate the PDFs (pandoc + texlive-xetex); warns and skips without pandoc.
+docs: $(README)
+
+%.pdf: %.md pandoc-defaults.yaml pandoc-header.tex
+	@if which pandoc >$(NULLDEV) 2>&1; then \
+		pandoc --defaults=pandoc-defaults.yaml $< -o $@; \
+	else \
+		echo "WARNING: pandoc not found -- $@ not updated (install: sudo apt install pandoc texlive-xetex)"; \
+	fi
+
+# ---- distribution ---------------------------------------------------------
+
+zip: $(DISKS) $(README)
+	cd build && zip -j $(SUITE)-$(VERSION).zip $(SUITE).d64 $(SUITE).d81 ../README.pdf ../README_de.pdf
+
 clean:
-	$(DEL) $(MOUNT)*.bin $(MOUNT).map $(TIME)*.bin $(TIME).map $(CONF)*.bin $(CONF).map 2>$(NULLDEV)
+	$(RMDIR) build 2>$(NULLDEV) ; true
 
-# To deploy software to UII+ enter make deploy. Obviously C128 needs to powered on with UII+ and USB drive connected.
-deploy: $(SUITE).d81
-	wput -u $(SUITE).d81 $(ULTHOST)
-#	wput -u $(SUITE).d81 $(ULTHOST2)
-#	wput -u $(SUITE).d81 $(ULTHOST3)
+# ---- deployment to an Ultimate ----------------------------------------------
+
+check-deploy:
+	@curl -s --connect-timeout 3 ftp://$(ULTIP1)/ >$(NULLDEV) 2>&1 || \
+		(echo "ERROR: Cannot reach Ultimate device at $(ULTIP1) -- check ULTIP1 in .env" && false)
+
+deploy: check-deploy $(DISKS)
+	wput -u build/$(SUITE).d81 $(ULTFTP1)
+
+check-deploy2:
+ifndef ULTIP2
+	$(error ULTIP2 is not set -- add it to .env to use deploy2)
+endif
+	@curl -s --connect-timeout 3 ftp://$(ULTIP2)/ >$(NULLDEV) 2>&1 || \
+		(echo "ERROR: Cannot reach Ultimate device at $(ULTIP2) -- check ULTIP2 in .env" && false)
+
+deploy2: check-deploy2 $(DISKS)
+	wput -u build/$(SUITE).d81 $(ULTFTP2)

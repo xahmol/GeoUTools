@@ -1,0 +1,11 @@
+# GEOS file header for GeoUTime (geos-oscar64 tools/geosapp.py)
+[file]
+name    = "GeoUTime"
+type    = "AUTO_EXEC"
+class   = "GeoUTime"
+version = "V2.0"
+author  = "Xander Mol"
+info    = "Synchs the GEOS clock and the Ultimate RTC with an NTP server. Auto-exec."
+mode    = "40_80"
+icon    = "timeicon.bin"
+cbmtype = "SEQ"

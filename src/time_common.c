@@ -1,64 +1,24 @@
 /*
-GeoUTime - Common routines
-Utility to synch GEOS system time with NTP server and UII+ RTC clock
-Written in 2023 by Xander Mol
+GeoUTools - GeoUTime settings and time helpers (GeoUTime, GeoUConfig)
+Written in 2023 by Xander Mol, Oscar64 version 2026
 
 https://github.com/xahmol/GeoUTools
-
 https://www.idreamtin8bits.com/
 
 Code and resources from others used:
 
--   Scott Hutter - Ultimate II+ library and GeoUTerm:
+-   Scott Hutter - Ultimate II+ library and GeoUTerm
     https://github.com/xlar54/ultimateii-dos-lib/
-    (library for the UII+ UCI functions. And GeoUTerm as GEOS sample application using this)
-
--   CC65 cross compiler:
-    https://cc65.github.io/
-
--   Daniel England (Daniel England) - GEOSBuild:
-    https://github.com/M3wP/GEOSBuild
-    (buildtool for GEOS disks)
-
--   David Lee - GEOS Image Editor
-    https://www.facebook.com/groups/704637082964003/permalink/5839146806179646
-    (editor for GEOS icons)
-
--   Subchrist Software - SpritePad Pro
-    https://subchristsoftware.itch.io/spritepad-c64-pro
-    (editor used for the file icons)
-
--   Hitchhikers Guide to GEOS v2020
-    Berkeley Softworks / Paul B Murdaugh
-    https://github.com/geos64128/HG2G2020
-
--   Sample sequential application header of GeoProgrammer
-    Berkeley Softworks
+    (now via https://github.com/xahmol/ultimate-uci-oscar64)
 
 -   ntp2ultimate by MaxPlap: code for obtaining time via NTP
     https://github.com/MaxPlap/ntp2ultimate
 
+-   Hitchhikers Guide to GEOS v2022, Berkeley Softworks / Paul B Murdaugh
+    https://github.com/geos64128/HG2G2022
+
 -   Heureks: GEOS64 Programming Examples
     https://codeberg.org/heurekus/C64-Geos-Programming
-    (sample code using C in CC65 for writing applications in GEOS)
-
--   Lyonlabs / Cenbe GEOS resources page:
-    https://www.lyonlabs.org/commodore/onrequest/geos/index.html
-
--   Bo Zimmerman GEOS resources page:
-    http://www.zimmers.net/geos/
-
--   CVM Files GEOS disk images
-    https://cbmfiles.com/geos/geos-13.php
-
--   GEOS - Wheels - GeoWorks - MegaPatch - gateWay - BreadBox Facebook Group
-    https://www.facebook.com/groups/704637082964003/permalink/5839146806179646
-
--   Bart van Leeuwen for testing and providing the Device Manager ROM and GEOS RAM Boot
-
--   Gideon Zweijtzer for creating the Ultimate II+ cartridge and the Ultimate64, and the Ultimate Command Interface enabling this software.
-   
--   Tested using real hardware (C128D, C128DCR, Ultimate 64) using GEOS128 2.0, GEOS64 2.0 and Megapatch3 128.
 
 Licensed under the GNU General Public License v3.0
 
@@ -73,115 +33,126 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 #include <string.h>
 #include <stdlib.h>
 #include <geos.h>
-#include <peekpoke.h>
 #include "defines.h"
 #include "time_common.h"
 
-// Global variables
 char buffer[81];
-long secondsfromutc = 3600; 
-char host[81] = "pool.ntp.org";
-unsigned char verbose = 0;
-unsigned char ntpon = 1;
-char configbuffer[95];
-char filename[13] = "GeoUTimeDat";
 
-// Declare config file header
-struct fileheader configfileHdr = {
-    {0,0},
-    {3, 21, 63 | 0x80 },
-    {   0xC0,0x3C,0x00,0xF0,0x3C,0x00,0xF0,0x3C,0x00,0xF0,0x3C,0x00,0x00,0x03,0xE0,0xF0,
-        0x03,0xC0,0x00,0x03,0x00,0xF0,0x00,0x00,0x00,0x03,0x00,0xF0,0x03,0xC0,0x00,0x03,
-        0xE0,0xF0,0x3C,0x00,0xF0,0x3C,0x38,0xF0,0x3C,0x44,0xF8,0x3C,0x92,0xFF,0xFD,0x11,
-        0x7F,0xFD,0x1D,0x3F,0xFD,0x01,0x0F,0xFC,0x82,0x00,0x00,0x44,0x00,0x00,0x38},
-    0x83,
-    0x07,
-    0x00,
-    0,
-    0,
-    0,
-    {'G','e','o','U','T','i','m','e','D','a','t','a','V','1','.','1',0,0,0},
-    0x00,
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-     'G','e','o','U','C','o','n','f','i','g',' ',' ','V','1','.','1',0},
-    {"Config file for GeoUTools."}
+long secondsfromutc = 3600;
+char host[81] = "pool.ntp.org";
+char verbose = 0;
+char ntpon = 1;
+char configfilename[13] = "GeoUTimeDat";
+
+// Data file layout (95 bytes, unchanged since 1.0 so older files load):
+//   0-79  NTP host name (null-terminated)
+//   80-91 UTC offset in seconds, decimal text
+//   92    verbose flag, '0'/'1'
+//   93    NTP on flag, '0'/'1'
+//   94    file version, '0' + CONFIGFILEVERSION
+static char configbuffer[95];
+
+// GEOS file header for the data file. The first word points to the file
+// name when SaveFile is called (set in ConfigSave). Class "GeoUTimeData"
+// V1.1, parent application GeoUConfig (opened on double click).
+static struct fileheader configfileHdr = {
+	{0, 0},
+	{3, 21, 63 | 0x80},
+	{   0xC0,0x3C,0x00,0xF0,0x3C,0x00,0xF0,0x3C,0x00,0xF0,0x3C,0x00,0x00,0x03,0xE0,0xF0,
+	    0x03,0xC0,0x00,0x03,0x00,0xF0,0x00,0x00,0x00,0x03,0x00,0xF0,0x03,0xC0,0x00,0x03,
+	    0xE0,0xF0,0x3C,0x00,0xF0,0x3C,0x38,0xF0,0x3C,0x44,0xF8,0x3C,0x92,0xFF,0xFD,0x11,
+	    0x7F,0xFD,0x1D,0x3F,0xFD,0x01,0x0F,0xFC,0x82,0x00,0x00,0x44,0x00,0x00,0x38},
+	0x83,				// USR
+	APPL_DATA,
+	SEQUENTIAL,
+	0, 0, 0,
+	{'G','e','o','U','T','i','m','e','D','a','t','a','V','1','.','1',0,0,0},
+	0x00,
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	 'G','e','o','U','C','o','n','f','i','g',' ',' ','V','1','.','1',0},
+	"Config file for GeoUTools."
 };
 
-// Config save and load routines
+void ConfigSave(void)
+{
+	char error;
 
-void ConfigSave() {
-// Save configuration file
+	memset(configbuffer, 0, sizeof(configbuffer));
+	strncpy(configbuffer, host, 79);
+	sprintf(configbuffer + 80, "%ld", secondsfromutc);
+	configbuffer[92] = verbose + '0';
+	configbuffer[93] = ntpon + '0';
+	configbuffer[94] = CONFIGFILEVERSION + '0';
 
-    unsigned char error;
+	configfileHdr.n_block.track = (unsigned)configfilename & 0xff;
+	configfileHdr.n_block.sector = (unsigned)configfilename >> 8;
+	configfileHdr.load_address = (unsigned)configbuffer;
+	configfileHdr.end_address = (unsigned)configbuffer + sizeof(configbuffer);
 
-    // Clear configbuffer'
-    memset(configbuffer,0,95);
-
-    // Copy host to savebuffer
-    CopyString(configbuffer, host);
-
-    // Copy UTC offset to savebuffer
-    sprintf(configbuffer+80,"%ld",secondsfromutc);
-
-    // Copy verbose flag to savebuffer
-    configbuffer[92] = verbose+48;
-
-    // Copy NTP on flag to savebuffer
-    configbuffer[93] = ntpon+48;
-
-    // Copy config file version
-    configbuffer[94] = configfileversion + 48;
-
-    // Set fileheader for save file
-    POKEW((int)&configfileHdr.n_block,(int)&filename);
-    configfileHdr.load_address = (int)configbuffer;
-    configfileHdr.end_address= (int)configbuffer + 95;
-
-    // Delete old file
-    DeleteFile(filename);
-
-    // Save file to disk
-    error = SaveFile(0,&configfileHdr);
-
-    if(error) {
-        sprintf(buffer,"Error: %d",error);
-        DlgBoxOk("Error saving config file",buffer);
-    }
+	DeleteFile(configfilename);
+	error = SaveFile(0, &configfileHdr);
+	if (error) {
+		sprintf(buffer, "Error: %d", error);
+		DlgBoxOk("Error saving config file", buffer);
+	}
 }
 
-void ConfigLoad() {
-// Load configuration file
+void ConfigLoad(void)
+{
+	char error;
 
-    unsigned char error;
-    char* ptrend;
+	error = GetFile(ST_LD_AT_ADDR, configfilename, configbuffer, NULL, NULL);
+	if (error) {
+		// No file yet: create one with the defaults. (GeoUTools 1.x had
+		// "error = FILE_NOT_FOUND" here, which treated every error so.)
+		if (error == FILE_NOT_FOUND)
+			ConfigSave();
+		else {
+			sprintf(buffer, "Error: %d", error);
+			DlgBoxOk("Error loading config file", buffer);
+		}
+		return;
+	}
 
-    // Load config file
-    error = GetFile(1,filename,configbuffer,NULL,NULL);
+	verbose = configbuffer[92] - '0';
+	ntpon = configbuffer[93] - '0';
+	strncpy(host, configbuffer, 80);
+	host[80] = 0;
+	secondsfromutc = strtol(configbuffer + 80, NULL, 10);
+}
 
-    // Error handling
-    if(error)
-    {
-        // If file does not exist, create one with default values
-        if(error=FILE_NOT_FOUND) {
-            ConfigSave();
-        }
-        // Print message on other errors
-        else {
-            sprintf(buffer,"Error: %d",error);
-            DlgBoxOk("Error loading config file",buffer);
-        }
-        return;
-    }
+// Days in each month of a non-leap year
+static const char month_days[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    // Reading verbose flag
-    verbose = configbuffer[92]-48;
+void unix_to_datetime(unsigned long t, struct datetime *dt)
+{
+	unsigned days = (unsigned)(t / 86400ul);
+	unsigned long rest = t % 86400ul;
+	unsigned year = 1970, ylen;
+	char month = 0, mlen;
 
-    // Reading ntp on flag
-    ntpon = configbuffer[93]-48;
+	dt->hour = (char)(rest / 3600);
+	rest %= 3600;
+	dt->minute = (char)(rest / 60);
+	dt->second = (char)(rest % 60);
 
-    // Reading hostname
-    CopyFString(80, host, configbuffer);
-
-    // Reading UTC offset
-    secondsfromutc = strtol(configbuffer+80,&ptrend,10);
+	for (;;) {
+		ylen = (year & 3) ? 365 : 366;		// valid 1901-2099
+		if (days < ylen)
+			break;
+		days -= ylen;
+		year++;
+	}
+	for (;;) {
+		mlen = month_days[month];
+		if (month == 1 && !(year & 3))
+			mlen = 29;
+		if (days < mlen)
+			break;
+		days -= mlen;
+		month++;
+	}
+	dt->year = (char)(year - 1900);
+	dt->month = month + 1;
+	dt->day = (char)days + 1;
 }

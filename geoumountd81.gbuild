@@ -1,6 +1,0 @@
-[build]
-Disk="GeoUTools.d81"
-Header="geoumountHdr.bin"
-
-[Sequential]
-Data="geoumount.bin"

@@ -1,7 +1,7 @@
 /*
 GeoUTools
 GUI interface elements
-Written in 2023 by Xander Mol
+Written in 2023 by Xander Mol, Oscar64 version 2026
 
 https://github.com/xahmol/GeoUTools
 
@@ -71,40 +71,36 @@ BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <geos.h>
 #include "defines.h"
 #include "interface.h"
 
-// Global variables
 char version[25];
-unsigned int screen_pixel_width;
-unsigned char osType = 0;
-unsigned char vdc = 0;
+unsigned screen_pixel_width;
+char osType = 0;
+char vdc = 0;
 char appname[21];
-unsigned char windowflag = 0;
+char windowflag = 0;
 
-// Window definitions
-struct window *winMain;
-struct window *winHeader;
-struct window *winInterface;
-struct window *winIntShadow;
-struct window *winIntRecover;
+const struct window *winMain;
+const struct window *winHeader;
+const struct window *winInterface;
+const struct window *winIntShadow;
+const struct window *winIntRecover;
 
-struct window vic_winHdr = {0, 14, 200, SC_PIX_WIDTH-1 };
-struct window vic_winMain = {15, SC_PIX_HEIGHT-1, 0, SC_PIX_WIDTH-1};
-struct window vic_winInt = {50,150,40,279};
-struct window vic_winShd = {58,158,48,287};
-struct window vic_winRec = {50,158,40,287};
+const struct window vic_winHdr = {0, 14, 200, SC_PIX_WIDTH - 1};
+const struct window vic_winMain = {15, SC_PIX_HEIGHT - 1, 0, SC_PIX_WIDTH - 1};
+const struct window vic_winInt = {50, 150, 40, 279};
+const struct window vic_winShd = {58, 158, 48, 287};
+const struct window vic_winRec = {50, 158, 40, 287};
 
-struct window vdc_winHdr = {0, 14, 400, SCREENPIXELWIDTH-1 };
-struct window vdc_winMain = {15, SC_PIX_HEIGHT-1, 0, SCREENPIXELWIDTH-1};
-struct window vdc_winInt = {50,150,120,520};
-struct window vdc_winShd = {58,158,136,536};
-struct window vdc_winRec = {50,158,120,536};
+const struct window vdc_winHdr = {0, 14, 400, SCREENPIXELWIDTH - 1};
+const struct window vdc_winMain = {15, SC_PIX_HEIGHT - 1, 0, SCREENPIXELWIDTH - 1};
+const struct window vdc_winInt = {50, 150, 120, 520};
+const struct window vdc_winShd = {58, 158, 136, 536};
+const struct window vdc_winRec = {50, 158, 120, 536};
 
-// Icons
-char IconOK[] = {
+const char IconOK[] = {
 	0x05, 0xFF, 0x82, 0xFE, 0x80, 0x04, 0x00, 0x82,
 	0x03, 0x80, 0x04, 0x00, 0xB8, 0x03, 0x80, 0x00,
 	0xF8, 0xC6, 0x00, 0x03, 0x80, 0x01, 0x8C, 0xCC,
@@ -118,208 +114,148 @@ char IconOK[] = {
 	0x81, 0x7F, 0x05, 0xFF
 };
 
-struct icontab *icons;
-struct icontab *mainicons;
-struct icontab *winOK;
+const struct icontab *icons;
+const struct icontab *mainicons;
+const struct icontab *winOK;
+static const struct icontab *vic_mainicons, *vdc_mainicons;
 
-struct icontab noicons = {
-    1,
-    { 0,0 },
-    { 0, 0, 0, 1, 1, 0 }
-};
+GEOS_CALLBACK(closewindow_cb, CloseWindow)
 
-struct icontab vic_winOK = {
-    1,
-    { 0,0 },
-    { IconOK, 28, 130, 6, 16, (int)CloseWindow }
-};
+const GEOS_ICONTAB(1) noicons = { 1, {0, 0}, { {0, 0, 0, 1, 1, 0} } };
+static const GEOS_ICONTAB(1) vic_winOK = { 1, {0, 0}, { {IconOK, 28, 130, 6, 16, closewindow_cb} } };
+static const GEOS_ICONTAB(1) vdc_winOK = { 1, {0, 0}, { {IconOK, 52, 130, 6 | DOUBLE_B, 16, closewindow_cb} } };
 
-struct icontab vdc_winOK = {
-    1,
-    { 0,0 },
-    { IconOK, 52, 130, 6 | DOUBLE_B, 16, (int)CloseWindow }
-};
-
-// Screen functions
-
-void SetRectangleCoords(unsigned char top, unsigned char bottom, unsigned int left, unsigned int right) {
-// Set the co-ordinates to use for rectangle functions
-
-    drawWindow.top = top;
-    drawWindow.bot = bottom;
-    drawWindow.left = left;
-    drawWindow.right = right;
+void SetRectangleCoords(char top, char bottom, unsigned left, unsigned right)
+{
+	drawWindow.top = top;
+	drawWindow.bot = bottom;
+	drawWindow.left = left;
+	drawWindow.right = right;
 }
 
-int StringLength (char* inputstring) {
-// Return the length of a string in pixels in the presently used font
-
-    unsigned char x;
-    unsigned char lengthchar = strlen(inputstring);
-    unsigned int lengthpixel = 0;
-
-    for(x=0;x<lengthchar;x++) { lengthpixel += GetCharWidth(inputstring[x]); }
-
-    return lengthpixel;
+// Width of a string in pixels in the current font.
+unsigned StringLength(const char *s)
+{
+	unsigned w = 0;
+	while (*s)
+		w += GetCharWidth(*s++);
+	return w;
 }
 
-void PutStringCentered(char* inputstring, unsigned char bottom, unsigned int left, unsigned int right) {
-// Print a string centered in the given area co-ordinates
-
-    unsigned int width = StringLength(inputstring);
-    if(right-left>width)
-    {
-        PutString(inputstring,bottom,((left+right)/2)-(width/2));
-    }
+void PutStringCentered(const char *s, char bottom, unsigned left, unsigned right)
+{
+	unsigned width = StringLength(s);
+	if (right - left > width)
+		PutString(s, bottom, ((left + right) / 2) - (width / 2));
 }
 
-void PutStringRight(char* inputstring, unsigned char bottom, unsigned int left, unsigned int right) {
-// Print a string right aligned in the given area co-ordinates
-
-    unsigned int width = StringLength(inputstring);
-    if(right-left>width)
-    {
-        PutString(inputstring,bottom,right-width);
-    }
+void PutStringRight(const char *s, char bottom, unsigned left, unsigned right)
+{
+	unsigned width = StringLength(s);
+	if (right - left > width)
+		PutString(s, bottom, right - width);
 }
 
-int CreateWindow() {
-// Creates a window at the default co-ordinates given the mode (40/80 column) used
-// Returns the x co-ordinate for output to this window
+// Open the standard window (40 or 80 columns); returns the x coordinate
+// for text in it.
+unsigned CreateWindow(void)
+{
+	unsigned xcoord;
 
-    unsigned int xcoord = 0;
+	// Disable menus while the window is open
+	mouseOn = SET_MSE_ON + SET_ICONSON;
 
-    // Disable menus to avoid unwanted interference
-    mouseOn = SET_MSE_ON + SET_ICONSON;
-
-    // Set co-ordinates based on which screen mode (40/80) is used
-	if (vdc)
-	{
-		// == 0x80 - 80 col mode
+	if (vdc) {
 		winInterface = &vdc_winInt;
-        winIntShadow = &vdc_winShd;
-        winIntRecover = &vdc_winRec;
-        winOK = &vdc_winOK;
-        xcoord = 130;
+		winIntShadow = &vdc_winShd;
+		winIntRecover = &vdc_winRec;
+		winOK = (const struct icontab *)&vdc_winOK;
+		xcoord = 130;
+	} else {
+		winInterface = &vic_winInt;
+		winIntShadow = &vic_winShd;
+		winIntRecover = &vic_winRec;
+		winOK = (const struct icontab *)&vic_winOK;
+		xcoord = 45;
 	}
-    else
-    {
-        winInterface = &vic_winInt;
-        winIntShadow = &vic_winShd;
-        winIntRecover = &vic_winRec;
-        winOK = &vic_winOK;
-        xcoord = 45;
-    }
 
-    // Draw window, shadow and frame
-    dispBufferOn = ST_WR_FORE;
-    SetPattern(1);
-    InitDrawWindow (winIntShadow);
-    Rectangle();  // Shadow
-    SetPattern(0);
-    InitDrawWindow (winInterface);
-    Rectangle();  // Window
-    FrameRectangle(255);    // Frame
+	dispBufferOn = ST_WR_FORE;
+	SetPattern(1);
+	InitDrawWindow(winIntShadow);
+	Rectangle();
+	SetPattern(0);
+	InitDrawWindow(winInterface);
+	Rectangle();
+	FrameRectangle(255);
 
-    // Set window flag so other mouse clicks know not to react
-    windowflag = 1;
-
-    // Returns the x co-ordinate for output to this window
-    return xcoord;
+	windowflag = 1;
+	return xcoord;
 }
 
-void WinOKButton() {
-// Shows OK button to end a dialogue window
-
-    // Shows OK icon and enables icons
-    icons = winOK;
-    DoIcons(icons);
+// OK icon that closes the window.
+void WinOKButton(void)
+{
+	icons = winOK;
+	DoIcons(icons);
 }
 
-void CloseWindow() {
-// Closes the last opened window and recovers background
-
-    // Enable menus again
-    mouseOn = SET_MSE_ON + SET_MENUON + SET_ICONSON;
-
-    // Clear OK icon
-    icons = mainicons;
-    DoIcons(icons);
-
-    // Recover background
-    InitDrawWindow (winIntRecover);
-    dispBufferOn = ST_WR_FORE + ST_WR_BACK;
-    RecoverRectangle();
-
-    // Clear window flag
-    windowflag = 0;
+// Close the window: restore the main icons, menus and the background.
+void CloseWindow(void)
+{
+	mouseOn = SET_MSE_ON + SET_MENUON + SET_ICONSON;
+	icons = mainicons;
+	DoIcons(icons);
+	InitDrawWindow(winIntRecover);
+	dispBufferOn = ST_WR_FORE + ST_WR_BACK;
+	RecoverRectangle();
+	windowflag = 0;
 }
 
-void ReinitScreen(char *s) {
-// Initialise main screen
-// Input:   App name as string s
-	
-	unsigned short hdrY = 0;
+// Draw the main screen with the application name s for the current mode
+// (C64, C128 40 or 80 columns); vicicons/vdcicons are the application's
+// main icon tables for 40 and 80 columns.
+void ReinitScreen(const char *s, const struct icontab *vicicons, const struct icontab *vdcicons)
+{
+	unsigned hdrY;
 
-    // Set co-ordinates based on which screen mode (40/80) is used
-	if ((osType & GEOS64) == GEOS64) // c64
-	{
+	vic_mainicons = vicicons;
+	vdc_mainicons = vdcicons;
+
+	if ((osType & GEOS128) && (graphMode & 0x80)) {
+		screen_pixel_width = SCREENPIXELWIDTH;
+		winHeader = &vdc_winHdr;
+		winMain = &vdc_winMain;
+		hdrY = 400;
+		vdc = 1;
+		mainicons = vdc_mainicons;
+	} else {
 		screen_pixel_width = SC_PIX_WIDTH;
 		winHeader = &vic_winHdr;
 		winMain = &vic_winMain;
 		hdrY = 200;
 		vdc = 0;
-        mainicons = &vic_mainicons;
+		mainicons = vic_mainicons;
 	}
-	
-	if ((osType & GEOS128) == GEOS128) // c128
-	{
-		if((graphMode & 0x80) == 0x00)
-		{
-			// 40 col mode
-			screen_pixel_width = SC_PIX_WIDTH;
-			winHeader = &vic_winHdr;
-			winMain = &vic_winMain;
-			hdrY = 200;
-			vdc = 0;
-            mainicons = &vic_mainicons;
-		}
-		else if((graphMode & 0x80) == 0x80)
-		{
-			// == 0x80 - 80 col mode
-			screen_pixel_width = SCREENPIXELWIDTH;
-			winHeader = &vdc_winHdr;
-			winMain = &vdc_winMain;
-			hdrY = 400;
-			vdc = 1;
-            mainicons = &vdc_mainicons;
-		}
-	}
+	icons = mainicons;
 
-    // Set icons
-    icons = mainicons;
-	
-    // Clear main screen
-    SetPattern(2);
-    SetRectangleCoords(0,SC_PIX_HEIGHT-1,0,screen_pixel_width-1);
-    Rectangle();
-	SetPattern(0);
-	InitDrawWindow (winMain);
+	SetPattern(2);
+	SetRectangleCoords(0, SC_PIX_HEIGHT - 1, 0, screen_pixel_width - 1);
 	Rectangle();
-    FrameRectangle(255);
+	SetPattern(0);
+	InitDrawWindow(winMain);
+	Rectangle();
+	FrameRectangle(255);
 
-    // Draw header
 	SetPattern(0);
-	InitDrawWindow (winHeader);
+	InitDrawWindow(winHeader);
 	Rectangle();
-	HorizontalLine(255, 1, hdrY, screen_pixel_width-1);
-	HorizontalLine(255, 4, hdrY, screen_pixel_width-1);
-	HorizontalLine(255, 6, hdrY, screen_pixel_width-1);
-	HorizontalLine(255, 8, hdrY, screen_pixel_width-1);
-	HorizontalLine(255, 10, hdrY, screen_pixel_width-1);
-	HorizontalLine(255, 13, hdrY, screen_pixel_width-1);
-	
-    // Draw application name
+	HorizontalLine(255, 1, hdrY, screen_pixel_width - 1);
+	HorizontalLine(255, 4, hdrY, screen_pixel_width - 1);
+	HorizontalLine(255, 6, hdrY, screen_pixel_width - 1);
+	HorizontalLine(255, 8, hdrY, screen_pixel_width - 1);
+	HorizontalLine(255, 10, hdrY, screen_pixel_width - 1);
+	HorizontalLine(255, 13, hdrY, screen_pixel_width - 1);
+
 	UseSystemFont();
-	PutStringCentered (s, 9, hdrY,screen_pixel_width-1);
+	PutStringCentered(s, 9, hdrY, screen_pixel_width - 1);
 }

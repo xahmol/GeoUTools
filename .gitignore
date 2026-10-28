@@ -50,3 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Local deployment and toolchain config
+.env
+
+# Build outputs
+build/
+__pycache__/
+
+# Release ZIPs in project root (older builds)
+GeoUTools-v*.zip

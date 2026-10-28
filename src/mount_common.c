@@ -1,7 +1,6 @@
 /*
-GeoUMount - Common routines
-Utility to synch GEOS system time with NTP server and UII+ RTC clock
-Written in 2023 by Xander Mol
+GeoUTools - drive detection and GeoUMount settings (GeoUMount, GeoUConfig)
+Written in 2023 by Xander Mol, Oscar64 version 2026
 
 https://github.com/xahmol/GeoUTools
 
@@ -69,174 +68,126 @@ THE PROGRAMS ARE DISTRIBUTED IN THE HOPE THAT THEY WILL BE USEFUL,
 BUT WITHOUT ANY WARRANTY. USE THEM AT YOUR OWN RISK!
 */
 
-#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <geos.h>
-#include <peekpoke.h>
 #include "defines.h"
+#include "uci_io.h"
 #include "mount_common.h"
-#include "ultimate_common_lib.h"
-#include "ultimate_dos_lib.h"
+#include <ultimate_common_lib.h>
+#include <ultimate_dos_lib.h>
 
-// Global variables
-unsigned char validdrive[4] = {0,0,0,0};
-char drivetypes[8][14] = {
-    "No target",
-    "Emulated 1541",
-    "Emulated 1571",
-    "Emulated 1581",
-    "RAM 1541",
-    "RAM 1571",
-    "RAM 1581",
-    "RAM DNP"
+char validdrive[4];
+const char drivetypes[8][14] = {
+	"No target",
+	"Emulated 1541",
+	"Emulated 1571",
+	"Emulated 1581",
+	"RAM 1541",
+	"RAM 1571",
+	"RAM 1581",
+	"RAM DNP"
 };
-char entrytypes[7][4] = {
-    "DIR",
-    "D64",
-    "D71",
-    "D81",
-    "DNP",
-    "!TL",
-    "!IS"
-};
+const char entrytypes[7][4] = { "DIR", "D64", "D71", "D81", "DNP", "!TL", "!IS" };
 char drivetypeID[4];
 char ramdiskID[8];
-unsigned char targetdrive;
+char targetdrive;
 struct mconfig mountconfig;
-unsigned char firmwareflag;
+char firmwareflag;
 
-// Common routines for GeoUMount and GeoUConfig
-unsigned char CheckStatus() {
-// Function to check UII+ status and print error box if applicable
-
-    if (!uii_success()) {
-        DlgBoxOk("Ultimate Command Interface error!",(const char *)uii_status);
-        return 1;
-    }
-    return 0;
+// UCI status check with an error box.
+char CheckStatus(void)
+{
+	if (!UII_SUCCESS) {
+		DlgBoxOk("Ultimate Command Interface error!", uii_status);
+		return 1;
+	}
+	return 0;
 }
 
-unsigned char Checkcommandsupport() {
-// Function to check if command is supported in present firmware
-
-    if(uii_status[0] == '2' && uii_status[1] =='1') {
-        return 1;
-    } else {
-        return 0;
-    }
+// 1 if the firmware does not know the last command (status "21").
+char Checkcommandsupport(void)
+{
+	return uii_status[0] == '2' && uii_status[1] == '1';
 }
 
-void ReadConfigdata() {
-// Read configuration data from the application file header
-// Application data area is at byte 40 to 63 from the author section of the fileheader Struct
-
-    mountconfig.auto_override   = fileHeader.author[40];
-    mountconfig.valid[0]        = fileHeader.author[41];
-    mountconfig.valid[1]        = fileHeader.author[42];
-    mountconfig.valid[2]        = fileHeader.author[43];
-    mountconfig.valid[3]        = fileHeader.author[44];
-    mountconfig.target          = fileHeader.author[45];
+// Settings from GeoUMount's file header, which GEOS loaded into fileHeader
+// ($8100) when it started the application.
+void ReadConfigdata(void)
+{
+	memcpy(&mountconfig, (const char *)&fileHeader.author[MCONFIG_OFFSET], sizeof(mountconfig));
 }
 
-void SetValidDrives() {
-// Initialise variables to defines which drive IDs are valid targets
+// Determine which GEOS drives (A-D) can take a mounted image: Ultimate
+// emulated drives and GEOS RAM drives in the REU (firmware 3.10f+), or the
+// manual settings.
+void SetValidDrives(void)
+{
+	char drive, ok;
 
-    unsigned char drive;
+	targetdrive = 0;
+	firmwareflag = 0;
 
-    targetdrive = 0;
-    firmwareflag = 0;
+	memcpy(drivetypeID, (const char *)DRIVETYPES, 4);
 
-    // Get GEOS drive types
-    CopyFString(4,drivetypeID,(char *) (DRIVETYPES));
-
-    // Initialize DOS target of Ultimate Command Interface
-    enableIO();
-
-    if(!uii_detect()) { restoreIO(); DlgBoxOk("No Ultimate Command Interface","Press OK to abort."); EnterDeskTop(); }
-
-	uii_settarget(TARGET_DOS1);
-    if(uii_isdataavailable())
-	{
-		uii_abort();
+	ok = uci_detect();
+	if (!ok) {
+		DlgBoxOk("No Ultimate Command Interface", "Press OK to abort.");
+		EnterDeskTop();
 	}
 
-    // Set dir at home dir
-    uii_change_dir_home();
+	enableIO();
+	uii_settarget(TARGET_DOS1);
+	if (uii_isdataavailable())
+		uii_abort();
+	uii_change_dir_home();
 
-    // Get RAM disk info from UCI
-    memset(ramdiskID,0,8);
-    uii_get_ramdisk_info();
-    restoreIO();
-    if(!Checkcommandsupport()) {
-        // Only set RAMdisk info if command is supported in firmware
-        CopyFString(8,ramdiskID,uii_data);
-    }
-    else
-    {
-        firmwareflag = 1;
-    }
+	// RAM disk information (firmware 3.10f+)
+	memset(ramdiskID, 0, 8);
+	uii_get_ramdisk_info();
+	restoreIO();
+	if (!Checkcommandsupport())
+		memcpy(ramdiskID, uii_data, 8);
+	else
+		firmwareflag = 1;
 
-    // Get device info from UCI
-    enableIO();
-    uii_get_deviceinfo();
-	restoreIO();    
-    if(Checkcommandsupport()) {
-        mountconfig.auto_override = 1;
-        firmwareflag = 2;
-    }
+	// Emulated drive information
+	enableIO();
+	uii_get_deviceinfo();
+	restoreIO();
+	if (Checkcommandsupport()) {
+		mountconfig.auto_override = 1;
+		firmwareflag = 2;
+	}
 
-    if(mountconfig.auto_override) {
-    // Set valid drives with the override settings in the config data
-        
-        for(drive=0;drive<4;drive++) {
-            validdrive[drive] = mountconfig.valid[drive];
-        }
+	if (mountconfig.auto_override) {
+		for (drive = 0; drive < 4; drive++)
+			validdrive[drive] = mountconfig.valid[drive];
+	} else {
+		for (drive = 0; drive < 4; drive++) {
+			validdrive[drive] = 0;
+			// Ultimate emulated drive A or B with this device number
+			if ((uii_data[2] == drive + 8 && uii_data[3]) ||
+			    (uii_data[5] == drive + 8 && uii_data[6])) {
+				if (drivetypeID[drive] < 4) {
+					validdrive[drive] = drivetypeID[drive];
+					if (!targetdrive)
+						targetdrive = drive + 1;
+				}
+			}
+			// GEOS RAM drive known to the Ultimate
+			if (ramdiskID[2 * drive]) {
+				switch (ramdiskID[2 * drive]) {
+				case 0x41: validdrive[drive] = 4; break;
+				case 0x71: validdrive[drive] = 5; break;
+				case 0x81: validdrive[drive] = 6; break;
+				case 0xdd: validdrive[drive] = 7; break;
+				}
+				if (!targetdrive)
+					targetdrive = drive + 1;
+			}
+		}
+	}
 
-    } else {
-    // Set valid drives with auto detection
-
-        for(drive=0;drive<4;drive++)
-        {
-            validdrive[drive]=0;
-
-            // Check if drive ID is an Ulimate emulated drive
-            if( ( uii_data[2] == (drive + 8) && uii_data[3] ) ||
-                ( uii_data[5] == (drive+8) && uii_data[6]) ) {
-                if(drivetypeID[drive]<4) {
-                    validdrive[drive] = drivetypeID[drive];
-                    if(!targetdrive) { targetdrive = drive+1; }
-                }
-            }
-
-            // Check if drive ID is a supported RAM drive
-            if(ramdiskID[2*drive]) {
-                switch (ramdiskID[2*drive])
-                {
-                case 0x41:
-                    validdrive[drive]=4;
-                    break;
-
-                case 0x71:
-                    validdrive[drive]=5;
-                    break;
-
-                case 0x81:
-                    validdrive[drive]=6;
-                    break;
-
-                case 0xdd:
-                    validdrive[drive]=7;
-                    break;
-
-                default:
-                    break;
-                }
-                if(!targetdrive) { targetdrive = drive+1; }
-            }
-        }
-    }
-
-    // Set target drive to override if set and valid
-    if(mountconfig.target && validdrive[mountconfig.target-1]) { targetdrive = mountconfig.target; }
+	if (mountconfig.target && validdrive[mountconfig.target - 1])
+		targetdrive = mountconfig.target;
 }

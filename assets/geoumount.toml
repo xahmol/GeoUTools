@@ -1,0 +1,11 @@
+# GEOS file header for GeoUMount (geos-oscar64 tools/geosapp.py)
+[file]
+name    = "GeoUMount"
+type    = "APPLICATION"
+class   = "GeoUMount"
+version = "V2.0"
+author  = "Xander Mol"
+info    = "Disk image mounter for the Ultimate II+, Ultimate 64 and C64 Ultimate in GEOS."
+mode    = "40_80"
+icon    = "mounticon.bin"
+cbmtype = "SEQ"

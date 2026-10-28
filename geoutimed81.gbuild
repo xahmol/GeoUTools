@@ -1,6 +1,0 @@
-[build]
-Disk="GeoUTools.d81"
-Header="geoutimeHdr.bin"
-
-[Sequential]
-Data="geoutime.bin"

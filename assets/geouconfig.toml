@@ -1,0 +1,11 @@
+# GEOS file header for GeoUConfig (geos-oscar64 tools/geosapp.py)
+[file]
+name    = "GeoUConfig"
+type    = "APPLICATION"
+class   = "GeoUConfig"
+version = "V2.0"
+author  = "Xander Mol"
+info    = "Settings for GeoUTime and GeoUMount."
+mode    = "40_80"
+icon    = "configicon.bin"
+cbmtype = "SEQ"
